@@ -1,4 +1,3 @@
-import React from "react";
 import "./Transparency.css";
 
 export default function Transparency() {

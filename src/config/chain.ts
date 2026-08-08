@@ -5,8 +5,7 @@ export interface Token {
     name: string;
     address: string;
     decimals: number;
-
-    // Optional
+    logo?: string;
     isWrappedNative?: boolean;
 }
 
@@ -20,7 +19,7 @@ export interface Chain {
     factory: string;
     wrappedNative: string;
     nativeSymbol: string;
-    multicall3: string;
+    multicall3?: string;
     tokens: Token[];
 }
 

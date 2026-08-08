@@ -2,14 +2,16 @@ import {
     createContext,
     useContext,
     useEffect,
-    useState,
+    useState
+} from "react";
+
+import type {
     ReactNode
 } from "react";
 
 import {
     BrowserProvider,
-    JsonRpcSigner,
-    ethers
+    JsonRpcSigner
 } from "ethers";
 
 import type { Chain } from "../config/chain";

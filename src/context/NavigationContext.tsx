@@ -1,14 +1,12 @@
 import {
     createContext,
     useContext,
-    useState,
-    ReactNode
+    useState
 } from "react";
 
-
-/* =========================================================
-   AVAILABLE PAGES
-   ========================================================= */
+import type {
+    ReactNode
+} from "react";
 
 export type Page =
     | "swap"
@@ -17,105 +15,69 @@ export type Page =
     | "removeLiquidity"
     | "settings"
     | "transparency"
-    | "roadmap";
-
-
-/* =========================================================
-   NAVIGATION CONTEXT TYPE
-   ========================================================= */
+    | "docs";
 
 type NavigationContextType = {
-
     page: Page;
-
     data: any;
 
     navigate: (
         page: Page,
         data?: any
     ) => void;
-
 };
-
-
-/* =========================================================
-   CONTEXT
-   ========================================================= */
 
 const NavigationContext =
     createContext<NavigationContextType | null>(null);
 
-
-/* =========================================================
-   PROVIDER
-   ========================================================= */
-
 export function NavigationProvider({
-
     children
-
 }: {
-
     children: ReactNode;
-
 }) {
 
-    const [page, setPage] =
-        useState<Page>("swap");
+    const [
+        page,
+        setPage
+    ] = useState<Page>("swap");
 
-    const [data, setData] =
-        useState<any>(null);
-
+    const [
+        data,
+        setData
+    ] = useState<any>(null);
 
     function navigate(
-
-        page: Page,
-
-        data?: any
-
+        nextPage: Page,
+        nextData?: any
     ) {
 
-        setPage(page);
+        setPage(nextPage);
 
-        setData(data ?? null);
+        setData(
+            nextData ?? null
+        );
 
     }
 
-
     return (
-
         <NavigationContext.Provider
-
             value={{
-
                 page,
-
                 data,
-
                 navigate
-
             }}
-
         >
-
             {children}
-
         </NavigationContext.Provider>
-
     );
-
 }
-
-
-/* =========================================================
-   HOOK
-   ========================================================= */
 
 export function useNavigation() {
 
     const context =
-        useContext(NavigationContext);
-
+        useContext(
+            NavigationContext
+        );
 
     if (!context) {
 
@@ -125,7 +87,5 @@ export function useNavigation() {
 
     }
 
-
     return context;
-
 }
