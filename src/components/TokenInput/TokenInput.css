@@ -1,0 +1,108 @@
+.tokenInput {
+    background: #171717;
+    border: 1px solid #262626;
+    border-radius: 20px;
+    padding: 10px 14px;
+    transition: .25s;
+}
+
+.tokenInput:hover {
+    border-color: #14C8FF;
+}
+
+.tokenHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #8c8c8c;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.tokenAmount {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+/* Hilangin spinner panah atas-bawah bawaan input type=number */
+.tokenAmount::-webkit-outer-spin-button,
+.tokenAmount::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.tokenAmount[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.tokenBottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.selectToken {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border: none;
+    border-radius: 14px;
+    background: #14C8FF;
+    color: black;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.selectToken:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(20,200,255,.4);
+}
+
+.tokenLogo {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit:cover;
+}
+
+.maxButton {
+    background: #242424;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 7px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: .25s;
+}
+
+.maxButton:hover {
+    background: #333;
+}
+
+@media(max-width: 768px) {
+    .tokenInput {
+        padding: 9px 12px;
+    }
+    .tokenAmount {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+    .selectToken {
+        padding: 7px 12px;
+    }
+    .tokenLogo {
+        width: 22px;
+        height: 22px;
+    }
+}

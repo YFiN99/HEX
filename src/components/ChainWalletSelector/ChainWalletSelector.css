@@ -1,0 +1,304 @@
+.chainWalletSelector {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 0;
+
+    z-index: 100;
+}
+
+/* ============================================
+   COMMON
+============================================ */
+
+.selectorBlock {
+    position: relative;
+}
+
+/* ============================================
+   CHAIN BUTTON
+============================================ */
+
+.chainSelectorButton,
+.walletSelectorButton {
+    height: 30px;
+
+    border: 1px solid rgba(
+        255,
+        255,
+        255,
+        0.12
+    );
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.04
+    );
+
+    color: #fff;
+
+    border-radius: 8px;
+
+    padding: 0 9px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 4px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.chainSelectorButton:hover,
+.walletSelectorButton:hover {
+    background: rgba(
+        255,
+        255,
+        255,
+        0.08
+    );
+
+    border-color: rgba(
+        255,
+        255,
+        255,
+        0.22
+    );
+}
+
+/* ============================================
+   CHAIN
+============================================ */
+
+.chainSelectorButton {
+    min-width: 105px;
+}
+
+.chainDot {
+    font-size: 9px;
+}
+
+/* ============================================
+   WALLET
+============================================ */
+
+.walletSelectorButton {
+    min-width: 105px;
+}
+
+.selectorArrow {
+    font-size: 8px;
+
+    opacity: 0.7;
+
+    margin-left: 2px;
+}
+
+/* ============================================
+   PLUS
+============================================ */
+
+.selectorPlus {
+    height: 10px;
+
+    line-height: 10px;
+
+    font-size: 9px;
+
+    color: rgba(
+        255,
+        255,
+        255,
+        0.45
+    );
+
+    user-select: none;
+}
+
+/* ============================================
+   CHAIN DROPDOWN
+============================================ */
+
+.chainDropdown,
+.walletDropdown {
+    position: absolute;
+
+    top: calc(
+        100% + 6px
+    );
+
+    right: 0;
+
+    min-width: 180px;
+
+    padding: 6px;
+
+    background: #111;
+
+    border: 1px solid rgba(
+        255,
+        255,
+        255,
+        0.12
+    );
+
+    border-radius: 10px;
+
+    box-shadow:
+        0 12px 35px
+        rgba(
+            0,
+            0,
+            0,
+            0.45
+        );
+
+    z-index: 1000;
+}
+
+/* ============================================
+   DROPDOWN TITLE
+============================================ */
+
+.dropdownTitle {
+    padding: 7px 9px;
+
+    font-size: 10px;
+
+    color: rgba(
+        255,
+        255,
+        255,
+        0.45
+    );
+
+    text-transform: uppercase;
+}
+
+/* ============================================
+   CHAIN OPTION
+============================================ */
+
+.chainOption {
+    width: 100%;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #fff;
+
+    padding: 9px;
+
+    border-radius: 7px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 11px;
+
+    cursor: pointer;
+
+    text-align: left;
+}
+
+.chainOption:hover {
+    background: rgba(
+        255,
+        255,
+        255,
+        0.07
+    );
+}
+
+.chainOption.selected {
+    background: rgba(
+        255,
+        255,
+        255,
+        0.06
+    );
+}
+
+.check {
+    margin-left: auto;
+
+    color: #6cff8d;
+}
+
+/* ============================================
+   WALLET DROPDOWN
+============================================ */
+
+.walletDropdown {
+    min-width: 190px;
+}
+
+.walletAddressFull {
+    padding: 8px;
+
+    font-size: 9px;
+
+    word-break: break-all;
+
+    color: rgba(
+        255,
+        255,
+        255,
+        0.55
+    );
+}
+
+.disconnectButton {
+    width: 100%;
+
+    border: 0;
+
+    background: rgba(
+        255,
+        60,
+        60,
+        0.08
+    );
+
+    color: #ff7070;
+
+    border-radius: 7px;
+
+    padding: 8px;
+
+    font-size: 11px;
+
+    cursor: pointer;
+}
+
+.disconnectButton:hover {
+    background: rgba(
+        255,
+        60,
+        60,
+        0.15
+    );
+}

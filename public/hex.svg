@@ -1,0 +1,40 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 150 60"
+    width="150"
+    height="60"
+>
+    <defs>
+        <filter
+            id="glow"
+            x="-30%"
+            y="-50%"
+            width="160%"
+            height="200%"
+        >
+            <feGaussianBlur
+                stdDeviation="3"
+                result="blur"
+            />
+
+            <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <text
+        x="75"
+        y="43"
+        text-anchor="middle"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="42"
+        font-weight="800"
+        letter-spacing="8"
+        fill="#14C8FF"
+        filter="url(#glow)"
+    >
+        HEX
+    </text>
+</svg>

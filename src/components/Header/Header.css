@@ -1,0 +1,371 @@
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+    width: 100%;
+    max-width: 1500px;
+
+    margin: 0 auto;
+    padding: 10px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    box-sizing: border-box;
+
+    position: relative;
+    z-index: 100;
+
+    overflow: visible;
+}
+
+
+/* =========================================================
+   LEFT / LOGO
+========================================================= */
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    flex-shrink: 0;
+    min-width: 0;
+
+    overflow: visible;
+
+    position: relative;
+    z-index: 101;
+}
+
+
+/* =========================================================
+   HEX LOGO
+========================================================= */
+
+.headerLogo {
+    width: 150px;
+    height: 60px;
+
+    min-width: 150px;
+    min-height: 60px;
+
+    display: block;
+
+    object-fit: contain;
+    object-position: center;
+
+    flex-shrink: 0;
+
+    overflow: visible;
+
+    position: relative;
+    z-index: 102;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.headerTitle {
+    font-size: 22px;
+
+    color: #14c8ff;
+
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+
+    line-height: 1;
+
+    margin: 0;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   CENTER MENU
+   BENAR-BENAR DI TENGAH LAYAR
+========================================================= */
+
+.headerMenu {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    margin: 0;
+
+    flex-shrink: 0;
+
+    white-space: nowrap;
+
+    z-index: 104;
+}
+
+
+/* =========================================================
+   MENU BUTTON
+========================================================= */
+
+.menuButton {
+    background: none;
+
+    border: none;
+
+    color: #8a8a8a;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    padding: 8px 14px;
+
+    border-radius: 12px;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        transform 0.2s ease;
+}
+
+
+/* =========================================================
+   MENU HOVER
+========================================================= */
+
+.menuButton:hover {
+    color: white;
+
+    background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* =========================================================
+   ACTIVE MENU
+========================================================= */
+
+.active {
+    background: #14c8ff;
+
+    color: black;
+}
+
+
+/* =========================================================
+   HEADER RIGHT
+   QANTERA + WALLET
+========================================================= */
+
+.headerRight {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    flex-shrink: 0;
+
+    position: relative;
+
+    z-index: 103;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .header {
+        width: 100%;
+
+        padding: 6px 8px;
+
+        min-height: 60px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        box-sizing: border-box;
+
+        overflow: visible;
+    }
+
+
+    /* LEFT */
+
+    .headerLeft {
+        display: flex;
+
+        align-items: center;
+
+        gap: 4px;
+
+        min-width: 0;
+
+        min-height: 60px;
+
+        overflow: visible;
+    }
+
+
+    /* LOGO MOBILE */
+
+    .headerLogo {
+        width: 100px;
+        height: 50px;
+
+        min-width: 100px;
+        min-height: 50px;
+
+        display: block;
+
+        object-fit: contain;
+        object-position: center;
+
+        flex-shrink: 0;
+
+        overflow: visible;
+    }
+
+
+    /* TITLE */
+
+    .headerTitle {
+        font-size: 19px;
+
+        line-height: 1;
+
+        margin: 0;
+
+        white-space: nowrap;
+    }
+
+
+    /* HIDE DESKTOP MENU */
+
+    .headerMenu {
+        display: none;
+    }
+
+
+    /* RIGHT */
+
+    .headerRight {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: flex-end;
+
+        gap: 6px;
+
+        flex-shrink: 0;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .header {
+        padding: 4px 6px;
+
+        min-height: 55px;
+    }
+
+
+    .headerLeft {
+        min-height: 55px;
+
+        gap: 2px;
+    }
+
+
+    .headerLogo {
+        width: 90px;
+        height: 48px;
+
+        min-width: 90px;
+        min-height: 48px;
+
+        object-fit: contain;
+        object-position: center;
+    }
+
+
+    .headerTitle {
+        font-size: 18px;
+    }
+
+
+    .headerRight {
+        gap: 4px;
+    }
+}
+
+
+/* =========================================================
+   EXTRA SMALL PHONE
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .header {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+
+    .headerLogo {
+        width: 80px;
+        height: 44px;
+
+        min-width: 80px;
+        min-height: 44px;
+    }
+
+
+    .headerRight {
+        gap: 3px;
+    }
+}
+
+
+/* =========================================================
+   IMPORTANT
+   PREVENT LOGO FROM BEING CUT
+========================================================= */
+
+.header,
+.headerLeft,
+.headerLogo,
+.headerTitle,
+.headerRight {
+    overflow: visible !important;
+}

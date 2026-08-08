@@ -1,0 +1,395 @@
+/* =========================================================
+   REMOVE LIQUIDITY WRAPPER
+   ========================================================= */
+
+.remove-wrapper {
+  width: 100vw;
+  min-height: calc(100vh - 60px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 10px 20px 30px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   REMOVE CARD
+   ========================================================= */
+
+.remove-card {
+  width: min(440px, 95vw);
+
+  background: linear-gradient(135deg, #cdeeff 0%, #7EC8E3 100%);
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  border-radius: 24px;
+
+  padding: 14px 16px;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+
+  box-sizing: border-box;
+
+  color: #0a2233;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.remove-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 12px;
+}
+
+.remove-header h2 {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0;
+  color: #0a2233;
+}
+
+.backButton {
+  background: transparent;
+
+  color: rgba(10, 34, 51, 0.6);
+
+  border: none;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  padding: 2px 4px;
+
+  transition: .25s;
+}
+
+.backButton:hover {
+  color: #0a2233;
+}
+
+
+/* =========================================================
+   LP BALANCE
+   ========================================================= */
+
+.lpBalance {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 16px;
+
+  margin-bottom: 8px;
+
+  font-size: 11px;
+
+  color: rgba(10, 34, 51, 0.7);
+}
+
+.lpBalance b {
+  color: #0a2233;
+}
+
+
+/* =========================================================
+   PAIR INFO
+   ========================================================= */
+
+.remove-pair-info {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 16px;
+
+  margin-bottom: 12px;
+
+  font-size: 11px;
+
+  color: rgba(10, 34, 51, 0.7);
+}
+
+.remove-pair-info b {
+  color: #0a2233;
+}
+
+
+/* =========================================================
+   SLIDER
+   ========================================================= */
+
+.sliderArea {
+  text-align: center;
+
+  margin-bottom: 8px;
+}
+
+.sliderArea input {
+  width: 100%;
+
+  margin-bottom: 10px;
+
+  cursor: pointer;
+}
+
+.sliderArea h2 {
+  color: #0a2233;
+
+  font-size: 36px;
+
+  margin: 0;
+}
+
+
+/* =========================================================
+   QUICK BUTTONS
+   ========================================================= */
+
+.quickButtons {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 8px;
+
+  margin: 12px 0;
+}
+
+.quickButtons button {
+  height: 40px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: rgba(10, 34, 51, 0.08);
+
+  color: #0a2233;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+  font-weight: 600;
+
+  font-size: 13px;
+}
+
+.quickButtons button:hover {
+  background: #0a2233;
+
+  color: #cdeeff;
+}
+
+
+/* =========================================================
+   RECEIVE INFO
+   ========================================================= */
+
+.receiveInfo {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+  margin-bottom: 8px;
+
+  padding: 8px 10px;
+
+  background: rgba(10, 34, 51, 0.06);
+
+  border: 1px solid rgba(10, 34, 51, 0.1);
+
+  border-radius: 10px;
+}
+
+.receiveInfo div {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 16px;
+
+  font-size: 11px;
+
+  color: rgba(10, 34, 51, 0.7);
+}
+
+.receiveInfo b {
+  color: #0a2233;
+
+  text-align: right;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   SUMMARY
+   ========================================================= */
+
+.removeSummary {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+  margin-bottom: 12px;
+
+  padding: 8px 10px;
+
+  background: rgba(10, 34, 51, 0.06);
+
+  border: 1px solid rgba(10, 34, 51, 0.1);
+
+  border-radius: 10px;
+}
+
+.removeSummary div {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 16px;
+
+  font-size: 11px;
+
+  color: rgba(10, 34, 51, 0.7);
+}
+
+.removeSummary b {
+  color: #0a2233;
+
+  text-align: right;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .remove-wrapper {
+    width: 100vw;
+
+    min-height: auto;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: flex-start;
+
+    padding: 0 10px 20px;
+
+    box-sizing: border-box;
+  }
+
+  .remove-card {
+    width: 100%;
+
+    max-width: 440px;
+
+    padding: 12px;
+
+    border-radius: 22px;
+
+    box-sizing: border-box;
+  }
+
+  .remove-header {
+    gap: 12px;
+
+    margin-bottom: 10px;
+  }
+
+  .sliderArea h2 {
+    font-size: 32px;
+  }
+
+  .quickButtons {
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 6px;
+
+    margin: 10px 0;
+  }
+
+  .quickButtons button {
+    height: 38px;
+
+    font-size: 12px;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .remove-wrapper {
+    padding: 0 8px 20px;
+  }
+
+  .remove-card {
+    padding: 11px;
+
+    border-radius: 20px;
+  }
+
+  .remove-header {
+    margin-bottom: 8px;
+  }
+
+  .lpBalance {
+    font-size: 10px;
+  }
+
+  .sliderArea h2 {
+    font-size: 28px;
+  }
+
+  .quickButtons {
+    gap: 6px;
+
+    margin: 8px 0;
+  }
+
+  .quickButtons button {
+    height: 36px;
+
+    font-size: 11px;
+  }
+
+  .receiveInfo div,
+  .removeSummary div {
+    font-size: 10px;
+  }
+}

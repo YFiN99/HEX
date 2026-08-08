@@ -1,0 +1,380 @@
+/* =========================================================
+   TRANSPARENCY PAGE
+========================================================= */
+
+.transparency-page {
+    width: min(900px, 94vw);
+
+    margin: 0 auto;
+
+    padding: 30px 20px 80px;
+
+    color: #ffffff;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.transparency-header {
+    text-align: center;
+
+    margin-bottom: 28px;
+}
+
+.transparency-header h1 {
+    margin: 0 0 14px;
+
+    font-size: 32px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+
+    color: #14c8ff;
+}
+
+.transparency-header p {
+    max-width: 760px;
+
+    margin: 10px auto;
+
+    color: #9da8b3;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+}
+
+.transparency-header .transparency-lead {
+    color: #ffffff;
+
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.transparency-section {
+    display: flex;
+
+    gap: 18px;
+
+    margin-bottom: 16px;
+
+    padding: 20px;
+
+    background: rgba(255, 255, 255, 0.035);
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 18px;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.transparency-section:hover {
+    background: rgba(255, 255, 255, 0.045);
+
+    border-color: rgba(20, 200, 255, 0.22);
+}
+
+
+/* =========================================================
+   NUMBER
+========================================================= */
+
+.section-number {
+    width: 42px;
+    height: 42px;
+
+    min-width: 42px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: rgba(20, 200, 255, 0.10);
+
+    border: 1px solid rgba(20, 200, 255, 0.22);
+
+    color: #14c8ff;
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.section-content {
+    flex: 1;
+
+    min-width: 0;
+}
+
+.section-content h2 {
+    margin: 2px 0 12px;
+
+    color: #ffffff;
+
+    font-size: 19px;
+
+    font-weight: 750;
+}
+
+.section-content p {
+    margin: 8px 0;
+
+    color: #9da8b3;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+}
+
+.section-content strong {
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   FEE
+========================================================= */
+
+.fee-title {
+    margin-bottom: 0 !important;
+
+    color: #9da8b3 !important;
+}
+
+.fee-value {
+    margin: 2px 0 14px;
+
+    color: #14c8ff;
+
+    font-size: 30px;
+
+    font-weight: 800;
+}
+
+.fee-breakdown {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-bottom: 12px;
+}
+
+.fee-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 11px 13px;
+
+    background: rgba(255, 255, 255, 0.035);
+
+    border: 1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 10px;
+}
+
+.fee-percent {
+    min-width: 55px;
+
+    color: #14c8ff;
+
+    font-size: 14px;
+
+    font-weight: 800;
+}
+
+.fee-description {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+
+    color: #ffffff;
+
+    font-size: 13px;
+}
+
+.fee-description span {
+    color: #8d98a3;
+}
+
+
+/* =========================================================
+   RISK
+========================================================= */
+
+.risk-list {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 14px;
+}
+
+.risk-list span {
+    padding: 8px 11px;
+
+    background: rgba(255, 255, 255, 0.045);
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 9px;
+
+    color: #b5bec7;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   DISCLAIMER
+========================================================= */
+
+.disclaimer-box {
+    margin-top: 4px;
+
+    padding: 15px 16px;
+
+    background: rgba(20, 200, 255, 0.045);
+
+    border: 1px solid rgba(20, 200, 255, 0.14);
+
+    border-radius: 12px;
+}
+
+.disclaimer-box h3 {
+    margin: 0 0 8px;
+
+    color: #14c8ff;
+
+    font-size: 14px;
+}
+
+.disclaimer-box p {
+    margin: 7px 0;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .transparency-page {
+        width: 100%;
+
+        padding: 20px 10px 90px;
+    }
+
+    .transparency-header {
+        margin-bottom: 18px;
+    }
+
+    .transparency-header h1 {
+        font-size: 27px;
+    }
+
+    .transparency-header p {
+        font-size: 13px;
+    }
+
+    .transparency-section {
+        gap: 12px;
+
+        padding: 15px;
+
+        border-radius: 15px;
+    }
+
+    .section-number {
+        width: 34px;
+        height: 34px;
+
+        min-width: 34px;
+
+        border-radius: 9px;
+
+        font-size: 10px;
+    }
+
+    .section-content h2 {
+        font-size: 16px;
+    }
+
+    .section-content p {
+        font-size: 13px;
+    }
+
+    .fee-value {
+        font-size: 26px;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+    .transparency-page {
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+
+    .transparency-section {
+        padding: 13px;
+
+        gap: 9px;
+    }
+
+    .section-content h2 {
+        font-size: 15px;
+    }
+
+    .fee-row {
+        padding: 9px 10px;
+    }
+
+    .risk-list {
+        gap: 6px;
+    }
+
+    .risk-list span {
+        padding: 7px 9px;
+
+        font-size: 11px;
+    }
+}

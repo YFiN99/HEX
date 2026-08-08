@@ -1,0 +1,81 @@
+.swapBtn{
+
+    width:100%;
+
+    height:72px;
+
+    border:none;
+
+    border-radius:22px;
+
+    background:#14C8FF;
+
+    color:black;
+
+    font-size:22px;
+
+    font-weight:800;
+
+    cursor:pointer;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:12px;
+
+    transition:.25s;
+
+}
+
+.swapBtn:hover:not(:disabled){
+
+    transform:translateY(-2px);
+
+    box-shadow:0 0 35px rgba(20,200,255,.40);
+
+}
+
+.swapBtn:disabled{
+
+    cursor:not-allowed;
+
+    opacity:.85;
+
+}
+
+.gear{
+
+    animation:gearSpin .9s linear infinite;
+
+}
+
+@keyframes gearSpin{
+
+    from{
+
+        transform:rotate(0deg);
+
+    }
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+@media(max-width:768px){
+
+.swapBtn{
+
+    height:64px;
+
+    font-size:19px;
+
+}
+
+}
