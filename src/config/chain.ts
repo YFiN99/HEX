@@ -26,6 +26,56 @@ export interface Chain {
 export const CHAINS: Chain[] = [
 
     // ============================================================
+    // LITVM TESTNET
+    // ============================================================
+
+    {
+        key: "litvm_testnet",
+        chainId: 4441,
+        chainName: "LitVM Testnet",
+        rpcUrl: "https://liteforge.rpc.caldera.xyz/http",
+        explorer: "https://liteforge.explorer.caldera.xyz/", // Tambahkan URL explorer jika ada
+        router: "0x1B607388fA4F122469f47e4F090b9Be0553befA1",
+        factory: "0x76E497041a0768bAC2F6a36Db7A1e65e8394DDe5",
+        wrappedNative: "0x258c23C9149Bc95bdD052A97b803C389B582e049", // HexWETH sebagai wrapped native
+        nativeSymbol: "ETH", // Sesuaikan jika menggunakan simbol native lain
+        multicall3: "0x7d1B58f63c9569584AfD27DAb16EBfDb43b25626",
+        tokens: [
+            {
+                symbol: "ETH",
+                name: "Native ETH",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "HexWETH",
+                name: "Hex Wrapped Ether",
+                address: "0x258c23C9149Bc95bdD052A97b803C389B582e049",
+                decimals: 18,
+                isWrappedNative: true
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0xb3f1049726Ec1e4a5a6818535E0E18D7C6536d59",
+                decimals: 18 // Sesuaikan desimal jika berbeda (misal 8)
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0x63b00f565f309AAb8D9c97531C807E9E9cf8DDAA",
+                decimals: 6 // Sesuaikan jika menggunakan 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0x5308DA1F9Ba33226e7E1eb520e2B771bE0e30595",
+                decimals: 18
+            }
+        ]
+    },
+
+    // ============================================================
     // QANTERA
     // ============================================================
 
