@@ -34,11 +34,11 @@ export const CHAINS: Chain[] = [
         chainId: 4441,
         chainName: "LitVM Testnet",
         rpcUrl: "https://liteforge.rpc.caldera.xyz/http",
-        explorer: "https://liteforge.explorer.caldera.xyz/", // Tambahkan URL explorer jika ada
+        explorer: "https://liteforge.explorer.caldera.xyz/",
         router: "0x1B607388fA4F122469f47e4F090b9Be0553befA1",
         factory: "0x76E497041a0768bAC2F6a36Db7A1e65e8394DDe5",
-        wrappedNative: "0x258c23C9149Bc95bdD052A97b803C389B582e049", // HexWETH sebagai wrapped native
-        nativeSymbol: "ETH", // Sesuaikan jika menggunakan simbol native lain
+        wrappedNative: "0x258c23C9149Bc95bdD052A97b803C389B582e049",
+        nativeSymbol: "ETH",
         multicall3: "0x7d1B58f63c9569584AfD27DAb16EBfDb43b25626",
         tokens: [
             {
@@ -48,29 +48,29 @@ export const CHAINS: Chain[] = [
                 decimals: 18
             },
             {
-                symbol: "HexWETH",
-                name: "Hex Wrapped Ether",
-                address: "0x258c23C9149Bc95bdD052A97b803C389B582e049",
-                decimals: 18,
-                isWrappedNative: true
-            },
-            {
                 symbol: "BTC",
                 name: "Bitcoin",
                 address: "0xb3f1049726Ec1e4a5a6818535E0E18D7C6536d59",
-                decimals: 18 // Sesuaikan desimal jika berbeda (misal 8)
+                decimals: 18
             },
             {
                 symbol: "USDT",
                 name: "Tether USD",
                 address: "0x63b00f565f309AAb8D9c97531C807E9E9cf8DDAA",
-                decimals: 6 // Sesuaikan jika menggunakan 18
+                decimals: 6
             },
             {
                 symbol: "HEX",
                 name: "HEX",
                 address: "0x5308DA1F9Ba33226e7E1eb520e2B771bE0e30595",
                 decimals: 18
+            },
+            {
+                symbol: "HexWETH",
+                name: "Hex Wrapped Ether",
+                address: "0x258c23C9149Bc95bdD052A97b803C389B582e049",
+                decimals: 18,
+                isWrappedNative: true
             }
         ]
     },
@@ -104,12 +104,6 @@ export const CHAINS: Chain[] = [
                 decimals: 18
             },
             {
-                symbol: "ETH",
-                name: "Wrapped Ethereum",
-                address: "0xeD30B29a655DaDcf39B43E56c02555c2A1A9FE7E",
-                decimals: 18
-            },
-            {
                 symbol: "BTC",
                 name: "Wrapped Bitcoin",
                 address: "0x6FDeD1329dDF9790b068414c6Fb2f59Ce8516cF9",
@@ -120,6 +114,13 @@ export const CHAINS: Chain[] = [
                 name: "Tether USD",
                 address: "0x392BDF692617e0317B5E8CC58d69Baf61E2e49f6",
                 decimals: 6
+            },
+            {
+                symbol: "ETH",
+                name: "Wrapped Ethereum",
+                address: "0xeD30B29a655DaDcf39B43E56c02555c2A1A9FE7E",
+                decimals: 18,
+                isWrappedNative: true
             }
         ]
     },
@@ -147,13 +148,6 @@ export const CHAINS: Chain[] = [
                 decimals: 18
             },
             {
-                symbol: "WETH",
-                name: "Wrapped Ether",
-                address: "0x5E9D1C4ba94E4D078b5568B41b276fC9191AbAdb",
-                decimals: 18,
-                isWrappedNative: true
-            },
-            {
                 symbol: "TEQ",
                 name: "TeQoin",
                 address: "0x49c2E9438Be52b88830802D7073831c1b83EcD28",
@@ -176,6 +170,13 @@ export const CHAINS: Chain[] = [
                 name: "DAI",
                 address: "0xb96a869c74be2ed561d95a77408505371f287d16",
                 decimals: 18
+            },
+            {
+                symbol: "Wrapped",
+                name: "Wrapped Ether",
+                address: "0x5E9D1C4ba94E4D078b5568B41b276fC9191AbAdb",
+                decimals: 18,
+                isWrappedNative: true
             }
         ]
     },
@@ -190,10 +191,11 @@ export const CHAINS: Chain[] = [
         chainName: "Maculatus Testnet",
         rpcUrl: "https://maculatus-rpc.x1eco.com/",
         explorer: "https://maculatus-scan.x1eco.com/",
-        router: "0xB0aA1d29339bdFaC68a791d4C13b0698A239D97C",
-        factory: "0xd6c29C74cEca823f93CeEEE6f2E958625a7Bfe00",
-        wrappedNative: "0xc2F331332ca914685D773781744b1C589861C9Aa",
+        router: "0x3E8ED20cE5D8B9C1822c66C2C805c516Beb29Aa6",
+        factory: "0xBB3A990250cAACa45bB12a15F4D604A1cE500faf",
+        wrappedNative: "0x73859d7d9B4fb8B88d5bd58317EE1Bc437aC60d4",
         nativeSymbol: "X1",
+        multicall3: "0x35a5F4c97e10563f049780eeeB85f81ff6E5d4d2",
         tokens: [
             {
                 symbol: "X1",
@@ -202,23 +204,29 @@ export const CHAINS: Chain[] = [
                 decimals: 18
             },
             {
-                symbol: "WX1",
-                name: "Wrapped X1",
-                address: "0xc2F331332ca914685D773781744b1C589861C9Aa",
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x547290b671d6768F14cFE448C565c29A75c3A902",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0x0018B0285FF89275A38B88B78Da0aAbB0Bb317BB",
+                decimals: 6
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0x743B962cba7A7d078dAa54B486D8fe0B59d4823c",
+                decimals: 18
+            },
+            {
+                symbol: "HexWETH",
+                name: "Hex Wrapped Ether",
+                address: "0x73859d7d9B4fb8B88d5bd58317EE1Bc437aC60d4",
                 decimals: 18,
                 isWrappedNative: true
-            },
-            {
-                symbol: "TKA",
-                name: "Token A",
-                address: "0x6cF0576a5088ECE1cbc92cbDdD2496c8de5517FB",
-                decimals: 18
-            },
-            {
-                symbol: "TKB",
-                name: "Token B",
-                address: "0x2C71ab7D51251BADaE2729E3F842c43fc6BB68c5",
-                decimals: 18
             }
         ]
     },
@@ -246,17 +254,17 @@ export const CHAINS: Chain[] = [
                 decimals: 18
             },
             {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0x46c4c389c8a3C40114b3De5499eeB58c14296A71",
+                decimals: 18
+            },
+            {
                 symbol: "WETH",
                 name: "Wrapped ETH",
                 address: "0x6a38CF0A4A69195dE0AdDB8e95659dc3727a118E",
                 decimals: 18,
                 isWrappedNative: true
-            },
-            {
-                symbol: "HEX",
-                name: "HEX",
-                address: "0x46c4c389c8a3C40114b3De5499eeB58c14296A71",
-                decimals: 18
             }
         ]
     }
