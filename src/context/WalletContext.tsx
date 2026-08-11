@@ -11,7 +11,8 @@ import type {
 
 import {
     BrowserProvider,
-    JsonRpcSigner
+    JsonRpcSigner,
+    ethers
 } from "ethers";
 
 import type { Chain } from "../config/chain";

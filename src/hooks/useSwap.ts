@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ethers } from "ethers";
 import { useWallet } from "../context/WalletContext";
 import { CHAINS } from "../config/chain";
@@ -20,7 +20,7 @@ export function useSwap() {
     const [loading, setLoading] = useState(false);
 
     const [payToken, setPayToken] = useState("QTER");
-    const [receiveToken, setReceiveToken] = useState("USDT");
+    const [receiveToken, setReceiveToken] = useState("BTC");
 
     const [payAmount, setPayAmount] = useState("");
     const [receiveAmount, setReceiveAmount] = useState("");
@@ -35,6 +35,16 @@ export function useSwap() {
     const chain =
         CHAINS.find(c => c.chainId === chainId) ||
         CHAINS[0];
+
+    // =====================================================
+    // REQUEST GUARD
+    // Mencegah hasil refreshBalances yang "basi" (dari chain/token
+    // sebelumnya) menimpa hasil yang lebih baru saat user cepat
+    // berpindah chain/token. Setiap panggilan refreshBalances
+    // mendapat nomor urut; hasil yang bukan dari panggilan
+    // terakhir akan diabaikan.
+    // =====================================================
+    const requestIdRef = useRef(0);
 
     // =====================================================
     // FORMAT BALANCE
@@ -86,6 +96,14 @@ export function useSwap() {
     const refreshBalances = useCallback(
         async () => {
 
+            // Nomor urut untuk panggilan refreshBalances ini.
+            // Kalau ada panggilan lain yang dimulai setelah ini
+            // (mis. karena chain/token berganti), requestIdRef.current
+            // akan berubah dan panggilan ini harus berhenti menerapkan
+            // hasilnya begitu ketahuan sudah "basi".
+            const myRequestId = ++requestIdRef.current;
+            const isStale = () => requestIdRef.current !== myRequestId;
+
             if (
                 !signer ||
                 !address ||
@@ -130,6 +148,8 @@ export function useSwap() {
                                 address
                             );
 
+                        if (isStale()) return;
+
                         setPayBalance(
                             formatBalance(
                                 bal,
@@ -152,6 +172,8 @@ export function useSwap() {
                             await erc20.balanceOf(
                                 address
                             );
+
+                        if (isStale()) return;
 
                         setPayBalance(
                             formatBalance(
@@ -177,6 +199,8 @@ export function useSwap() {
                                 address
                             );
 
+                        if (isStale()) return;
+
                         setReceiveBalance(
                             formatBalance(
                                 bal,
@@ -199,6 +223,8 @@ export function useSwap() {
                             await erc20.balanceOf(
                                 address
                             );
+
+                        if (isStale()) return;
 
                         setReceiveBalance(
                             formatBalance(
@@ -250,6 +276,8 @@ export function useSwap() {
                             path
                         );
 
+                    if (isStale()) return;
+
                     const amountOutParsed =
                         amounts[
                             amounts.length - 1
@@ -277,6 +305,8 @@ export function useSwap() {
                             ),
                             path
                         );
+
+                    if (isStale()) return;
 
                     const unitPrice =
                         ethers.formatUnits(
@@ -319,6 +349,8 @@ export function useSwap() {
 
             } catch (err) {
 
+                if (isStale()) return;
+
                 console.error(
                     "Error updating quote/balances:",
                     err
@@ -336,6 +368,18 @@ export function useSwap() {
             payAmount
         ]
     );
+
+    // =====================================================
+    // RESET SAAT CHAIN / TOKEN BERGANTI
+    // Membersihkan saldo lama SEBELUM data baru datang, supaya
+    // tidak sempat tampil angka nyasar dari chain/token sebelumnya
+    // (mis. desimal token yang beda antar chain).
+    // =====================================================
+
+    useEffect(() => {
+        setPayBalance("-");
+        setReceiveBalance("-");
+    }, [chain?.key, payToken, receiveToken]);
 
     // =====================================================
     // AUTO REFRESH
