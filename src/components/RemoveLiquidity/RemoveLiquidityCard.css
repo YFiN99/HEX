@@ -17,118 +17,25 @@
 
 
 /* =========================================================
-   REMOVE CARD  (dark 3D glass + rotating glow ring)
+   REMOVE CARD
    ========================================================= */
 
 .remove-card {
-  position: relative;
-  z-index: 0;
-
   width: min(440px, 95vw);
 
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 18%),
-    linear-gradient(155deg, #101a2e 0%, #0a1220 55%, #0c1626 100%);
+  background: linear-gradient(135deg, #cdeeff 0%, #7EC8E3 100%);
 
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 
   border-radius: 24px;
 
   padding: 14px 16px;
 
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.55),
-    0 2px 0 rgba(255, 255, 255, 0.04) inset,
-    0 -30px 60px rgba(0, 0, 0, 0.35) inset;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 
   box-sizing: border-box;
 
-  color: #eaf6ff;
-}
-
-/* Rotating neon ring behind the card — soft blurred glow, masked to
-   a ring shape so it hugs the card's border line instead of filling
-   the whole box (which looked like a separate spinning square). */
-.remove-card::before {
-  content: "";
-
-  position: absolute;
-  inset: -6px;
-
-  z-index: -1;
-
-  border-radius: 30px;
-
-  padding: 6px;
-
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    #24e5ff 35deg,
-    #6a5bff 90deg,
-    transparent 140deg,
-    transparent 220deg,
-    #24e5ff 275deg,
-    #6a5bff 320deg,
-    transparent 360deg
-  );
-
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-
-  filter: blur(9px);
-
-  animation: remove-card-spin 5s linear infinite;
-}
-
-/* Crisp thin edge on top of the blurred glow, for a sharper 3D rim */
-.remove-card::after {
-  content: "";
-
-  position: absolute;
-  inset: -1px;
-
-  z-index: -1;
-
-  border-radius: 25px;
-
-  padding: 1.5px;
-
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    #6ff2ff 35deg,
-    #a394ff 90deg,
-    transparent 140deg,
-    transparent 220deg,
-    #6ff2ff 275deg,
-    #a394ff 320deg,
-    transparent 360deg
-  );
-
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-
-  animation: remove-card-spin 5s linear infinite;
-}
-
-@keyframes remove-card-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .remove-card::before,
-  .remove-card::after {
-    animation: none;
-  }
+  color: #0a2233;
 }
 
 
@@ -151,14 +58,13 @@
   font-size: 15px;
   font-weight: 700;
   margin: 0;
-  color: #eaf6ff;
-  letter-spacing: 0.2px;
+  color: #0a2233;
 }
 
 .backButton {
   background: transparent;
 
-  color: rgba(234, 246, 255, 0.55);
+  color: rgba(10, 34, 51, 0.6);
 
   border: none;
 
@@ -172,7 +78,7 @@
 }
 
 .backButton:hover {
-  color: #6ff2ff;
+  color: #0a2233;
 }
 
 
@@ -193,11 +99,11 @@
 
   font-size: 11px;
 
-  color: rgba(234, 246, 255, 0.55);
+  color: rgba(10, 34, 51, 0.7);
 }
 
 .lpBalance b {
-  color: #eaf6ff;
+  color: #0a2233;
 }
 
 
@@ -218,11 +124,11 @@
 
   font-size: 11px;
 
-  color: rgba(234, 246, 255, 0.55);
+  color: rgba(10, 34, 51, 0.7);
 }
 
 .remove-pair-info b {
-  color: #eaf6ff;
+  color: #0a2233;
 }
 
 
@@ -242,18 +148,14 @@
   margin-bottom: 10px;
 
   cursor: pointer;
-
-  accent-color: #24e5ff;
 }
 
 .sliderArea h2 {
-  color: #eaf6ff;
+  color: #0a2233;
 
   font-size: 36px;
 
   margin: 0;
-
-  text-shadow: 0 0 18px rgba(36, 229, 255, 0.35);
 }
 
 
@@ -274,13 +176,13 @@
 .quickButtons button {
   height: 40px;
 
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: none;
 
   border-radius: 12px;
 
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(10, 34, 51, 0.08);
 
-  color: #eaf6ff;
+  color: #0a2233;
 
   cursor: pointer;
 
@@ -292,11 +194,9 @@
 }
 
 .quickButtons button:hover {
-  background: rgba(36, 229, 255, 0.12);
+  background: #0a2233;
 
-  border-color: rgba(36, 229, 255, 0.4);
-
-  color: #6ff2ff;
+  color: #cdeeff;
 }
 
 
@@ -315,9 +215,9 @@
 
   padding: 8px 10px;
 
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(10, 34, 51, 0.06);
 
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(10, 34, 51, 0.1);
 
   border-radius: 10px;
 }
@@ -333,11 +233,11 @@
 
   font-size: 11px;
 
-  color: rgba(234, 246, 255, 0.55);
+  color: rgba(10, 34, 51, 0.7);
 }
 
 .receiveInfo b {
-  color: #eaf6ff;
+  color: #0a2233;
 
   text-align: right;
 
@@ -360,9 +260,9 @@
 
   padding: 8px 10px;
 
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(10, 34, 51, 0.06);
 
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(10, 34, 51, 0.1);
 
   border-radius: 10px;
 }
@@ -378,11 +278,11 @@
 
   font-size: 11px;
 
-  color: rgba(234, 246, 255, 0.55);
+  color: rgba(10, 34, 51, 0.7);
 }
 
 .removeSummary b {
-  color: #eaf6ff;
+  color: #0a2233;
 
   text-align: right;
 }
