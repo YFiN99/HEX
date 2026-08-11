@@ -6,14 +6,29 @@
     position: fixed;
     inset: 0;
     z-index: 9999;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     padding: 12px;
     box-sizing: border-box;
+
     background: rgba(0, 0, 0, 0.72);
+
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+}
+
+
+/* =========================================================
+   ANIMATED BORDER VARIABLE
+========================================================= */
+
+@property --wallet-border-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
 }
 
 
@@ -22,19 +37,115 @@
 ========================================================= */
 
 .walletModal {
+    position: relative;
+    isolation: isolate;
+
     width: 100%;
     max-width: 300px;
+
     max-height: calc(100vh - 24px);
+
     overflow-y: auto;
+
     box-sizing: border-box;
+
     padding: 14px;
+
     border-radius: 16px;
-    background: rgba(13, 17, 24, 0.98);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
+
+    /*
+        IMPORTANT:
+        Transparent border + conic-gradient
+        membuat cahaya hanya berada di garis pinggir.
+    */
+    border: 1px solid transparent;
+
+    background:
+        linear-gradient(
+            rgba(13, 17, 24, 0.98),
+            rgba(13, 17, 24, 0.98)
+        ) padding-box,
+
+        conic-gradient(
+            from var(--wallet-border-angle),
+
+            rgba(20, 200, 255, 0.05) 0deg,
+
+            rgba(20, 200, 255, 0.05) 260deg,
+
+            rgba(20, 200, 255, 0.20) 280deg,
+
+            #14c8ff 300deg,
+
+            #8b5cf6 315deg,
+
+            #d946ef 330deg,
+
+            #14c8ff 345deg,
+
+            rgba(20, 200, 255, 0.05) 360deg
+        ) border-box;
+
     color: white;
+
     scrollbar-width: thin;
+
     font-size: 13px;
+
+    /*
+        Cahaya lembut di luar modal.
+    */
+    box-shadow:
+        0 30px 90px rgba(0, 0, 0, 0.65),
+        0 0 18px rgba(20, 200, 255, 0.08),
+        0 0 35px rgba(139, 92, 246, 0.05);
+
+    animation:
+        walletBorderRotate 5s linear infinite;
+}
+
+
+/* =========================================================
+   BORDER GLOW
+========================================================= */
+
+.walletModal::before {
+    content: "";
+
+    position: absolute;
+
+    inset: -2px;
+
+    z-index: -1;
+
+    border-radius: 18px;
+
+    background:
+        conic-gradient(
+            from var(--wallet-border-angle),
+
+            transparent 0deg,
+
+            transparent 265deg,
+
+            rgba(20, 200, 255, 0.10) 280deg,
+
+            rgba(20, 200, 255, 0.55) 300deg,
+
+            rgba(139, 92, 246, 0.75) 315deg,
+
+            rgba(217, 70, 239, 0.70) 330deg,
+
+            rgba(20, 200, 255, 0.45) 345deg,
+
+            transparent 360deg
+        );
+
+    filter: blur(7px);
+
+    opacity: 0.65;
+
+    pointer-events: none;
 }
 
 
@@ -44,82 +155,131 @@
 
 .walletModalHeader {
     display: flex;
+
     align-items: center;
+
     gap: 8px;
 }
 
+
 .walletModalHeader::before {
     content: "";
+
     width: 26px;
+
     flex-shrink: 0;
 }
+
 
 .walletModalHeader > div {
     flex: 1;
+
     min-width: 0;
+
     text-align: center;
 }
 
+
 .walletModalHeader h2 {
     margin: 0;
+
     font-size: 16px;
+
     font-weight: 800;
+
     letter-spacing: -0.2px;
 }
 
+
 .walletModalHeader p {
     margin: 4px 0 0;
+
     color: rgba(255, 255, 255, 0.55);
+
     font-size: 11.5px;
+
     line-height: 1.4;
 }
 
+
 .walletModalClose {
     flex-shrink: 0;
+
     width: 26px;
     height: 26px;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     border: none;
+
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.70);
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    color:
+        rgba(255, 255, 255, 0.70);
+
     cursor: pointer;
+
     font-size: 16px;
+
     line-height: 1;
-    transition: background 0.2s ease, color 0.2s ease;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
 }
 
+
 .walletModalClose:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background:
+        rgba(255, 255, 255, 0.12);
+
     color: white;
 }
 
 
 /* =========================================================
-   DIVIDER  ("OR USE A WALLET")
+   DIVIDER
 ========================================================= */
 
 .walletDivider {
     display: flex;
+
     align-items: center;
+
     gap: 8px;
+
     margin: 14px 0 12px;
 }
 
+
 .walletDivider span {
     flex: 1;
+
     height: 1px;
-    background: rgba(255, 255, 255, 0.10);
+
+    background:
+        rgba(255, 255, 255, 0.10);
 }
+
 
 .walletDivider label {
     flex-shrink: 0;
-    color: rgba(255, 255, 255, 0.42);
+
+    color:
+        rgba(255, 255, 255, 0.42);
+
     font-size: 9.5px;
+
     font-weight: 700;
+
     letter-spacing: 0.6px;
+
     text-transform: uppercase;
 }
 
@@ -132,78 +292,135 @@
     margin-top: 12px;
 }
 
+
 .walletSectionTitle {
     margin-bottom: 6px;
-    color: rgba(255, 255, 255, 0.48);
+
+    color:
+        rgba(255, 255, 255, 0.48);
+
     font-size: 9.5px;
+
     font-weight: 700;
+
     text-transform: uppercase;
+
     letter-spacing: 0.7px;
 }
 
 
 /* =========================================================
-   WALLET ITEM (suggested list rows AND grid buttons)
+   WALLET ITEM
 ========================================================= */
 
 .walletModalItem {
     width: 100%;
+
     box-sizing: border-box;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.045);
+
+    background:
+        rgba(255, 255, 255, 0.045);
+
     color: white;
+
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
 }
+
 
 .walletModalItem:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(20, 200, 255, 0.30);
-    transform: translateY(-1px);
+    background:
+        rgba(255, 255, 255, 0.09);
+
+    border-color:
+        rgba(20, 200, 255, 0.30);
+
+    transform:
+        translateY(-1px);
 }
 
-/* Suggested wallets: full-width row items, direct children of .walletSection */
+
+/* =========================================================
+   SUGGESTED WALLETS
+========================================================= */
+
 .walletSection > .walletModalItem {
     display: flex;
+
     align-items: center;
+
     gap: 9px;
+
     min-height: 44px;
+
     padding: 7px 9px;
+
     margin-bottom: 6px;
+
     text-align: left;
 }
+
 
 .walletSection > .walletModalItem:last-child {
     margin-bottom: 0;
 }
 
+
 .walletModalItemText {
     display: flex;
+
     flex-direction: column;
+
     line-height: 1.25;
 }
 
+
 .walletModalItemText strong {
     font-size: 12.5px;
+
     font-weight: 700;
 }
+
 
 .walletModalItemText small {
     font-size: 10px;
+
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.45);
+
+    color:
+        rgba(255, 255, 255, 0.45);
 }
+
 
 .walletInstalled {
     margin-left: auto;
+
     padding: 3px 6px;
+
     border-radius: 6px;
-    background: rgba(20, 200, 255, 0.10);
-    color: #14c8ff;
+
+    background:
+        rgba(20, 200, 255, 0.10);
+
+    color:
+        #14c8ff;
+
     font-size: 8px;
+
     font-weight: 700;
+
     text-transform: uppercase;
+
     white-space: nowrap;
 }
 
@@ -214,26 +431,39 @@
 
 .walletGrid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
     gap: 6px;
 }
 
+
 .walletGrid .walletModalItem {
     min-height: 52px;
+
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     justify-content: center;
+
     gap: 4px;
+
     padding: 6px;
 }
+
 
 .walletGrid .walletModalItemText {
     align-items: center;
 }
 
+
 .walletGrid .walletModalItemText strong {
     font-size: 9.5px;
+
     font-weight: 700;
 }
 
@@ -244,64 +474,138 @@
 
 .walletLogo {
     width: 26px;
+
     height: 26px;
+
     flex-shrink: 0;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     border-radius: 7px;
+
     font-size: 10px;
+
     font-weight: 800;
+
     object-fit: contain;
 }
 
-.walletLogo.rabby { background: #8697ff; color: #1a1a2e; }
-.walletLogo.okx { background: #ffffff; color: #000000; }
-.walletLogo.bitget { background: #f5b800; color: #1a1a1a; }
+
+.walletLogo.rabby {
+    background:
+        #8697ff;
+
+    color:
+        #1a1a2e;
+}
+
+
+.walletLogo.okx {
+    background:
+        #ffffff;
+
+    color:
+        #000000;
+}
+
+
+.walletLogo.bitget {
+    background:
+        #f5b800;
+
+    color:
+        #1a1a1a;
+}
 
 
 /* =========================================================
-   WALLETCONNECT BUTTON
+   WALLETCONNECT
 ========================================================= */
 
 .walletConnectButton {
     grid-column: 1 / -1;
+
     width: 100%;
+
     box-sizing: border-box;
+
     min-height: 44px;
+
     margin-top: 6px;
+
     display: flex;
+
     align-items: center;
+
     gap: 9px;
+
     padding: 7px 9px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.045);
+
+    background:
+        rgba(255, 255, 255, 0.045);
+
     color: white;
+
     font-size: 12.5px;
+
     font-weight: 700;
+
     text-align: left;
+
     cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
 }
 
+
 .walletConnectButton:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(20, 200, 255, 0.30);
-    transform: translateY(-1px);
+    background:
+        rgba(255, 255, 255, 0.09);
+
+    border-color:
+        rgba(20, 200, 255, 0.30);
+
+    transform:
+        translateY(-1px);
 }
+
 
 .walletConnectLogo {
     width: 26px;
+
     height: 26px;
+
     flex-shrink: 0;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     border-radius: 7px;
-    background: rgba(20, 200, 255, 0.15);
-    color: #14c8ff;
+
+    background:
+        rgba(20, 200, 255, 0.15);
+
+    color:
+        #14c8ff;
+
     font-size: 12px;
+
     font-weight: 900;
 }
 
@@ -312,17 +616,45 @@
 
 .walletModalFooter {
     margin-top: 14px;
+
     padding-top: 10px;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.07);
+
     text-align: center;
-    color: rgba(255, 255, 255, 0.35);
+
+    color:
+        rgba(255, 255, 255, 0.35);
+
     font-size: 9.5px;
+
     font-weight: 600;
+
     letter-spacing: 0.3px;
 }
 
+
 .walletFooterLine {
     display: none;
+}
+
+
+/* =========================================================
+   BORDER ANIMATION
+========================================================= */
+
+@keyframes walletBorderRotate {
+
+    from {
+        --wallet-border-angle: 0deg;
+    }
+
+    to {
+        --wallet-border-angle: 360deg;
+    }
+
 }
 
 
@@ -338,8 +670,12 @@
 
     .walletModal {
         max-width: 320px;
-        max-height: calc(100vh - 20px);
+
+        max-height:
+            calc(100vh - 20px);
+
         padding: 14px;
+
         border-radius: 16px;
     }
 
@@ -362,6 +698,7 @@
 
     .walletModal {
         max-width: 300px;
+
         padding: 12px;
     }
 
@@ -375,6 +712,7 @@
 
     .walletLogo {
         width: 24px;
+
         height: 24px;
     }
 

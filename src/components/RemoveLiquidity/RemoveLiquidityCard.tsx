@@ -6,483 +6,1517 @@ import { ethers } from "ethers";
 import SwapButton from "../SwapButton/SwapButton";
 import Toast from "../Toast/Toast";
 
-import { useNavigation } from "../../hooks/useNavigation";
-import { useLiquidity } from "../../hooks/useLiquidity";
-import usePosition from "../../hooks/usePosition";
-import useReserves from "../../hooks/useReserves";
+import {
+    useNavigation
+} from "../../context/NavigationContext";
 
-import { useWallet } from "../../context/WalletContext";
-import { CHAINS } from "../../config/chain";
+import {
+    useWallet
+} from "../../context/WalletContext";
 
-export default function RemoveLiquidityCard() {
-    const { navigate, state: selectedPool } =
-        useNavigation();
+import {
+    CHAINS
+} from "../../config/chain";
 
-    const { chainId } = useWallet();
 
-    const chain = useMemo(() => {
-        return (
-            CHAINS.find(
-                (c) => c.chainId === chainId
-            ) || CHAINS[0]
-        );
-    }, [chainId]);
+// ============================================================
+// PAIR ABI
+// ============================================================
 
-    // =====================================================
-    // POSITION
-    // =====================================================
+const PAIR_ABI = [
 
-    const {
-        position: fetchedPosition,
-        refresh
-    } = usePosition();
+    "function token0() view returns (address)",
 
-    const position = useMemo(() => {
-        if (selectedPool) {
-            const rawLp =
-                selectedPool.lp ??
-                selectedPool.balance ??
-                selectedPool.lpBalance ??
-                0n;
+    "function token1() view returns (address)",
 
-            return {
-                token:
-                    selectedPool.token0Address ??
-                    selectedPool.token ??
-                    "",
+    "function getReserves() view returns (uint112 reserve0,uint112 reserve1,uint32 blockTimestampLast)",
 
-                symbol:
-                    selectedPool.token1 ??
-                    "Token",
+    "function totalSupply() view returns (uint256)",
 
-                lp:
-                    typeof rawLp === "bigint"
-                        ? rawLp
-                        : BigInt(
-                            rawLp?.toString() ||
-                            "0"
-                        ),
+    "function balanceOf(address owner) view returns (uint256)"
 
-                pair:
-                    selectedPool.pair ??
-                    selectedPool.pairAddress ??
-                    ""
-            };
+];
+
+
+// ============================================================
+// ERC20 ABI
+// ============================================================
+
+const ERC20_ABI = [
+
+    "function symbol() view returns (string)",
+
+    "function name() view returns (string)",
+
+    "function decimals() view returns (uint8)"
+
+];
+
+
+// ============================================================
+// ERC20 APPROVE ABI
+// ============================================================
+
+const ERC20_APPROVE_ABI = [
+
+    "function allowance(address owner,address spender) view returns (uint256)",
+
+    "function approve(address spender,uint256 amount) returns (bool)"
+
+];
+
+
+// ============================================================
+// STANDARD UNISWAP-V2 ROUTER ABI
+// ============================================================
+
+const ROUTER_ABI = [
+
+    // --------------------------------------------------------
+    // TOKEN / TOKEN
+    // --------------------------------------------------------
+
+    "function removeLiquidity(address tokenA,address tokenB,uint256 liquidity,uint256 amountAMin,uint256 amountBMin,address to,uint256 deadline) returns (uint256 amountA,uint256 amountB)",
+
+
+    // --------------------------------------------------------
+    // WNATIVE / TOKEN
+    // --------------------------------------------------------
+
+    "function removeLiquidityETH(address token,uint256 liquidity,uint256 amountTokenMin,uint256 amountETHMin,address to,uint256 deadline) returns (uint256 amountToken,uint256 amountETH)"
+
+];
+
+
+// ============================================================
+// ZERO ADDRESS
+// ============================================================
+
+const ZERO =
+    ethers.ZeroAddress;
+
+
+// ============================================================
+// TYPES
+// ============================================================
+
+type TokenInfo = {
+
+    address: string;
+
+    symbol: string;
+
+    name: string;
+
+    decimals: number;
+
+    isNative: boolean;
+
+};
+
+
+// ============================================================
+// FORMAT
+// ============================================================
+
+function formatAmount(
+    value: bigint,
+    decimals: number,
+    maxDecimals = 6
+): string {
+
+    try {
+
+        if (value === 0n) {
+            return "0";
         }
 
-        return fetchedPosition;
-    }, [
-        selectedPool,
-        fetchedPosition
-    ]);
+        const formatted =
+            ethers.formatUnits(
+                value,
+                decimals
+            );
 
-    // =====================================================
-    // PAIR ADDRESS
-    // =====================================================
+        const number =
+            Number(formatted);
 
-    const pairAddress = useMemo(() => {
-        return (
-            selectedPool?.pair ??
-            selectedPool?.pairAddress ??
-            position?.pair ??
-            ""
+        if (!Number.isFinite(number)) {
+            return formatted;
+        }
+
+        return number.toLocaleString(
+            "en-US",
+            {
+                maximumFractionDigits:
+                    maxDecimals
+            }
         );
-    }, [
-        selectedPool,
-        position
-    ]);
 
-    // =====================================================
-    // RESERVES
-    // =====================================================
+    } catch {
 
-    const {
-        reserve0,
-        reserve1,
-        totalSupply,
-        refreshReserve,
-        loading: reserveLoading
-    } = useReserves(
-        pairAddress || undefined
+        return "0";
+
+    }
+
+}
+
+
+// ============================================================
+// SHORT ADDRESS
+// ============================================================
+
+function shortAddress(
+    address: string
+): string {
+
+    if (!address) {
+        return "—";
+    }
+
+    return (
+        address.slice(0, 6) +
+        "..." +
+        address.slice(-4)
     );
 
-    // =====================================================
-    // LIQUIDITY
-    // =====================================================
+}
+
+
+// ============================================================
+// COMPONENT
+// ============================================================
+
+export default function RemoveLiquidityCard() {
+
+
+    // ========================================================
+    // NAVIGATION
+    // ========================================================
 
     const {
-        removeLiquidityETH
-    } = useLiquidity();
+        navigate,
 
-    // =====================================================
-    // STATE
-    // =====================================================
+        data
+    } = useNavigation();
 
-    const [percent, setPercent] =
-        useState(0);
 
-    const [loading, setLoading] =
-        useState(false);
+    // ========================================================
+    // WALLET
+    // ========================================================
 
-    // =====================================================
-    // TOAST STATE & TIMER
-    // Sama seperti SwapCard
-    // =====================================================
+    const {
 
-    const [toastOpen, setToastOpen] =
-        useState(false);
+        provider,
 
-    const [txHash, setTxHash] =
-        useState("");
+        signer,
 
-    useEffect(() => {
-        if (!toastOpen)
-            return;
+        address,
 
-        const timer =
-            setTimeout(() => {
-                setToastOpen(false);
-            }, 7000);
+        chainId
 
-        return () =>
-            clearTimeout(timer);
-    }, [toastOpen]);
+    } = useWallet();
 
-    // =====================================================
-    // REFRESH RESERVES
-    // =====================================================
 
-    useEffect(() => {
-        if (!pairAddress)
-            return;
+    // ========================================================
+    // CURRENT CHAIN
+    // ========================================================
 
-        if (
-            typeof refreshReserve ===
-            "function"
-        ) {
-            void refreshReserve();
-        }
-    }, [
-        pairAddress,
-        refreshReserve
-    ]);
+    const chain = useMemo(() => {
 
-    // =====================================================
-    // LP BALANCE
-    // =====================================================
+        return (
+            CHAINS.find(
+                item =>
+                    item.chainId ===
+                    chainId
+            ) ||
+            CHAINS[0]
+        );
 
-    const lpBalance = useMemo(() => {
-        if (selectedPool) {
-            const rawLp =
-                selectedPool.lp ??
-                selectedPool.balance ??
-                selectedPool.lpBalance ??
-                0n;
+    }, [chainId]);
 
-            try {
-                return typeof rawLp === "bigint"
-                    ? rawLp
-                    : BigInt(
-                        rawLp?.toString() ||
-                        "0"
-                    );
-            } catch {
-                return 0n;
+
+    // ========================================================
+    // PAIR ADDRESS
+    //
+    // Ambil dari NavigationContext.data
+    //
+    // PoolCard sekarang mengirim:
+    //
+    // pair
+    //
+    // pairAddress juga didukung sebagai fallback.
+    // ========================================================
+
+    const pairAddress =
+        useMemo(() => {
+
+            const value =
+
+                data?.pair ??
+
+                data?.pairAddress ??
+
+                data?.address ??
+
+                "";
+
+            if (
+                typeof value !==
+                "string"
+            ) {
+
+                return "";
+
             }
+
+            if (
+                !ethers.isAddress(
+                    value
+                )
+            ) {
+
+                return "";
+
+            }
+
+            if (
+                value ===
+                ZERO
+            ) {
+
+                return "";
+
+            }
+
+            return ethers.getAddress(
+                value
+            );
+
+        }, [data]);
+
+
+    // ========================================================
+    // STATE
+    // ========================================================
+
+    const [
+
+        loading,
+
+        setLoading
+
+    ] = useState(false);
+
+
+    const [
+
+        reading,
+
+        setReading
+
+    ] = useState(false);
+
+
+    const [
+
+        percent,
+
+        setPercent
+
+    ] = useState(0);
+
+
+    const [
+
+        token0,
+
+        setToken0
+
+    ] = useState<TokenInfo | null>(
+        null
+    );
+
+
+    const [
+
+        token1,
+
+        setToken1
+
+    ] = useState<TokenInfo | null>(
+        null
+    );
+
+
+    const [
+
+        reserve0,
+
+        setReserve0
+
+    ] = useState<bigint>(
+        0n
+    );
+
+
+    const [
+
+        reserve1,
+
+        setReserve1
+
+    ] = useState<bigint>(
+        0n
+    );
+
+
+    const [
+
+        totalSupply,
+
+        setTotalSupply
+
+    ] = useState<bigint>(
+        0n
+    );
+
+
+    const [
+
+        lpBalance,
+
+        setLpBalance
+
+    ] = useState<bigint>(
+        0n
+    );
+
+
+    const [
+
+        error,
+
+        setError
+
+    ] = useState("");
+
+
+    // ========================================================
+    // TOAST
+    // ========================================================
+
+    const [
+
+        toastOpen,
+
+        setToastOpen
+
+    ] = useState(false);
+
+
+    const [
+
+        txHash,
+
+        setTxHash
+
+    ] = useState("");
+
+
+    // ========================================================
+    // IS NATIVE / WRAPPED NATIVE
+    // ========================================================
+
+    function isWrappedNative(
+        tokenAddress: string
+    ): boolean {
+
+        if (!chain) {
+            return false;
         }
 
-        if (!position)
-            return 0n;
-
-        try {
-            return typeof position.lp === "bigint"
-                ? position.lp
-                : BigInt(
-                    position.lp?.toString() ||
-                    "0"
-                );
-        } catch {
-            return 0n;
-        }
-    }, [
-        selectedPool,
-        position
-    ]);
-
-    // =====================================================
-    // LP YANG AKAN DIBURN
-    // =====================================================
-
-    const removingLP = useMemo(() => {
         if (
-            lpBalance === 0n ||
-            percent <= 0
+            !tokenAddress ||
+            !ethers.isAddress(
+                tokenAddress
+            )
         ) {
-            return 0n;
+
+            return false;
+
         }
 
         return (
-            lpBalance *
-            BigInt(percent)
-        ) / 100n;
-    }, [
-        lpBalance,
-        percent
-    ]);
 
-    // =====================================================
-    // NATIVE YANG DITERIMA
-    // =====================================================
+            tokenAddress.toLowerCase() ===
+            chain.wrappedNative.toLowerCase()
 
-    const receiveNative = useMemo(() => {
-        if (
-            totalSupply === 0n ||
-            removingLP === 0n
-        ) {
-            return "0";
-        }
-
-        const amount =
-            reserve0 *
-            removingLP /
-            totalSupply;
-
-        return ethers.formatEther(
-            amount
         );
-    }, [
-        reserve0,
-        removingLP,
-        totalSupply
-    ]);
 
-    // =====================================================
-    // TOKEN YANG DITERIMA
-    // =====================================================
+    }
 
-    const receiveToken = useMemo(() => {
-        if (
-            totalSupply === 0n ||
-            removingLP === 0n
-        ) {
-            return "0";
-        }
 
-        const amount =
-            reserve1 *
-            removingLP /
-            totalSupply;
+    // ========================================================
+    // TOKEN METADATA
+    // ========================================================
 
-        return ethers.formatEther(
-            amount
-        );
-    }, [
-        reserve1,
-        removingLP,
-        totalSupply
-    ]);
+    async function readTokenInfo(
+        tokenAddress: string
+    ): Promise<TokenInfo> {
 
-    // =====================================================
-    // HANDLE REMOVE
-    // =====================================================
 
-    async function handleRemove() {
-        const tokenAddress =
-            selectedPool?.token0Address ??
-            selectedPool?.token ??
-            position?.token ??
-            "";
-
-        const actualPairAddress =
-            selectedPool?.pair ??
-            selectedPool?.pairAddress ??
-            position?.pair ??
-            "";
-
-        // -------------------------------------------------
-        // VALIDATION
-        // -------------------------------------------------
-
-        if (!tokenAddress) {
-            console.error(
-                "RemoveLiquidity: token address missing",
-                {
-                    selectedPool,
-                    position
-                }
-            );
-            return;
-        }
-
-        if (!actualPairAddress) {
-            console.error(
-                "RemoveLiquidity: pair address missing",
-                {
-                    selectedPool,
-                    position
-                }
-            );
-            return;
-        }
+        // ----------------------------------------------------
+        // WRAPPED NATIVE
+        // ----------------------------------------------------
 
         if (
-            actualPairAddress ===
-            ethers.ZeroAddress
+            isWrappedNative(
+                tokenAddress
+            )
         ) {
-            console.error(
-                "RemoveLiquidity: invalid pair address"
-            );
-            return;
+
+            return {
+
+                address:
+                    ethers.getAddress(
+                        tokenAddress
+                    ),
+
+                symbol:
+                    chain.nativeSymbol,
+
+                name:
+                    chain.nativeSymbol,
+
+                decimals:
+                    18,
+
+                isNative:
+                    true
+
+            };
+
         }
 
-        if (removingLP === 0n) {
-            console.error(
-                "RemoveLiquidity: liquidity is zero"
+
+        // ----------------------------------------------------
+        // CONFIG TOKEN
+        // ----------------------------------------------------
+
+        const configured =
+            chain.tokens.find(
+                token =>
+                    token.address !==
+                    "native" &&
+
+                    token.address.toLowerCase() ===
+                    tokenAddress.toLowerCase()
             );
-            return;
+
+
+        // ----------------------------------------------------
+        // TRY CONFIG FIRST
+        // ----------------------------------------------------
+
+        if (configured) {
+
+            return {
+
+                address:
+                    ethers.getAddress(
+                        tokenAddress
+                    ),
+
+                symbol:
+                    configured.symbol,
+
+                name:
+                    configured.name,
+
+                decimals:
+                    configured.decimals,
+
+                isNative:
+                    false
+
+            };
+
         }
 
-        if (totalSupply === 0n) {
-            console.error(
-                "RemoveLiquidity: total supply is zero"
+
+        // ----------------------------------------------------
+        // READ FROM CONTRACT
+        // ----------------------------------------------------
+
+        if (!provider) {
+
+            throw new Error(
+                "Wallet provider unavailable."
             );
-            return;
+
         }
 
-        // -------------------------------------------------
-        // EXECUTE
-        // -------------------------------------------------
+
+        const contract =
+            new ethers.Contract(
+                tokenAddress,
+                ERC20_ABI,
+                provider
+            );
+
+
+        const [
+
+            symbol,
+
+            name,
+
+            decimals
+
+        ] = await Promise.all([
+
+            contract.symbol(),
+
+            contract.name(),
+
+            contract.decimals()
+
+        ]);
+
+
+        return {
+
+            address:
+                ethers.getAddress(
+                    tokenAddress
+                ),
+
+            symbol:
+                String(symbol),
+
+            name:
+                String(name),
+
+            decimals:
+                Number(decimals),
+
+            isNative:
+                false
+
+        };
+
+    }
+
+
+    // ========================================================
+    // READ PAIR
+    //
+    // IMPORTANT:
+    //
+    // token0/token1 dibaca LANGSUNG dari pair.
+    //
+    // Jadi tidak peduli pair-nya:
+    //
+    // QTER / HEX
+    // QTER / BTC
+    // HEX / BTC
+    // USDT / BTC
+    // token / token
+    //
+    // ========================================================
+
+    async function loadPair() {
+
+        if (!provider) {
+
+            return;
+
+        }
+
+        if (!address) {
+
+            return;
+
+        }
+
+        if (!pairAddress) {
+
+            setError(
+                "Liquidity pool data is unavailable."
+            );
+
+            return;
+
+        }
+
 
         try {
-            setLoading(true);
 
-            // Reset toast/hash lama
-            setToastOpen(false);
-            setTxHash("");
+            setReading(true);
 
-            console.log(
-                "Removing liquidity:",
-                {
-                    tokenAddress,
-                    pairAddress:
-                        actualPairAddress,
-                    lpBalance:
-                        lpBalance.toString(),
-                    removingLP:
-                        removingLP.toString(),
-                    percent
-                }
-            );
+            setError("");
 
-            const receipt =
-                await removeLiquidityETH(
-                    tokenAddress,
-                    removingLP,
-                    actualPairAddress
+
+            // ------------------------------------------------
+            // PAIR CONTRACT
+            // ------------------------------------------------
+
+            const pair =
+                new ethers.Contract(
+                    pairAddress,
+                    PAIR_ABI,
+                    provider
                 );
 
-            // -------------------------------------------------
-            // AMBIL TRANSACTION HASH
-            // Sama seperti SwapCard
-            // -------------------------------------------------
 
-            let hashVal = "";
+            // ------------------------------------------------
+            // READ EVERYTHING
+            // ------------------------------------------------
+
+            const [
+
+                pairToken0,
+
+                pairToken1,
+
+                reserves,
+
+                supply,
+
+                walletLP
+
+            ] = await Promise.all([
+
+                pair.token0(),
+
+                pair.token1(),
+
+                pair.getReserves(),
+
+                pair.totalSupply(),
+
+                pair.balanceOf(
+                    address
+                )
+
+            ]);
+
+
+            // ------------------------------------------------
+            // TOKEN METADATA
+            // ------------------------------------------------
+
+            const [
+
+                info0,
+
+                info1
+
+            ] = await Promise.all([
+
+                readTokenInfo(
+                    pairToken0
+                ),
+
+                readTokenInfo(
+                    pairToken1
+                )
+
+            ]);
+
+
+            // ------------------------------------------------
+            // UPDATE STATE
+            // ------------------------------------------------
+
+            setToken0(
+                info0
+            );
+
+            setToken1(
+                info1
+            );
+
+
+            setReserve0(
+                BigInt(
+                    reserves[0].toString()
+                )
+            );
+
+
+            setReserve1(
+                BigInt(
+                    reserves[1].toString()
+                )
+            );
+
+
+            setTotalSupply(
+                BigInt(
+                    supply.toString()
+                )
+            );
+
+
+            // ------------------------------------------------
+            // IMPORTANT:
+            //
+            // LP BALANCE SELALU DIBACA LANGSUNG DARI PAIR.
+            //
+            // Tidak menggunakan data.lp sebagai sumber utama.
+            // ------------------------------------------------
+
+            setLpBalance(
+                BigInt(
+                    walletLP.toString()
+                )
+            );
+
+
+        } catch (err) {
+
+            console.error(
+                "RemoveLiquidity loadPair error:",
+                err
+            );
+
+
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to read liquidity pool."
+            );
+
+
+            setToken0(null);
+
+            setToken1(null);
+
+            setReserve0(0n);
+
+            setReserve1(0n);
+
+            setTotalSupply(0n);
+
+            setLpBalance(0n);
+
+
+        } finally {
+
+            setReading(false);
+
+        }
+
+    }
+
+
+    // ========================================================
+    // LOAD PAIR WHEN OPENED
+    // ========================================================
+
+    useEffect(() => {
+
+        void loadPair();
+
+    }, [
+
+        provider,
+
+        address,
+
+        pairAddress,
+
+        chainId
+
+    ]);
+
+
+    // ========================================================
+    // RESET WHEN PAIR CHANGES
+    // ========================================================
+
+    useEffect(() => {
+
+        setPercent(0);
+
+        setError("");
+
+        setTxHash("");
+
+        setToastOpen(false);
+
+    }, [
+
+        pairAddress
+
+    ]);
+
+
+    // ========================================================
+    // LP TO BURN
+    // ========================================================
+
+    const removingLP =
+        useMemo(() => {
 
             if (
-                typeof receipt ===
-                "string"
+                lpBalance ===
+                0n
             ) {
-                hashVal = receipt;
-            } else if (
-                receipt?.hash
-            ) {
-                hashVal =
-                    receipt.hash;
-            } else if (
-                receipt?.transactionHash
-            ) {
-                hashVal =
-                    receipt.transactionHash;
-            }
 
-            if (hashVal) {
-                setTxHash(hashVal);
-            }
+                return 0n;
 
-            // -------------------------------------------------
-            // REFRESH DATA
-            // -------------------------------------------------
-
-            if (
-                typeof refresh ===
-                "function"
-            ) {
-                await refresh();
             }
 
             if (
-                typeof refreshReserve ===
-                "function"
+                percent <=
+                0
             ) {
-                await refreshReserve();
+
+                return 0n;
+
             }
+
+            if (
+                percent >=
+                100
+            ) {
+
+                return lpBalance;
+
+            }
+
+            return (
+
+                lpBalance *
+                BigInt(percent)
+
+            ) / 100n;
+
+        }, [
+
+            lpBalance,
+
+            percent
+
+        ]);
+
+
+    // ========================================================
+    // TOKEN 0 AMOUNT
+    // ========================================================
+
+    const amount0 =
+        useMemo(() => {
+
+            if (
+                totalSupply ===
+                0n
+            ) {
+
+                return 0n;
+
+            }
+
+            if (
+                removingLP ===
+                0n
+            ) {
+
+                return 0n;
+
+            }
+
+            return (
+
+                reserve0 *
+                removingLP
+
+            ) / totalSupply;
+
+        }, [
+
+            reserve0,
+
+            removingLP,
+
+            totalSupply
+
+        ]);
+
+
+    // ========================================================
+    // TOKEN 1 AMOUNT
+    // ========================================================
+
+    const amount1 =
+        useMemo(() => {
+
+            if (
+                totalSupply ===
+                0n
+            ) {
+
+                return 0n;
+
+            }
+
+            if (
+                removingLP ===
+                0n
+            ) {
+
+                return 0n;
+
+            }
+
+            return (
+
+                reserve1 *
+                removingLP
+
+            ) / totalSupply;
+
+        }, [
+
+            reserve1,
+
+            removingLP,
+
+            totalSupply
+
+        ]);
+
+
+    // ========================================================
+    // DISPLAY AMOUNTS
+    // ========================================================
+
+    const displayAmount0 =
+
+        token0
+
+            ? formatAmount(
+                amount0,
+                token0.decimals
+            )
+
+            : "0";
+
+
+    const displayAmount1 =
+
+        token1
+
+            ? formatAmount(
+                amount1,
+                token1.decimals
+            )
+
+            : "0";
+
+
+    // ========================================================
+    // PAIR TYPE
+    // ========================================================
+
+    const isNativePair =
+
+        Boolean(
+
+            token0?.isNative ||
+
+            token1?.isNative
+
+        );
+
+
+    // ========================================================
+    // HANDLE REMOVE
+    // ========================================================
+
+    async function handleRemove() {
+
+        if (!signer) {
+
+            setError(
+                "Connect your wallet first."
+            );
+
+            return;
+
+        }
+
+
+        if (!address) {
+
+            setError(
+                "Wallet address unavailable."
+            );
+
+            return;
+
+        }
+
+
+        if (!pairAddress) {
+
+            setError(
+                "Liquidity pool address unavailable."
+            );
+
+            return;
+
+        }
+
+
+        if (!token0 || !token1) {
+
+            setError(
+                "Pair tokens are still loading."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            removingLP ===
+            0n
+        ) {
+
+            setError(
+                "Select liquidity to remove."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            totalSupply ===
+            0n
+        ) {
+
+            setError(
+                "Pool has no LP supply."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            setLoading(true);
+
+            setError("");
+
+            setToastOpen(false);
+
+            setTxHash("");
+
+
+            // =================================================
+            // ROUTER
+            // =================================================
+
+            const router =
+                new ethers.Contract(
+                    chain.router,
+                    ROUTER_ABI,
+                    signer
+                );
+
+
+            // =================================================
+            // LP TOKEN = PAIR ITSELF
+            //
+            // Router needs allowance to spend LP tokens.
+            // =================================================
+
+            const lpToken =
+                new ethers.Contract(
+                    pairAddress,
+                    ERC20_APPROVE_ABI,
+                    signer
+                );
+
+
+            // =================================================
+            // CHECK ALLOWANCE
+            // =================================================
+
+            const allowance =
+                await lpToken.allowance(
+                    address,
+                    chain.router
+                );
+
+
+            // =================================================
+            // APPROVE ROUTER
+            // =================================================
+
+            if (
+                allowance <
+                removingLP
+            ) {
+
+                const approveTx =
+                    await lpToken.approve(
+                        chain.router,
+                        ethers.MaxUint256
+                    );
+
+                await approveTx.wait();
+
+            }
+
+
+            // =================================================
+            // MINIMUM AMOUNTS
+            //
+            // 0 = universal compatibility.
+            //
+            // The displayed amounts are informational and the
+            // router performs the actual transfer.
+            // =================================================
+
+            const amount0Min =
+                0n;
+
+            const amount1Min =
+                0n;
+
+
+            // =================================================
+            // DEADLINE
+            // =================================================
+
+            const deadline =
+                Math.floor(
+                    Date.now() /
+                    1000
+                ) + 60 * 20;
+
+
+            // =================================================
+            // EXECUTE
+            // =================================================
+
+            let tx;
+
+
+            // =================================================
+            // NATIVE / WNATIVE PAIR
+            //
+            // Example:
+            //
+            // WQTER / HEX
+            //
+            // Router unwraps WQTER and sends QTER.
+            // =================================================
+
+            if (
+                isNativePair
+            ) {
+
+
+                let tokenAddress: string;
+
+                let tokenAmountMin: bigint;
+
+                let nativeAmountMin: bigint;
+
+
+                if (
+                    token0.isNative
+                ) {
+
+                    tokenAddress =
+                        token1.address;
+
+                    tokenAmountMin =
+                        amount1Min;
+
+                    nativeAmountMin =
+                        amount0Min;
+
+                } else {
+
+                    tokenAddress =
+                        token0.address;
+
+                    tokenAmountMin =
+                        amount0Min;
+
+                    nativeAmountMin =
+                        amount1Min;
+
+                }
+
+
+                tx =
+                    await router.removeLiquidityETH(
+
+                        tokenAddress,
+
+                        removingLP,
+
+                        tokenAmountMin,
+
+                        nativeAmountMin,
+
+                        address,
+
+                        deadline
+
+                    );
+
+            }
+
+            // =================================================
+            // TOKEN / TOKEN
+            // =================================================
+
+            else {
+
+                tx =
+                    await router.removeLiquidity(
+
+                        token0.address,
+
+                        token1.address,
+
+                        removingLP,
+
+                        amount0Min,
+
+                        amount1Min,
+
+                        address,
+
+                        deadline
+
+                    );
+
+            }
+
+
+            // =================================================
+            // WAIT
+            // =================================================
+
+            const receipt =
+                await tx.wait();
+
+
+            // =================================================
+            // HASH
+            // =================================================
+
+            const hash =
+                receipt?.hash ??
+                tx?.hash ??
+                "";
+
+
+            setTxHash(
+                hash
+            );
+
+
+            // =================================================
+            // RESET
+            // =================================================
 
             setPercent(0);
 
-            // -------------------------------------------------
-            // SUCCESS TOAST
-            // -------------------------------------------------
 
-            setToastOpen(true);
+            // =================================================
+            // RELOAD PAIR
+            // =================================================
+
+            await loadPair();
+
+
+            // =================================================
+            // SUCCESS
+            // =================================================
+
+            setToastOpen(
+                true
+            );
+
 
         } catch (err) {
+
             console.error(
                 "Remove liquidity error:",
                 err
             );
 
-            // Jangan pakai alert.
-            // Sama seperti SwapCard:
-            // error hanya dicatat ke console.
+
+            let message =
+                "Remove liquidity failed.";
+
+
+            if (
+                err instanceof Error
+            ) {
+
+                message =
+                    err.message;
+
+            }
+
+
+            setError(
+                message
+            );
+
+
         } finally {
+
             setLoading(false);
+
         }
+
     }
 
-    // =====================================================
+
+    // ========================================================
+    // BACK
+    // ========================================================
+
+    function handleBack() {
+
+        if (loading) {
+            return;
+        }
+
+        navigate(
+            "pool"
+        );
+
+    }
+
+
+    // ========================================================
     // RENDER
-    // =====================================================
+    // ========================================================
 
     return (
+
         <div className="remove-wrapper">
 
             <div className="remove-card">
 
-                {/* =========================================
+
+                {/* =================================================
                     HEADER
-                ========================================= */}
+                ================================================= */}
 
                 <div className="remove-header">
 
                     <button
+
+                        type="button"
+
                         className="backButton"
-                        onClick={() =>
-                            navigate("pool")
+
+                        onClick={
+                            handleBack
                         }
-                        disabled={loading}
+
+                        disabled={
+                            loading
+                        }
+
                     >
+
                         ← Back
+
                     </button>
 
+
                     <h2>
+
                         Remove Liquidity
+
                     </h2>
 
                 </div>
 
-                {/* =========================================
+
+                {/* =================================================
+                    LOADING
+                ================================================= */}
+
+                {reading && (
+
+                    <div
+                        style={{
+                            padding:
+                                "14px 0",
+                            opacity:
+                                0.65,
+                            fontSize:
+                                13
+                        }}
+                    >
+
+                        Reading liquidity pool...
+
+                    </div>
+
+                )}
+
+
+                {/* =================================================
+                    ERROR
+                ================================================= */}
+
+                {error && (
+
+                    <div
+                        style={{
+                            marginTop:
+                                12,
+                            padding:
+                                "11px 13px",
+                            borderRadius:
+                                12,
+                            background:
+                                "rgba(255,80,80,0.08)",
+                            border:
+                                "1px solid rgba(255,80,80,0.18)",
+                            color:
+                                "#ff7b7b",
+                            fontSize:
+                                12,
+                            lineHeight:
+                                1.45,
+                            wordBreak:
+                                "break-word"
+                        }}
+                    >
+
+                        {error}
+
+                    </div>
+
+                )}
+
+
+                {/* =================================================
                     LP BALANCE
-                ========================================= */}
+                ================================================= */}
 
                 <div className="lpBalance">
 
@@ -491,16 +1525,23 @@ export default function RemoveLiquidityCard() {
                     </span>
 
                     <b>
-                        {ethers.formatEther(
-                            lpBalance
-                        )} LP
+
+                        {formatAmount(
+                            lpBalance,
+                            18,
+                            8
+                        )}
+
+                        {" "}LP
+
                     </b>
 
                 </div>
 
-                {/* =========================================
+
+                {/* =================================================
                     PAIR
-                ========================================= */}
+                ================================================= */}
 
                 <div className="remove-pair-info">
 
@@ -509,141 +1550,285 @@ export default function RemoveLiquidityCard() {
                     </span>
 
                     <b>
+
                         {pairAddress
-                            ? `${pairAddress.slice(
-                                0,
-                                6
-                            )}...${pairAddress.slice(
-                                -4
-                            )}`
-                            : "Not found"}
+                            ? shortAddress(
+                                pairAddress
+                            )
+                            : "Loading..."}
+
                     </b>
 
                 </div>
 
-                {/* =========================================
-                    SLIDER
-                ========================================= */}
 
-                <div className="sliderArea">
+                {/* =================================================
+                    TOKEN PAIR
+                ================================================= */}
+
+                <div
+                    style={{
+                        display:
+                            "grid",
+                        gridTemplateColumns:
+                            "1fr 1fr",
+                        gap:
+                            10,
+                        marginTop:
+                            12
+                    }}
+                >
+
+                    <div
+                        style={{
+                            padding:
+                                "11px 12px",
+                            borderRadius:
+                                12,
+                            background:
+                                "rgba(255,255,255,0.04)",
+                            border:
+                                "1px solid rgba(255,255,255,0.07)"
+                        }}
+                    >
+
+                        <div
+                            style={{
+                                fontSize:
+                                    11,
+                                opacity:
+                                    0.5
+                            }}
+                        >
+
+                            Token 0
+
+                        </div>
+
+                        <strong>
+
+                            {token0?.symbol ??
+                                "..."}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div
+                        style={{
+                            padding:
+                                "11px 12px",
+                            borderRadius:
+                                12,
+                            background:
+                                "rgba(255,255,255,0.04)",
+                            border:
+                                "1px solid rgba(255,255,255,0.07)"
+                        }}
+                    >
+
+                        <div
+                            style={{
+                                fontSize:
+                                    11,
+                                opacity:
+                                    0.5
+                            }}
+                        >
+
+                            Token 1
+
+                        </div>
+
+                        <strong>
+
+                            {token1?.symbol ??
+                                "..."}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                {/* =================================================
+                    PERCENT
+                ================================================= */}
+
+                <div
+                    className="sliderArea"
+                >
+
+                    <div
+                        style={{
+                            display:
+                                "flex",
+                            justifyContent:
+                                "space-between",
+                            alignItems:
+                                "center",
+                            marginBottom:
+                                10
+                        }}
+                    >
+
+                        <span>
+                            {percent}%
+                        </span>
+
+                    </div>
+
 
                     <input
+
                         type="range"
+
                         min="0"
+
                         max="100"
+
                         step="1"
-                        value={percent}
+
+                        value={
+                            percent
+                        }
+
                         disabled={
                             loading ||
-                            lpBalance === 0n
+                            reading ||
+                            lpBalance ===
+                                0n
                         }
-                        onChange={(e) =>
-                            setPercent(
-                                Number(
-                                    e.target.value
+
+                        onChange={
+                            event =>
+                                setPercent(
+                                    Number(
+                                        event.target.value
+                                    )
                                 )
-                            )
                         }
+
+                        style={{
+                            width:
+                                "100%"
+                        }}
+
                     />
 
-                    <h2>
-                        {percent}%
-                    </h2>
+
+                    <div
+                        className="percentButtons"
+                    >
+
+                        {[
+
+                            25,
+
+                            50,
+
+                            75,
+
+                            100
+
+                        ].map(
+                            value => (
+
+                                <button
+
+                                    key={
+                                        value
+                                    }
+
+                                    type="button"
+
+                                    disabled={
+                                        loading ||
+                                        reading
+                                    }
+
+                                    onClick={() =>
+                                        setPercent(
+                                            value
+                                        )
+                                    }
+
+                                >
+
+                                    {value ===
+                                    100
+                                        ? "MAX"
+                                        : `${value}%`}
+
+                                </button>
+
+                            )
+                        )}
+
+                    </div>
 
                 </div>
 
-                {/* =========================================
-                    QUICK BUTTONS
-                ========================================= */}
 
-                <div className="quickButtons">
-
-                    <button
-                        type="button"
-                        disabled={loading}
-                        onClick={() =>
-                            setPercent(25)
-                        }
-                    >
-                        25%
-                    </button>
-
-                    <button
-                        type="button"
-                        disabled={loading}
-                        onClick={() =>
-                            setPercent(50)
-                        }
-                    >
-                        50%
-                    </button>
-
-                    <button
-                        type="button"
-                        disabled={loading}
-                        onClick={() =>
-                            setPercent(75)
-                        }
-                    >
-                        75%
-                    </button>
-
-                    <button
-                        type="button"
-                        disabled={loading}
-                        onClick={() =>
-                            setPercent(100)
-                        }
-                    >
-                        MAX
-                    </button>
-
-                </div>
-
-                {/* =========================================
+                {/* =================================================
                     RECEIVE
-                ========================================= */}
+                ================================================= */}
 
-                <div className="receiveInfo">
+                <div
+                    className="receiveInfo"
+                >
 
                     <div>
 
                         <span>
-                            {chain?.nativeSymbol ??
-                                "Native"}
+
+                            {token0?.symbol ??
+                                "Token 0"}
+
                         </span>
 
                         <b>
-                            {reserveLoading
+
+                            {reading
                                 ? "Loading..."
-                                : receiveNative}
+                                : displayAmount0}
+
                         </b>
 
                     </div>
 
+
                     <div>
 
                         <span>
-                            {selectedPool?.token1 ??
-                                position?.symbol ??
-                                "Token"}
+
+                            {token1?.symbol ??
+                                "Token 1"}
+
                         </span>
 
                         <b>
-                            {reserveLoading
+
+                            {reading
                                 ? "Loading..."
-                                : receiveToken}
+                                : displayAmount1}
+
                         </b>
 
                     </div>
 
                 </div>
 
-                {/* =========================================
-                    SUMMARY
-                ========================================= */}
 
-                <div className="removeSummary">
+                {/* =================================================
+                    SUMMARY
+                ================================================= */}
+
+                <div
+                    className="removeSummary"
+                >
 
                     <div>
 
@@ -652,12 +1837,19 @@ export default function RemoveLiquidityCard() {
                         </span>
 
                         <b>
-                            {ethers.formatEther(
-                                removingLP
-                            )} LP
+
+                            {formatAmount(
+                                removingLP,
+                                18,
+                                8
+                            )}
+
+                            {" "}LP
+
                         </b>
 
                     </div>
+
 
                     <div>
 
@@ -673,65 +1865,93 @@ export default function RemoveLiquidityCard() {
 
                 </div>
 
-                {/* =========================================
+
+                {/* =================================================
                     REMOVE BUTTON
-                ========================================= */}
+                ================================================= */}
 
                 <SwapButton
-                    loading={loading}
-                    loadingText="Removing..."
-                    text="REMOVE LIQUIDITY"
-                    disabled={
-                        loading ||
-                        !tokenAddressForButton(
-                            selectedPool,
-                            position
-                        ) ||
-                        !pairAddress ||
-                        removingLP === 0n
+
+                    loading={
+                        loading
                     }
+
+                    loadingText={
+                        "Removing..."
+                    }
+
+                    text={
+                        "REMOVE LIQUIDITY"
+                    }
+
+                    disabled={
+
+                        loading ||
+
+                        reading ||
+
+                        !signer ||
+
+                        !pairAddress ||
+
+                        !token0 ||
+
+                        !token1 ||
+
+                        removingLP ===
+                            0n
+
+                    }
+
                     onClick={
                         handleRemove
                     }
+
                 />
+
 
             </div>
 
-            {/* =============================================
+
+            {/* =====================================================
                 TOAST
-                Sama seperti SwapCard
-            ============================================= */}
+            ===================================================== */}
 
             <Toast
-                open={toastOpen}
-                title="Success"
-                message="Liquidity removed successfully"
-                tx={txHash}
-                explorer={chain?.explorer?.replace(
-                    /\/+$/,
-                    ""
-                )}
-                onClose={() =>
-                    setToastOpen(false)
+
+                open={
+                    toastOpen
                 }
+
+                title={
+                    "Success"
+                }
+
+                message={
+                    "Liquidity removed successfully"
+                }
+
+                tx={
+                    txHash
+                }
+
+                explorer={
+                    chain?.explorer?.replace(
+                        /\/+$/,
+                        ""
+                    )
+                }
+
+                onClose={() =>
+                    setToastOpen(
+                        false
+                    )
+                }
+
             />
 
         </div>
-    );
-}
 
-// =====================================================
-// BUTTON VALIDATION
-// =====================================================
-
-function tokenAddressForButton(
-    selectedPool: any,
-    position: any
-): string {
-    return (
-        selectedPool?.token0Address ??
-        selectedPool?.token ??
-        position?.token ??
-        ""
     );
+
 }
