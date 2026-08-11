@@ -1,13 +1,13 @@
 import "./ChainWalletSelector.css";
-
 import { useMemo, useState } from "react";
 
 import type { Chain } from "../../config/chain";
 import { CHAINS } from "../../config/chain";
 import { useWallet } from "../../context/WalletContext";
 
-export default function ChainWalletSelector() {
+import WalletModal from "../WalletModal/WalletModal";
 
+export default function ChainWalletSelector() {
     const {
         connected,
         address,
@@ -17,33 +17,18 @@ export default function ChainWalletSelector() {
         switchChain
     } = useWallet();
 
-    const [chainOpen, setChainOpen] =
-        useState(false);
-
-    const [walletOpen, setWalletOpen] =
-        useState(false);
-
-    // =========================================================
-    // CURRENT CHAIN
-    // =========================================================
+    const [chainOpen, setChainOpen] = useState(false);
+    const [walletOpen, setWalletOpen] = useState(false);
 
     const currentChain = useMemo(() => {
-
         return (
             CHAINS.find(
-                (chain) =>
-                    chain.chainId === chainId
+                (chain) => chain.chainId === chainId
             ) || CHAINS[0]
         );
-
     }, [chainId]);
 
-    // =========================================================
-    // SHORT ADDRESS
-    // =========================================================
-
     const shortAddress = useMemo(() => {
-
         if (!address) {
             return "Connect Wallet";
         }
@@ -53,106 +38,61 @@ export default function ChainWalletSelector() {
             "..." +
             address.slice(-4)
         );
-
     }, [address]);
 
-    // =========================================================
-    // SELECT CHAIN
-    // =========================================================
-
-    async function handleChainSelect(
-        chain: Chain
-    ) {
-
+    async function handleChainSelect(chain: Chain) {
         try {
-
-            // Tutup wallet dropdown
             setWalletOpen(false);
 
-            // Kalau chain yang dipilih
-            // sama dengan chain sekarang
-            if (
-                chain.chainId === chainId
-            ) {
-
+            if (chain.chainId === chainId) {
                 setChainOpen(false);
-
                 return;
             }
 
-            // Jalankan switch melalui WalletContext
-            //
-            // Ini yang akan memunculkan popup
-            // MetaMask.
             await switchChain(chain);
 
-            // Tutup dropdown setelah selesai
             setChainOpen(false);
-
         } catch (error) {
-
             console.error(
                 "Chain selection failed:",
                 error
             );
-
         }
-
     }
 
-    // =========================================================
-    // WALLET BUTTON
-    // =========================================================
+    async function handleWalletConnect() {
+        try {
+            await connect();
 
-    async function handleWalletClick() {
+            setWalletOpen(false);
+        } catch (error) {
+            console.error(
+                "Wallet connection failed:",
+                error
+            );
+        }
+    }
 
-        // Kalau belum connect
+    function handleWalletClick() {
         if (!connected) {
-
-            try {
-
-                await connect();
-
-            } catch (error) {
-
-                console.error(
-                    "Wallet connection failed:",
-                    error
-                );
-
-            }
-
+            setChainOpen(false);
+            setWalletOpen(true);
             return;
         }
 
-        // Kalau sudah connect,
-        // buka/tutup dropdown wallet
         setChainOpen(false);
 
         setWalletOpen(
             (value) => !value
         );
-
     }
-
-    // =========================================================
-    // DISCONNECT
-    // =========================================================
 
     function handleDisconnect() {
-
         setWalletOpen(false);
-
         disconnect();
-
     }
 
-    // =========================================================
-    // RENDER
-    // =========================================================
-
     return (
-
         <div className="chainWalletSelector">
 
             {/* =================================================
@@ -165,18 +105,16 @@ export default function ChainWalletSelector() {
                     type="button"
                     className="chainSelectorButton"
                     onClick={() => {
-
                         setWalletOpen(false);
 
                         setChainOpen(
                             (value) => !value
                         );
-
                     }}
                 >
 
                     <span className="chainDot">
-                        🟢
+                        ●
                     </span>
 
                     <span className="chainName">
@@ -192,19 +130,12 @@ export default function ChainWalletSelector() {
 
                 </button>
 
-
-                {/* =================================================
-                    CHAIN DROPDOWN
-                ================================================= */}
-
                 {chainOpen && (
-
                     <div className="chainDropdown">
 
                         <div className="dropdownTitle">
                             Select Chain
                         </div>
-
 
                         {CHAINS.map(
                             (chain) => {
@@ -214,12 +145,9 @@ export default function ChainWalletSelector() {
                                     chainId;
 
                                 return (
-
                                     <button
                                         type="button"
-                                        key={
-                                            chain.key
-                                        }
+                                        key={chain.key}
                                         className={
                                             "chainOption" +
                                             (
@@ -236,7 +164,7 @@ export default function ChainWalletSelector() {
                                     >
 
                                         <span className="chainOptionDot">
-                                            🟢
+                                            ●
                                         </span>
 
                                         <span className="chainOptionName">
@@ -245,39 +173,28 @@ export default function ChainWalletSelector() {
                                             }
                                         </span>
 
-                                        {
-                                            selected && (
-                                                <span className="chainCheck">
-                                                    ✓
-                                                </span>
-                                            )
-                                        }
+                                        {selected && (
+                                            <span className="chainCheck">
+                                                ✓
+                                            </span>
+                                        )}
 
                                     </button>
-
                                 );
-
                             }
                         )}
 
                     </div>
-
                 )}
 
             </div>
-
-
-            {/* =================================================
-                PLUS
-            ================================================= */}
 
             <div className="selectorPlus">
                 +
             </div>
 
-
             {/* =================================================
-                WALLET SELECTOR
+                WALLET
             ================================================= */}
 
             <div className="selectorBlock">
@@ -302,29 +219,42 @@ export default function ChainWalletSelector() {
 
                 </button>
 
-
                 {/* =================================================
-                    WALLET DROPDOWN
+                    CONNECT WALLET MODAL
                 ================================================= */}
 
-                {
-                    walletOpen &&
-                    connected && (
+                {!connected && walletOpen && (
+                    <WalletModal
+                        onClose={() =>
+                            setWalletOpen(false)
+                        }
+                        onConnect={
+                            handleWalletConnect
+                        }
+                    />
+                )}
 
+                {/* =================================================
+                    CONNECTED WALLET DROPDOWN
+                ================================================= */}
+
+                {walletOpen &&
+                    connected && (
                         <div className="walletDropdown">
 
-                            <div className="walletDropdownAddress">
-
-                                {
-                                    address
-                                }
-
+                            <div className="walletDropdownTitle">
+                                Connected Wallet
                             </div>
 
+                            <div className="walletDropdownAddress">
+                                {address}
+                            </div>
 
                             <div className="walletDropdownChain">
 
-                                🟢
+                                <span className="chainOptionDot">
+                                    ●
+                                </span>
 
                                 <span>
                                     {
@@ -333,7 +263,6 @@ export default function ChainWalletSelector() {
                                 </span>
 
                             </div>
-
 
                             <button
                                 type="button"
@@ -346,14 +275,10 @@ export default function ChainWalletSelector() {
                             </button>
 
                         </div>
-
-                    )
-                }
+                    )}
 
             </div>
 
         </div>
-
     );
-
 }

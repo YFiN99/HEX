@@ -1,0 +1,381 @@
+/* =========================================================
+   WALLET MODAL OVERLAY
+========================================================= */
+
+.walletModalOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.walletModal {
+    width: 100%;
+    max-width: 300px;
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(13, 17, 24, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
+    color: white;
+    scrollbar-width: thin;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.walletModalHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.walletModalHeader::before {
+    content: "";
+    width: 26px;
+    flex-shrink: 0;
+}
+
+.walletModalHeader > div {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+}
+
+.walletModalHeader h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+}
+
+.walletModalHeader p {
+    margin: 4px 0 0;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11.5px;
+    line-height: 1.4;
+}
+
+.walletModalClose {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.70);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.walletModalClose:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+}
+
+
+/* =========================================================
+   DIVIDER  ("OR USE A WALLET")
+========================================================= */
+
+.walletDivider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 12px;
+}
+
+.walletDivider span {
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.10);
+}
+
+.walletDivider label {
+    flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.walletSection {
+    margin-top: 12px;
+}
+
+.walletSectionTitle {
+    margin-bottom: 6px;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+}
+
+
+/* =========================================================
+   WALLET ITEM (suggested list rows AND grid buttons)
+========================================================= */
+
+.walletModalItem {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.045);
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.walletModalItem:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(20, 200, 255, 0.30);
+    transform: translateY(-1px);
+}
+
+/* Suggested wallets: full-width row items, direct children of .walletSection */
+.walletSection > .walletModalItem {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 44px;
+    padding: 7px 9px;
+    margin-bottom: 6px;
+    text-align: left;
+}
+
+.walletSection > .walletModalItem:last-child {
+    margin-bottom: 0;
+}
+
+.walletModalItemText {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.walletModalItemText strong {
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+.walletModalItemText small {
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.walletInstalled {
+    margin-left: auto;
+    padding: 3px 6px;
+    border-radius: 6px;
+    background: rgba(20, 200, 255, 0.10);
+    color: #14c8ff;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   OTHER WALLET GRID
+========================================================= */
+
+.walletGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+}
+
+.walletGrid .walletModalItem {
+    min-height: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px;
+}
+
+.walletGrid .walletModalItemText {
+    align-items: center;
+}
+
+.walletGrid .walletModalItemText strong {
+    font-size: 9.5px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   WALLET LOGO
+========================================================= */
+
+.walletLogo {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 800;
+    object-fit: contain;
+}
+
+.walletLogo.rabby { background: #8697ff; color: #1a1a2e; }
+.walletLogo.okx { background: #ffffff; color: #000000; }
+.walletLogo.bitget { background: #f5b800; color: #1a1a1a; }
+
+
+/* =========================================================
+   WALLETCONNECT BUTTON
+========================================================= */
+
+.walletConnectButton {
+    grid-column: 1 / -1;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 44px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 9px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.045);
+    color: white;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.walletConnectButton:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(20, 200, 255, 0.30);
+    transform: translateY(-1px);
+}
+
+.walletConnectLogo {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: rgba(20, 200, 255, 0.15);
+    color: #14c8ff;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.walletModalFooter {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    text-align: center;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.walletFooterLine {
+    display: none;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .walletModalOverlay {
+        padding: 10px;
+    }
+
+    .walletModal {
+        max-width: 320px;
+        max-height: calc(100vh - 20px);
+        padding: 14px;
+        border-radius: 16px;
+    }
+
+    .walletModalHeader h2 {
+        font-size: 16px;
+    }
+
+    .walletGrid {
+        gap: 6px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL PHONE
+========================================================= */
+
+@media (max-width: 360px) {
+
+    .walletModal {
+        max-width: 300px;
+        padding: 12px;
+    }
+
+    .walletModalHeader h2 {
+        font-size: 15px;
+    }
+
+    .walletSection > .walletModalItem {
+        min-height: 42px;
+    }
+
+    .walletLogo {
+        width: 24px;
+        height: 24px;
+    }
+
+}

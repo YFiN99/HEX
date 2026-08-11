@@ -1,6 +1,6 @@
 import "./SwapCard.css";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDownUp, Settings } from "lucide-react";
 
 import TokenInput from "../TokenInput/TokenInput";
@@ -47,18 +47,61 @@ export default function SwapCard() {
     // =====================================================
     // VALIDASI TOKEN TERHADAP CHAIN AKTIF (MENCEGAH TOKEN NYANGKUT)
     // =====================================================
+
+    // Melacak chain sebelumnya. Beberapa chain punya token dengan simbol
+    // yang sama (mis. "ETH" bisa jadi token native di satu chain, tapi
+    // token wrapped di chain lain) — jadi validasi berdasarkan simbol saja
+    // tidak cukup untuk mendeteksi pergantian chain.
+    const lastChainKeyRef = useRef<string | null>(null);
+
     useEffect(() => {
         if (!chain || !chain.tokens || chain.tokens.length === 0) return;
+
+        const chainChanged = lastChainKeyRef.current !== chain.key;
+        lastChainKeyRef.current = chain.key;
 
         // Cek apakah payToken dan receiveToken ada di dalam daftar token chain saat ini
         const isPayValid = chain.tokens.some(t => t.symbol === payToken);
         const isReceiveValid = chain.tokens.some(t => t.symbol === receiveToken);
 
-        // Jika salah satu token tidak valid atau kosong, reset ke token default chain ini
-        if (!isPayValid || !isReceiveValid || payToken === receiveToken) {
+        // Reset ke token default chain ini jika: chain baru saja berganti,
+        // atau salah satu token tidak valid, atau kosong
+        if (chainChanged || !isPayValid || !isReceiveValid || payToken === receiveToken) {
             if (chain.tokens.length >= 2) {
-                setPayToken(chain.tokens[0].symbol);
-                setReceiveToken(chain.tokens[1].symbol);
+                // Pay default: token native chain ini (fallback ke token pertama)
+                const nativeToken =
+                    chain.tokens.find(t => t.address === "native") ||
+                    chain.tokens[0];
+
+                // Receive default, urutan prioritas:
+                // 1. BTC (bukan native, bukan wrapped)
+                // 2. Token lain apa pun yang bukan native & bukan wrapped
+                // 3. (last resort) token wrapped, jika memang tidak ada pilihan lain
+                const btcToken =
+                    chain.tokens.find(
+                        t =>
+                            t.symbol === "BTC" &&
+                            t.symbol !== nativeToken.symbol &&
+                            !t.isWrappedNative
+                    );
+
+                const nonWrappedToken =
+                    chain.tokens.find(
+                        t =>
+                            t.symbol !== nativeToken.symbol &&
+                            !t.isWrappedNative
+                    );
+
+                const anyOtherToken =
+                    chain.tokens.find(
+                        t => t.symbol !== nativeToken.symbol
+                    );
+
+                const receiveDefault =
+                    btcToken || nonWrappedToken || anyOtherToken;
+
+                setPayToken(nativeToken.symbol);
+                setReceiveToken((receiveDefault || chain.tokens[1]).symbol);
             } else if (chain.tokens.length === 1) {
                 setPayToken(chain.tokens[0].symbol);
                 setReceiveToken(chain.tokens[0].symbol);

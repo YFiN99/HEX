@@ -1,223 +1,144 @@
+/* ============================================================
+   MAIN SELECTOR
+============================================================ */
+
 .chainWalletSelector {
-    position: relative;
-
     display: flex;
-    flex-direction: column;
-
     align-items: center;
-
-    gap: 0;
-
-    z-index: 100;
+    gap: 8px;
+    position: relative;
+    z-index: 1000;
 }
-
-/* ============================================
-   COMMON
-============================================ */
 
 .selectorBlock {
     position: relative;
 }
 
-/* ============================================
+.selectorPlus {
+    color: #64748b;
+    font-size: 16px;
+    user-select: none;
+}
+
+/* ============================================================
    CHAIN BUTTON
-============================================ */
+============================================================ */
 
 .chainSelectorButton,
 .walletSelectorButton {
-    height: 30px;
+    height: 42px;
 
-    border: 1px solid rgba(
-        255,
-        255,
-        255,
-        0.12
-    );
+    border: 1px solid rgba(255, 255, 255, 0.08);
 
-    background: rgba(
-        255,
-        255,
-        255,
-        0.04
-    );
+    border-radius: 12px;
 
-    color: #fff;
+    background:
+        rgba(15, 18, 26, 0.88);
 
-    border-radius: 8px;
+    color: #ffffff;
 
-    padding: 0 9px;
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 0 13px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.chainSelectorButton:hover,
+.walletSelectorButton:hover {
+    background:
+        rgba(25, 30, 40, 0.95);
+
+    border-color:
+        rgba(255, 255, 255, 0.16);
+}
+
+.chainDot,
+.chainOptionDot {
+    color: #22c55e;
+    font-size: 12px;
+}
+
+.chainName {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.walletAddress {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.selectorArrow {
+    color: #94a3b8;
+    font-size: 9px;
+}
+
+/* ============================================================
+   CHAIN DROPDOWN
+============================================================ */
+
+.chainDropdown {
+    position: absolute;
+
+    top: calc(100% + 8px);
+
+    right: 0;
+
+    width: 230px;
+
+    padding: 8px;
+
+    background:
+        #0d1118;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.09);
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.dropdownTitle {
+    padding:
+        9px 10px;
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+.chainOption {
+    width: 100%;
 
     display: flex;
 
     align-items: center;
 
-    justify-content: center;
-
-    gap: 4px;
-
-    font-size: 11px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-    white-space: nowrap;
-
-    transition:
-        background 0.15s ease,
-        border-color 0.15s ease;
-}
-
-.chainSelectorButton:hover,
-.walletSelectorButton:hover {
-    background: rgba(
-        255,
-        255,
-        255,
-        0.08
-    );
-
-    border-color: rgba(
-        255,
-        255,
-        255,
-        0.22
-    );
-}
-
-/* ============================================
-   CHAIN
-============================================ */
-
-.chainSelectorButton {
-    min-width: 105px;
-}
-
-.chainDot {
-    font-size: 9px;
-}
-
-/* ============================================
-   WALLET
-============================================ */
-
-.walletSelectorButton {
-    min-width: 105px;
-}
-
-.selectorArrow {
-    font-size: 8px;
-
-    opacity: 0.7;
-
-    margin-left: 2px;
-}
-
-/* ============================================
-   PLUS
-============================================ */
-
-.selectorPlus {
-    height: 10px;
-
-    line-height: 10px;
-
-    font-size: 9px;
-
-    color: rgba(
-        255,
-        255,
-        255,
-        0.45
-    );
-
-    user-select: none;
-}
-
-/* ============================================
-   CHAIN DROPDOWN
-============================================ */
-
-.chainDropdown,
-.walletDropdown {
-    position: absolute;
-
-    top: calc(
-        100% + 6px
-    );
-
-    right: 0;
-
-    min-width: 180px;
-
-    padding: 6px;
-
-    background: #111;
-
-    border: 1px solid rgba(
-        255,
-        255,
-        255,
-        0.12
-    );
-
-    border-radius: 10px;
-
-    box-shadow:
-        0 12px 35px
-        rgba(
-            0,
-            0,
-            0,
-            0.45
-        );
-
-    z-index: 1000;
-}
-
-/* ============================================
-   DROPDOWN TITLE
-============================================ */
-
-.dropdownTitle {
-    padding: 7px 9px;
-
-    font-size: 10px;
-
-    color: rgba(
-        255,
-        255,
-        255,
-        0.45
-    );
-
-    text-transform: uppercase;
-}
-
-/* ============================================
-   CHAIN OPTION
-============================================ */
-
-.chainOption {
-    width: 100%;
+    gap: 10px;
 
     border: 0;
 
     background: transparent;
 
-    color: #fff;
+    color: white;
 
-    padding: 9px;
+    padding: 11px;
 
-    border-radius: 7px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    font-size: 11px;
+    border-radius: 9px;
 
     cursor: pointer;
 
@@ -225,80 +146,622 @@
 }
 
 .chainOption:hover {
-    background: rgba(
-        255,
-        255,
-        255,
-        0.07
-    );
+    background:
+        rgba(255, 255, 255, 0.06);
 }
 
 .chainOption.selected {
-    background: rgba(
-        255,
-        255,
-        255,
-        0.06
-    );
+    background:
+        rgba(34, 211, 238, 0.08);
 }
 
-.check {
-    margin-left: auto;
+.chainOptionName {
+    flex: 1;
 
-    color: #6cff8d;
+    font-size: 13px;
 }
 
-/* ============================================
-   WALLET DROPDOWN
-============================================ */
+.chainCheck {
+    color: #22d3ee;
+
+    font-weight: 700;
+}
+
+/* ============================================================
+   CONNECTED WALLET DROPDOWN
+============================================================ */
 
 .walletDropdown {
-    min-width: 190px;
+    position: absolute;
+
+    top: calc(100% + 8px);
+
+    right: 0;
+
+    width: 290px;
+
+    padding: 14px;
+
+    background:
+        #0d1118;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.09);
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
-.walletAddressFull {
-    padding: 8px;
+.walletDropdownTitle {
+    color: #94a3b8;
 
-    font-size: 9px;
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    font-weight: 700;
+
+    margin-bottom: 9px;
+}
+
+.walletDropdownAddress {
+    color: #ffffff;
+
+    font-size: 12px;
 
     word-break: break-all;
 
-    color: rgba(
-        255,
-        255,
-        255,
-        0.55
-    );
+    margin-bottom: 13px;
+}
+
+.walletDropdownChain {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: #cbd5e1;
+
+    font-size: 13px;
+
+    margin-bottom: 13px;
 }
 
 .disconnectButton {
     width: 100%;
 
+    border: 1px solid
+        rgba(239, 68, 68, 0.25);
+
+    background:
+        rgba(239, 68, 68, 0.08);
+
+    color: #f87171;
+
+    padding: 10px;
+
+    border-radius: 9px;
+
+    cursor: pointer;
+
+    font-weight: 600;
+}
+
+.disconnectButton:hover {
+    background:
+        rgba(239, 68, 68, 0.14);
+}
+
+/* ============================================================
+   WALLET MODAL OVERLAY
+============================================================ */
+
+.walletModalOverlay {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 99999;
+
+    background:
+        rgba(0, 0, 0, 0.70);
+
+    backdrop-filter:
+        blur(7px);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+}
+
+/* ============================================================
+   WALLET MODAL
+============================================================ */
+
+.walletModal {
+    width: min(430px, 100%);
+
+    max-height: calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    background:
+        #0c1017;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.10);
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 30px 100px rgba(0, 0, 0, 0.65);
+
+    padding: 24px;
+
+    color: white;
+
+    animation:
+        walletModalIn 0.18s ease-out;
+}
+
+@keyframes walletModalIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+}
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.walletModalHeader {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    gap: 15px;
+}
+
+.walletModalHeader h2 {
+    margin: 0;
+
+    font-size: 22px;
+
+    line-height: 1.2;
+
+    color: #ffffff;
+}
+
+.walletModalHeader p {
+    margin: 8px 0 0;
+
+    color: #7f8a9a;
+
+    font-size: 13px;
+}
+
+.walletModalClose {
+    width: 36px;
+
+    height: 36px;
+
+    flex-shrink: 0;
+
     border: 0;
 
-    background: rgba(
-        255,
-        60,
-        60,
-        0.08
-    );
+    border-radius: 10px;
 
-    color: #ff7070;
+    background:
+        #181d26;
 
-    border-radius: 7px;
+    color: #94a3b8;
 
-    padding: 8px;
+    font-size: 25px;
 
-    font-size: 11px;
+    line-height: 1;
 
     cursor: pointer;
 }
 
-.disconnectButton:hover {
-    background: rgba(
-        255,
-        60,
-        60,
-        0.15
-    );
+.walletModalClose:hover {
+    background:
+        #222936;
+
+    color: white;
+}
+
+/* ============================================================
+   DIVIDER
+============================================================ */
+
+.walletDivider {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 25px 0 22px;
+}
+
+.walletDivider span {
+    height: 1px;
+
+    flex: 1;
+
+    background:
+        rgba(255, 255, 255, 0.10);
+}
+
+.walletDivider label {
+    color: #657083;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+
+    white-space: nowrap;
+}
+
+/* ============================================================
+   SECTION
+============================================================ */
+
+.walletSection {
+    margin-bottom: 23px;
+}
+
+.walletSectionTitle {
+    color: #697487;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.6px;
+
+    margin-bottom: 9px;
+}
+
+/* ============================================================
+   WALLET ITEM
+============================================================ */
+
+.walletModalItem {
+    width: 100%;
+
+    min-height: 66px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    margin-bottom: 8px;
+
+    padding: 10px 12px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 13px;
+
+    background:
+        #151a22;
+
+    color: white;
+
+    cursor: pointer;
+
+    text-align: left;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.walletModalItem:hover {
+    background:
+        #1b212b;
+
+    border-color:
+        rgba(34, 211, 238, 0.28);
+
+    transform:
+        translateY(-1px);
+}
+
+.walletModalItemText {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+    flex: 1;
+}
+
+.walletModalItemText strong {
+    font-size: 13px;
+}
+
+.walletModalItemText small {
+    color: #667286;
+
+    font-size: 10px;
+}
+
+/* ============================================================
+   WALLET LOGO
+============================================================ */
+
+.walletLogo {
+    width: 40px;
+
+    height: 40px;
+
+    flex-shrink: 0;
+
+    border-radius: 11px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: 900;
+
+    font-size: 12px;
+
+    color: white;
+
+    background:
+        #202631;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.08);
+}
+
+.walletLogo.rabby {
+    background:
+        linear-gradient(
+            135deg,
+            #8b5cf6,
+            #6d28d9
+        );
+
+    font-size: 20px;
+}
+
+.walletLogo.okx {
+    background:
+        #ffffff;
+
+    color:
+        #050505;
+
+    font-size: 11px;
+
+    font-weight: 900;
+}
+
+.walletLogo.bitget {
+    background:
+        linear-gradient(
+            135deg,
+            #f5c542,
+            #e49b18
+        );
+
+    color:
+        #111827;
+
+    font-size: 21px;
+}
+
+/* ============================================================
+   INSTALLED
+============================================================ */
+
+.walletInstalled {
+    background:
+        rgba(34, 211, 238, 0.10);
+
+    color:
+        #22d3ee;
+
+    border-radius: 6px;
+
+    padding:
+        4px 7px;
+
+    font-size: 8px;
+
+    font-weight: 800;
+}
+
+/* ============================================================
+   OTHER WALLETS GRID
+============================================================ */
+
+.walletGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 8px;
+}
+
+.walletGrid .walletModalItem {
+    min-height: 105px;
+
+    margin: 0;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    gap: 7px;
+}
+
+.walletGrid .walletModalItemText {
+    flex: unset;
+
+    align-items: center;
+}
+
+.walletGrid .walletModalItemText small {
+    display: none;
+}
+
+.walletGrid .walletModalItemText strong {
+    font-size: 11px;
+}
+
+/* ============================================================
+   WALLETCONNECT
+============================================================ */
+
+.walletConnectButton {
+    width: 100%;
+
+    margin-top: 9px;
+
+    min-height: 57px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 13px;
+
+    background:
+        #151a22;
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.walletConnectButton:hover {
+    background:
+        #1b212b;
+}
+
+.walletConnectLogo {
+    width: 30px;
+
+    height: 30px;
+
+    border-radius: 9px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        #22b8e6;
+
+    color: white;
+
+    font-weight: 900;
+}
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+.walletModalFooter {
+    margin-top: 20px;
+
+    text-align: center;
+}
+
+.walletFooterLine {
+    height: 1px;
+
+    width: 100%;
+
+    background:
+        rgba(255, 255, 255, 0.08);
+
+    margin-bottom: 13px;
+}
+
+.walletModalFooter span {
+    color: #5e6878;
+
+    font-size: 10px;
+
+    font-weight: 600;
+}
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+
+    .walletModalOverlay {
+        align-items: flex-end;
+
+        padding: 0;
+    }
+
+    .walletModal {
+        width: 100%;
+
+        max-height:
+            calc(100vh - 20px);
+
+        border-radius:
+            20px 20px 0 0;
+
+        padding: 20px;
+    }
+
+    .chainName {
+        display: none;
+    }
+
 }
