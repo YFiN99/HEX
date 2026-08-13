@@ -1,6 +1,6 @@
 import "./AddLiquidityCard.css";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Contract, ethers } from "ethers";
 
 import TokenInput from "../TokenInput/TokenInput";
@@ -25,7 +25,7 @@ export default function AddLiquidityCard() {
     address
   } = useWallet();
 
-  const { navigate } = useNavigation();
+  const { navigate, data } = useNavigation();
 
   const chain = useMemo(() => {
     return CHAINS.find(c => c.chainId === chainId);
@@ -62,6 +62,103 @@ export default function AddLiquidityCard() {
       t => t.symbol === tokenB
     );
   }, [chain, tokenB]);
+
+  // =====================================================
+  // VALIDASI TOKEN TERHADAP CHAIN AKTIF
+  // (MENCEGAH TOKEN NYANGKUT — mis. tokenB hardcode "HEX"
+  // padahal chain aktif tidak punya token HEX)
+  //
+  // Juga memprioritaskan pool spesifik yang diklik user
+  // (mis. tombol "Add" di pool USDT/ETH) dibanding default
+  // pair chain (native + BTC), yang sebelumnya SELALU
+  // dipakai dan mengabaikan pool mana yang sebenarnya
+  // diklik.
+  // =====================================================
+
+  const dataToken0 =
+    typeof data?.token0 === "string" ? data.token0 : null;
+
+  const dataToken1 =
+    typeof data?.token1 === "string" ? data.token1 : null;
+
+  const lastSourceRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!chain || !chain.tokens || chain.tokens.length === 0) return;
+
+    // Sumber berubah kalau: chain berganti, ATAU pool yang
+    // diklik (dari data navigasi) berbeda dari sebelumnya.
+    const sourceKey =
+      `${chain.key}|${dataToken0 ?? ""}|${dataToken1 ?? ""}`;
+
+    const sourceChanged = lastSourceRef.current !== sourceKey;
+    lastSourceRef.current = sourceKey;
+
+    const isTokenAValid = chain.tokens.some(t => t.symbol === tokenA);
+    const isTokenBValid = chain.tokens.some(t => t.symbol === tokenB);
+
+    if (sourceChanged || !isTokenAValid || !isTokenBValid || tokenA === tokenB) {
+
+      // ---------------------------------------------------
+      // PRIORITAS 1: pool spesifik yang diklik user
+      // ---------------------------------------------------
+
+      const preferredAValid =
+        dataToken0 && chain.tokens.some(t => t.symbol === dataToken0);
+
+      const preferredBValid =
+        dataToken1 && chain.tokens.some(t => t.symbol === dataToken1);
+
+      if (
+        preferredAValid &&
+        preferredBValid &&
+        dataToken0 !== dataToken1
+      ) {
+        setTokenA(dataToken0 as string);
+        setTokenB(dataToken1 as string);
+        return;
+      }
+
+      // ---------------------------------------------------
+      // PRIORITAS 2 (fallback): default chain (native + BTC)
+      // ---------------------------------------------------
+
+      if (chain.tokens.length >= 2) {
+        const nativeToken =
+          chain.tokens.find(t => t.address === "native") ||
+          chain.tokens[0];
+
+        const btcToken =
+          chain.tokens.find(
+            t =>
+              t.symbol === "BTC" &&
+              t.symbol !== nativeToken.symbol &&
+              !t.isWrappedNative
+          );
+
+        const nonWrappedToken =
+          chain.tokens.find(
+            t =>
+              t.symbol !== nativeToken.symbol &&
+              !t.isWrappedNative
+          );
+
+        const anyOtherToken =
+          chain.tokens.find(
+            t => t.symbol !== nativeToken.symbol
+          );
+
+        const tokenBDefault =
+          btcToken || nonWrappedToken || anyOtherToken;
+
+        setTokenA(nativeToken.symbol);
+        setTokenB((tokenBDefault || chain.tokens[1]).symbol);
+      } else if (chain.tokens.length === 1) {
+        setTokenA(chain.tokens[0].symbol);
+        setTokenB(chain.tokens[0].symbol);
+      }
+    }
+  }, [chain, tokenA, tokenB, dataToken0, dataToken1]);
 
   // =====================================================
   // INPUT

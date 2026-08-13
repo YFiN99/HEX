@@ -116,8 +116,8 @@ export const CHAINS: Chain[] = [
                 decimals: 6
             },
             {
-                symbol: "ETH",
-                name: "Wrapped Ethereum",
+                symbol: "WQTER",
+                name: "Wrapped QTER",
                 address: "0xeD30B29a655DaDcf39B43E56c02555c2A1A9FE7E",
                 decimals: 18,
                 isWrappedNative: true
@@ -135,11 +135,11 @@ export const CHAINS: Chain[] = [
         chainName: "TeQoin L2",
         rpcUrl: "https://rpc.teqoin.io",
         explorer: "https://testnet-blockscan.teqoin.io",
-        router: "0x96364A65354AbF7fa7bF8F1B6197822670f320e6",
-        factory: "0x8905DDb755b6D083429D62C169Add110265b561A",
-        wrappedNative: "0x5E9D1C4ba94E4D078b5568B41b276fC9191AbAdb",
+        router: "0x9b64Bee4a5Cb2E05E566b83190e71007Cbc4Cb45",
+        factory: "0x1089Cf5FA61ac7BD9DF2EF8E80e7769a210EE682",
+        wrappedNative: "0x4384daEC7DCa5B8E19780bb35E56C75F8eC793b3",
         nativeSymbol: "ETH",
-        multicall3: "0x69F76417d06e5159986E7AD542F9B1a10784F906",
+        multicall3: "0x9D212Ca95cA946228d722C06dAc23100999Cb8d7",
         tokens: [
             {
                 symbol: "ETH",
@@ -151,6 +151,18 @@ export const CHAINS: Chain[] = [
                 symbol: "TEQ",
                 name: "TeQoin",
                 address: "0x49c2E9438Be52b88830802D7073831c1b83EcD28",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x305909b8268bB8087958054FfAB1d72EAd724127",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xe365b9Fe5D75680c84dceA9da3B6a736A7653082",
                 decimals: 18
             },
             {
@@ -174,7 +186,7 @@ export const CHAINS: Chain[] = [
             {
                 symbol: "Wrapped",
                 name: "Wrapped Ether",
-                address: "0x5E9D1C4ba94E4D078b5568B41b276fC9191AbAdb",
+                address: "0x4384daEC7DCa5B8E19780bb35E56C75F8eC793b3",
                 decimals: 18,
                 isWrappedNative: true
             }
@@ -222,8 +234,8 @@ export const CHAINS: Chain[] = [
                 decimals: 18
             },
             {
-                symbol: "HexWETH",
-                name: "Hex Wrapped Ether",
+                symbol: "WX1",
+                name: "Wrapped X1",
                 address: "0x73859d7d9B4fb8B88d5bd58317EE1Bc437aC60d4",
                 decimals: 18,
                 isWrappedNative: true

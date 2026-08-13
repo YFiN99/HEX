@@ -475,6 +475,23 @@ export default function RemoveLiquidityCard() {
             )
         ) {
 
+            // Pakai simbol/nama yang sama seperti yang dikonfigurasi
+            // di chain.tokens (mis. "ETH" untuk Qantera), supaya
+            // konsisten dengan label yang sudah tampil di daftar
+            // Pool / Swap. Sebelumnya di sini di-hardcode ke
+            // chain.nativeSymbol ("QTER"), sehingga pool yang
+            // tampil sebagai "USDT / ETH" di halaman Pool berubah
+            // jadi "USDT / QTER" begitu masuk halaman Remove —
+            // padahal alamat tokennya persis sama.
+            const wrappedConfig =
+                chain.tokens.find(
+                    t =>
+                        t.isWrappedNative &&
+                        t.address !== "native" &&
+                        t.address.toLowerCase() ===
+                            tokenAddress.toLowerCase()
+                );
+
             return {
 
                 address:
@@ -483,14 +500,21 @@ export default function RemoveLiquidityCard() {
                     ),
 
                 symbol:
+                    wrappedConfig?.symbol ??
                     chain.nativeSymbol,
 
                 name:
+                    wrappedConfig?.name ??
                     chain.nativeSymbol,
 
                 decimals:
+                    wrappedConfig?.decimals ??
                     18,
 
+                // Tetap true: pair ini tetap di-remove lewat
+                // removeLiquidityETH (unwrap otomatis ke native
+                // QTER saat transaksi), hanya LABEL tampilannya
+                // yang disamakan dengan konfigurasi chain.
                 isNative:
                     true
 
@@ -1416,6 +1440,75 @@ export default function RemoveLiquidityCard() {
         <div className="remove-wrapper">
 
             <div className="remove-card">
+
+                {/* =========================================
+                    RUNNING LIGHT BORDER (SVG)
+                    Lampu berjalan mengelilingi card, pakai
+                    teknik yang sama seperti contoh: glow
+                    filter (feGaussianBlur + feMerge) dan
+                    stroke-dasharray yang "berlari" lewat
+                    animasi stroke-dashoffset.
+                ========================================= */}
+
+                <svg
+                    className="card-border-glow"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                >
+                    <defs>
+                        <linearGradient
+                            id="borderGlowGradient"
+                            x1="0%"
+                            y1="0%"
+                            x2="100%"
+                            y2="100%"
+                        >
+                            <stop offset="0%" stopColor="#24e5ff" />
+                            <stop offset="50%" stopColor="#6a5bff" />
+                            <stop offset="100%" stopColor="#24e5ff" />
+                        </linearGradient>
+
+                        <filter
+                            id="borderGlow"
+                            x="-50%"
+                            y="-50%"
+                            width="200%"
+                            height="200%"
+                        >
+                            <feGaussianBlur
+                                stdDeviation="1.4"
+                                result="blur"
+                            />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+
+                    {/* garis dasar, redup, diam */}
+                    <rect
+                        x="1"
+                        y="1"
+                        width="98"
+                        height="98"
+                        rx="9"
+                        ry="9"
+                        className="card-border-base"
+                    />
+
+                    {/* garis lampu yang berjalan mengelilingi card */}
+                    <rect
+                        x="1"
+                        y="1"
+                        width="98"
+                        height="98"
+                        rx="9"
+                        ry="9"
+                        className="card-border-run"
+                    />
+                </svg>
 
 
                 {/* =================================================

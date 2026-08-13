@@ -144,7 +144,7 @@ export default function usePool() {
 
 
             const poolCacheKey =
-                `${chain.chainId}:${walletKey}`;
+                `${chain.chainId}:${chain.factory.toLowerCase()}:${walletKey}`;
 
 
             // =================================================
@@ -201,7 +201,25 @@ export default function usePool() {
 
                 // =================================================
                 // BUILD TOKEN PAIRS
+                //
+                // Token wrapped-native (mis. HexWETH, WQTER, WX1)
+                // DIKELUARKAN dari daftar sumber kombinasi di sini.
+                //
+                // Alasannya: token native (mis. "ETH") di bawah ini
+                // otomatis dikonversi ke chain.wrappedNative saat
+                // di-query on-chain -- ALAMATNYA SAMA PERSIS dengan
+                // entri token wrapped-native itu sendiri. Kalau
+                // keduanya sama-sama masuk loop, kombinasi seperti
+                // (BTC, ETH) dan (BTC, HexWETH) akan resolve ke pair
+                // contract yang SAMA PERSIS di on-chain, tapi tampil
+                // sebagai 2 baris pool terpisah dengan angka identik.
                 // =================================================
+
+                const poolableTokens =
+                    chain.tokens.filter(
+                        token =>
+                            !(token as any).isWrappedNative
+                    );
 
                 const requests: {
                     A: any;
@@ -213,21 +231,21 @@ export default function usePool() {
 
                 for (
                     let i = 0;
-                    i < chain.tokens.length;
+                    i < poolableTokens.length;
                     i++
                 ) {
 
                     for (
                         let j = i + 1;
-                        j < chain.tokens.length;
+                        j < poolableTokens.length;
                         j++
                     ) {
 
                         const A =
-                            chain.tokens[i];
+                            poolableTokens[i];
 
                         const B =
-                            chain.tokens[j];
+                            poolableTokens[j];
 
 
                         const tokenA =
@@ -297,6 +315,7 @@ export default function usePool() {
                                     const pairKey =
                                         makePairKey(
                                             chain.chainId,
+                                            chain.factory,
                                             tokenA,
                                             tokenB
                                         );

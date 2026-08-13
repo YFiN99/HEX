@@ -20,12 +20,14 @@ const poolDataCache =
 
 export function makePairKey(
     chainId: number,
+    factoryAddress: string,
     tokenA: string,
     tokenB: string
 ): string {
 
     return [
         chainId,
+        factoryAddress.toLowerCase(),
         tokenA.toLowerCase(),
         tokenB.toLowerCase()
     ].join(":");

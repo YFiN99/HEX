@@ -258,9 +258,30 @@ export default function TokenModal({
 
 
 
-                const nativeTokens =
+                // ------------------------------------------------
+                // Token yang bisa dipilih user.
+                //
+                // Token wrapped-native (mis. WQTER, WX1) DISEMBUNYIKAN
+                // di sini karena situs ini tidak punya fitur wrap/unwrap
+                // manual -- user tidak akan pernah benar-benar memegang
+                // token itu di walletnya. Token ini cuma dipakai secara
+                // internal (router otomatis wrap/unwrap lewat
+                // addLiquidityETH / removeLiquidityETH / swap native).
+                // ------------------------------------------------
+
+                const selectableTokens =
 
                     chain.tokens.filter(
+
+                        token =>
+
+                            !(token as any).isWrappedNative
+
+                    );
+
+                const nativeTokens =
+
+                    selectableTokens.filter(
 
                         token =>
 
@@ -272,7 +293,7 @@ export default function TokenModal({
 
                 const erc20Tokens =
 
-                    chain.tokens.filter(
+                    selectableTokens.filter(
 
                         token =>
 
@@ -778,7 +799,17 @@ export default function TokenModal({
 
                     const fallback =
 
-                        chain.tokens.map(
+                        chain.tokens
+
+                        .filter(
+
+                            token =>
+
+                                !(token as any).isWrappedNative
+
+                        )
+
+                        .map(
 
                             token => ({
 
