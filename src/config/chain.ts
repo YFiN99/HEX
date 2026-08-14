@@ -153,11 +153,11 @@ export const CHAINS: Chain[] = [
         chainName: "X1",
         rpcUrl: "https://maculatus-rpc.x1eco.com/",
         explorer: "https://maculatus-scan.x1eco.com/",
-        router: "0x3E8ED20cE5D8B9C1822c66C2C805c516Beb29Aa6",
-        factory: "0xBB3A990250cAACa45bB12a15F4D604A1cE500faf",
-        wrappedNative: "0x73859d7d9B4fb8B88d5bd58317EE1Bc437aC60d4",
+        router: "0x165a84A1126fEC63F623D49A1dFbfB97200Dd5f1",
+        factory: "0x2F211f614e9634c4906bB3FCdc2f8931A9cF1D99",
+        wrappedNative: "0x24c947af256C2f9D3C3074793ee70eF671be4988",
         nativeSymbol: "X1",
-        multicall3: "0x35a5F4c97e10563f049780eeeB85f81ff6E5d4d2",
+        multicall3: "0x73c78A079aA8947DEE4D664D2f3177e62E690E6c",
         tokens: [
             {
                 symbol: "X1",
@@ -168,25 +168,25 @@ export const CHAINS: Chain[] = [
             {
                 symbol: "BTC",
                 name: "Bitcoin",
-                address: "0x547290b671d6768F14cFE448C565c29A75c3A902",
+                address: "0x4539df3261A500B07285472863f45c131cbDb291",
                 decimals: 18
             },
             {
                 symbol: "USDT",
                 name: "Tether USD",
-                address: "0x0018B0285FF89275A38B88B78Da0aAbB0Bb317BB",
+                address: "0x13078e8bde949e7AFC361744295520C3e3287A04",
                 decimals: 6
             },
             {
                 symbol: "HEX",
                 name: "HEX",
-                address: "0x743B962cba7A7d078dAa54B486D8fe0B59d4823c",
+                address: "0x0A31DFf2116b960AF5C2323531A953955EB8cf1D",
                 decimals: 18
             },
             {
                 symbol: "WX1",
                 name: "Wrapped X1",
-                address: "0x73859d7d9B4fb8B88d5bd58317EE1Bc437aC60d4",
+                address: "0x24c947af256C2f9D3C3074793ee70eF671be4988",
                 decimals: 18,
                 isWrappedNative: true
             }
