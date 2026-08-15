@@ -103,11 +103,11 @@ export const CHAINS: Chain[] = [
         chainName: "Qantera",
         rpcUrl: "https://rpc1.qantera.network",
         explorer: "https://explorer.quantera.network",
-        router: "0x942eaC4ba346BD396C0A449226C2Be4FEc20774E",
-        factory: "0xC593F6c13123A4D300AA86244D8a7cA97fFB69d3",
-        wrappedNative: "0xeD30B29a655DaDcf39B43E56c02555c2A1A9FE7E",
+        router: "0x77c8902B12273826432B47423e1AfB64449FBEb7",
+        factory: "0x5a26efb42C88d6Db1d7C23144625Ba2E76e725EA",
+        wrappedNative: "0xfC7E079DBc70888E08996DDDe40658153C429ED9",
         nativeSymbol: "QTER",
-        multicall3: "0x746913D9215c4640ABfc5793317028EB5f587b70",
+        multicall3: "0xAdF185b953A8DAD8379B773D34d34a4e5F22Ba8A",
         tokens: [
             {
                 symbol: "QTER",
@@ -124,19 +124,19 @@ export const CHAINS: Chain[] = [
             {
                 symbol: "BTC",
                 name: "Wrapped Bitcoin",
-                address: "0x6FDeD1329dDF9790b068414c6Fb2f59Ce8516cF9",
+                address: "0xDcB321C539530d93DE55a6CFAE2e5b2884d2748e",
                 decimals: 8
             },
             {
                 symbol: "USDT",
                 name: "Tether USD",
-                address: "0x392BDF692617e0317B5E8CC58d69Baf61E2e49f6",
+                address: "0x779DB6bb8A56Df8D051D5a51B2CB8B8BFD1A5bB9",
                 decimals: 6
             },
             {
                 symbol: "WQTER",
                 name: "Wrapped QTER",
-                address: "0xeD30B29a655DaDcf39B43E56c02555c2A1A9FE7E",
+                address: "0xfC7E079DBc70888E08996DDDe40658153C429ED9",
                 decimals: 18,
                 isWrappedNative: true
             }
