@@ -244,6 +244,56 @@ export const CHAINS: Chain[] = [
     },
 
     // ============================================================
+    // SOLAR
+    // ============================================================
+
+    {
+        key: "solar",
+        chainId: 804223,
+        chainName: "Solar Testnet",
+        rpcUrl: "https://rpc-testnet.solarious.io/",
+        explorer: "",
+        router: "0xB7Ca774ecA1E5749635DbBf5626D2f65D871E8Da",
+        factory: "0x001f475F4Dcf107ed47d9bC4ED991492600C7E97",
+        wrappedNative: "0xD09A05d5a08DB606F720124FAf25ABB83742139c",
+        nativeSymbol: "ETH",
+        multicall3: "0x8059190e13d13bF4e5844C17D052681d89f80A49",
+        tokens: [
+            {
+                symbol: "ETH",
+                name: "Native ETH",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x1212f404136DcB1344CE061822545e8De15E3227",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0xBF2f9E7FD252798d27301E1EEC9E6cCb978fd32E",
+                decimals: 6
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xb25859b5c4cA04268b1Dd00a419b2941E2269dD0",
+                decimals: 18
+            },
+            {
+                symbol: "WETH",
+                name: "Wrapped ETH",
+                address: "0xD09A05d5a08DB606F720124FAf25ABB83742139c",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
+
+    // ============================================================
     // AEREDIUM
     // ============================================================
 
