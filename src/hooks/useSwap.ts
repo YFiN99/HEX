@@ -270,11 +270,32 @@ export function useSwap() {
 
                     ];
 
-                    const amounts =
-                        await router.getAmountsOut(
+                    // Dua panggilan getAmountsOut ini sebelumnya
+                    // dijalankan BERURUTAN (await satu-satu), yang
+                    // berarti menunggu 2x round-trip RPC secara
+                    // penuh. Dijalankan PARALEL lewat Promise.all
+                    // supaya total waktu tunggu kira-kira setara
+                    // dengan 1x round-trip saja, bukan 2x.
+
+                    const [
+                        amounts,
+                        unitAmounts
+                    ] = await Promise.all([
+
+                        router.getAmountsOut(
                             amountInParsed,
                             path
-                        );
+                        ),
+
+                        router.getAmountsOut(
+                            ethers.parseUnits(
+                                "1",
+                                tokenIn.decimals
+                            ),
+                            path
+                        )
+
+                    ]);
 
                     if (isStale()) return;
 
@@ -296,17 +317,6 @@ export function useSwap() {
                     // =================================================
                     // UNIT PRICE
                     // =================================================
-
-                    const unitAmounts =
-                        await router.getAmountsOut(
-                            ethers.parseUnits(
-                                "1",
-                                tokenIn.decimals
-                            ),
-                            path
-                        );
-
-                    if (isStale()) return;
 
                     const unitPrice =
                         ethers.formatUnits(
@@ -387,7 +397,16 @@ export function useSwap() {
 
     useEffect(() => {
 
-        refreshBalances();
+        // Debounce ~300ms: kalau user masih mengetik angka
+        // (payAmount berubah cepat berkali-kali), jangan langsung
+        // tembak RPC di setiap ketikan -- tunggu sampai user
+        // berhenti sejenak. Ini yang paling berasa "ngelag" kalau
+        // tidak di-debounce, karena tiap request menunggu router
+        // contract call round-trip penuh.
+        const debounce =
+            setTimeout(() => {
+                refreshBalances();
+            }, 300);
 
         const interval =
             setInterval(
@@ -395,8 +414,10 @@ export function useSwap() {
                 10000
             );
 
-        return () =>
+        return () => {
+            clearTimeout(debounce);
             clearInterval(interval);
+        };
 
     }, [refreshBalances]);
 

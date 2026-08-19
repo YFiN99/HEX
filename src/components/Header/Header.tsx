@@ -24,10 +24,10 @@ export default function Header() {
             <div className="headerLeft">
 
                 <img
-                    src="/hex.svg"
-                    className="headerLogo"
-                    alt="HEX"
-                />
+    src="/mark.svg"
+    className="headerLogo"
+    alt="HEX"
+/>
 
                 <span className="headerTitle">
                 </span>

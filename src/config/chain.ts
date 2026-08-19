@@ -125,7 +125,7 @@ export const CHAINS: Chain[] = [
                 symbol: "BTC",
                 name: "Wrapped Bitcoin",
                 address: "0xDcB321C539530d93DE55a6CFAE2e5b2884d2748e",
-                decimals: 8
+                decimals: 18
             },
             {
                 symbol: "USDT",

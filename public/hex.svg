@@ -1,40 +1,69 @@
-<svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 150 60"
-    width="150"
-    height="60"
->
-    <defs>
-        <filter
-            id="glow"
-            x="-30%"
-            y="-50%"
-            width="160%"
-            height="200%"
-        >
-            <feGaussianBlur
-                stdDeviation="3"
-                result="blur"
-            />
+<svg viewBox="0 0 336 336" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="4" result="b1"/>
+      <feGaussianBlur stdDeviation="10" result="b2"/>
+      <feMerge>
+        <feMergeNode in="b2"/><feMergeNode in="b1"/><feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
 
-            <feMerge>
-                <feMergeNode in="blur"/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
-    </defs>
+  <rect width="336" height="336" fill="#000000"/>
+  <rect x="10" y="10" width="316" height="316" rx="42" ry="42"
+        fill="none" stroke="#2fc7ff" stroke-width="2.5" filter="url(#glow)"/>
 
-    <text
-        x="75"
-        y="43"
-        text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="42"
-        font-weight="800"
-        letter-spacing="8"
-        fill="#14C8FF"
-        filter="url(#glow)"
-    >
-        HEX
-    </text>
+  <g transform="translate(168,140)" filter="url(#glow)">
+    <!-- honeycomb: 1 center + 6 surrounding hexagons, only outlines + connecting nodes -->
+    <g id="hexCell">
+      <polygon points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15"
+               fill="none" stroke="#3fd0ff" stroke-width="1.6"/>
+    </g>
+
+    <use href="#hexCell" x="0" y="0" opacity="1"/>
+    <use href="#hexCell" transform="translate(0,-60)" opacity="0.85"/>
+    <use href="#hexCell" transform="translate(52,-30)" opacity="0.85"/>
+    <use href="#hexCell" transform="translate(52,30)" opacity="0.85"/>
+    <use href="#hexCell" transform="translate(0,60)" opacity="0.85"/>
+    <use href="#hexCell" transform="translate(-52,30)" opacity="0.85"/>
+    <use href="#hexCell" transform="translate(-52,-30)" opacity="0.85"/>
+
+    <!-- connecting node lines between hex centers, like a network graph -->
+    <g stroke="#8fe9ff" stroke-width="0.8" opacity="0.6">
+      <line x1="0" y1="0" x2="0" y2="-60"/>
+      <line x1="0" y1="0" x2="52" y2="-30"/>
+      <line x1="0" y1="0" x2="52" y2="30"/>
+      <line x1="0" y1="0" x2="0" y2="60"/>
+      <line x1="0" y1="0" x2="-52" y2="30"/>
+      <line x1="0" y1="0" x2="-52" y2="-30"/>
+    </g>
+
+    <!-- node dots at each hex center -->
+    <g fill="#eafcff">
+      <circle cx="0" cy="0" r="5"/>
+      <circle cx="0" cy="-60" r="3"/>
+      <circle cx="52" cy="-30" r="3"/>
+      <circle cx="52" cy="30" r="3"/>
+      <circle cx="0" cy="60" r="3"/>
+      <circle cx="-52" cy="30" r="3"/>
+      <circle cx="-52" cy="-30" r="3"/>
+    </g>
+
+    <!-- thin outer boundary ring -->
+    <circle cx="0" cy="0" r="100" fill="none" stroke="#2fc7ff"
+            stroke-width="1" stroke-dasharray="2 6" opacity="0.5"/>
+  </g>
+
+  <g filter="url(#softGlow)" fill="none" stroke="#3fd0ff" stroke-width="2">
+    <line x1="70" y1="253" x2="95" y2="253"/>
+    <line x1="241" y1="253" x2="266" y2="253"/>
+  </g>
+  <text x="168" y="262" text-anchor="middle"
+        font-family="Orbitron, 'Arial Narrow', sans-serif"
+        font-size="34" letter-spacing="10"
+        fill="#eafcff" filter="url(#glow)">HEX</text>
 </svg>
