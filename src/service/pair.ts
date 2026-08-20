@@ -1,6 +1,6 @@
 import { Contract } from "ethers";
 
-import EasySwapPair from "../abi/EasySwapPair.json";
+import EasySwapPair from "../abi/HexSwapPair.json";
 
 export function getPair(
     provider: any,
@@ -8,7 +8,7 @@ export function getPair(
 ) {
     return new Contract(
         address,
-        EasySwapPair.abi,
+        EasySwapPair,
         provider
     );
 }

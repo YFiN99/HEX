@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { ethers } from "ethers";
 import { useWallet } from "../context/WalletContext";
 import { CHAINS } from "../config/chain";
+import { computePairAddress } from "../utils/pairAddress";
 import {
     getRouter,
     swapExactETHForTokens,
@@ -47,6 +48,53 @@ export function useSwap() {
     const requestIdRef = useRef(0);
 
     // =====================================================
+    // RESERVE CACHE (untuk estimasi harga instan / offline)
+    //
+    // Reserve pool di-cache di sini SEKALI setiap kali chain/token
+    // berganti (1 RPC call), lalu dipakai berkali-kali untuk
+    // menghitung estimasi harga secara instan di JS setiap user
+    // mengetik -- tanpa RPC sama sekali. Rumusnya sama persis
+    // dengan constant-product + fee 0.30% yang dipakai
+    // HexSwapPair.sol, jadi hasilnya cocok dengan angka on-chain
+    // (kecuali reserve sudah berubah sejak terakhir di-cache --
+    // makanya tetap ada konfirmasi on-chain via getAmountsOut yang
+    // di-debounce, lihat AUTO REFRESH di bawah).
+    // =====================================================
+
+    const reservesRef = useRef<{
+        reserveIn: bigint;
+        reserveOut: bigint;
+    } | null>(null);
+
+    const SWAP_FEE_BPS = 30n; // 0.30%, harus sama dengan HexSwapPair.sol
+
+    function localAmountOut(
+        amountIn: bigint,
+        reserveIn: bigint,
+        reserveOut: bigint
+    ): bigint {
+
+        if (
+            amountIn <= 0n ||
+            reserveIn <= 0n ||
+            reserveOut <= 0n
+        ) {
+            return 0n;
+        }
+
+        const amountInAfterFee =
+            amountIn * (10_000n - SWAP_FEE_BPS);
+
+        const numerator =
+            amountInAfterFee * reserveOut;
+
+        const denominator =
+            reserveIn * 10_000n + amountInAfterFee;
+
+        return numerator / denominator;
+    }
+
+    // =====================================================
     // FORMAT BALANCE
     // Maksimal 7 angka setelah koma
     //
@@ -88,6 +136,158 @@ export function useSwap() {
             ? `${integer}.${trimmed}`
             : integer;
     }
+
+    // =====================================================
+    // WARM RESERVE CACHE
+    //
+    // 1 RPC call setiap chain/payToken/receiveToken berganti (BUKAN
+    // setiap keystroke) untuk mengisi reservesRef, yang kemudian
+    // dipakai localAmountOut() untuk estimasi instan.
+    // =====================================================
+
+    function resolvePairTokenAddress(token: { address: string }): string {
+        return token.address === "native"
+            ? chain.wrappedNative
+            : token.address;
+    }
+
+    useEffect(() => {
+
+        let cancelled = false;
+
+        reservesRef.current = null;
+
+        async function warmReserves() {
+
+            if (!signer?.provider || !chain) return;
+
+            const tokenIn =
+                chain.tokens.find(t => t.symbol === payToken);
+
+            const tokenOut =
+                chain.tokens.find(t => t.symbol === receiveToken);
+
+            if (!tokenIn || !tokenOut) return;
+
+            try {
+
+                const tokenInAddr = resolvePairTokenAddress(tokenIn);
+                const tokenOutAddr = resolvePairTokenAddress(tokenOut);
+
+                const pairAddress = computePairAddress(
+                    chain.factory,
+                    tokenInAddr,
+                    tokenOutAddr
+                );
+
+                const pair = new ethers.Contract(
+                    pairAddress,
+                    [
+                        "function token0() view returns (address)",
+                        "function getReserves() view returns (uint112 reserve0, uint112 reserve1, uint32 lastUpdatedAt)"
+                    ],
+                    signer.provider
+                );
+
+                const [pairToken0, reserves] = await Promise.all([
+                    pair.token0(),
+                    pair.getReserves()
+                ]);
+
+                if (cancelled) return;
+
+                const isTokenInToken0 =
+                    pairToken0.toLowerCase() === tokenInAddr.toLowerCase();
+
+                reservesRef.current = isTokenInToken0
+                    ? { reserveIn: BigInt(reserves[0]), reserveOut: BigInt(reserves[1]) }
+                    : { reserveIn: BigInt(reserves[1]), reserveOut: BigInt(reserves[0]) };
+
+            } catch {
+                // Pair belum ada / belum ada liquidity / RPC gagal --
+                // biarkan reservesRef kosong, nanti quote on-chain
+                // (yang di-debounce) yang menangani ini seperti biasa.
+                reservesRef.current = null;
+            }
+
+        }
+
+        warmReserves();
+
+        return () => {
+            cancelled = true;
+        };
+
+    }, [chain?.key, payToken, receiveToken, signer]);
+
+    // =====================================================
+    // INSTANT LOCAL ESTIMATE
+    //
+    // Jalan SETIAP payAmount berubah, TANPA debounce -- pakai
+    // reserve yang sudah di-cache di atas, dihitung murni di JS
+    // (0ms, tanpa RPC). Ini yang bikin harga kerasa "kilat" saat
+    // mengetik. Nilai on-chain yang akurat tetap menyusul ~300ms
+    // kemudian lewat AUTO REFRESH (debounced) di bawah, yang akan
+    // menimpa estimasi ini begitu selesai.
+    // =====================================================
+
+    useEffect(() => {
+
+        if (
+            !payAmount ||
+            Number(payAmount) <= 0 ||
+            !reservesRef.current ||
+            !chain
+        ) {
+            return;
+        }
+
+        const tokenIn =
+            chain.tokens.find(t => t.symbol === payToken);
+
+        const tokenOut =
+            chain.tokens.find(t => t.symbol === receiveToken);
+
+        if (!tokenIn || !tokenOut) return;
+
+        try {
+
+            const amountInParsed =
+                ethers.parseUnits(payAmount, tokenIn.decimals);
+
+            const { reserveIn, reserveOut } = reservesRef.current;
+
+            const estimatedOut =
+                localAmountOut(amountInParsed, reserveIn, reserveOut);
+
+            if (estimatedOut <= 0n) return;
+
+            setReceiveAmount(
+                ethers.formatUnits(estimatedOut, tokenOut.decimals)
+            );
+
+            const unitIn =
+                ethers.parseUnits("1", tokenIn.decimals);
+
+            const unitOut =
+                localAmountOut(unitIn, reserveIn, reserveOut);
+
+            setPrice(
+                `1 ${payToken} = ${Number(ethers.formatUnits(unitOut, tokenOut.decimals)).toFixed(4)} ${receiveToken}`
+            );
+
+            const minRecv =
+                (Number(ethers.formatUnits(estimatedOut, tokenOut.decimals)) * 0.995).toFixed(6);
+
+            setMinimumReceived(`${minRecv} ${receiveToken}`);
+            setPriceImpact("< 0.01%");
+
+        } catch {
+            // Biarkan saja -- quote on-chain (debounced) akan
+            // menyusul dan menimpa ini.
+        }
+
+    }, [payAmount, payToken, receiveToken, chain?.key]);
 
     // =====================================================
     // FETCH BALANCES & QUOTE

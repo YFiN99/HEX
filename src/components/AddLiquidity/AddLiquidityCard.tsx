@@ -14,8 +14,8 @@ import { useWallet } from "../../context/WalletContext";
 import { useNavigation } from "../../context/NavigationContext";
 import { useLiquidity } from "../../hooks/useLiquidity";
 
-import EasySwapFactory from "../../abi/EasySwapFactory.json";
-import EasySwapPair from "../../abi/EasySwapPair.json";
+import EasySwapFactory from "../../abi/HexSwapFactory.json";
+import EasySwapPair from "../../abi/HexSwapPair.json";
 
 export default function AddLiquidityCard() {
   const {
@@ -459,7 +459,7 @@ export default function AddLiquidityCard() {
         const factory =
           new Contract(
             chain.factory,
-            EasySwapFactory.abi,
+            EasySwapFactory,
             provider
           );
 
@@ -483,7 +483,7 @@ export default function AddLiquidityCard() {
         const pairContract =
           new Contract(
             pair,
-            EasySwapPair.abi,
+            EasySwapPair,
             provider
           );
 

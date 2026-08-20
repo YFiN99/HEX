@@ -1,6 +1,6 @@
 import { Contract } from "ethers";
 
-import EasySwapFactory from "../abi/EasySwapFactory.json";
+import HexSwapFactory from "../abi/HexSwapFactory.json";
 
 export function getFactory(
     signerOrProvider: any,
@@ -8,7 +8,7 @@ export function getFactory(
 ) {
     return new Contract(
         factoryAddress,
-        EasySwapFactory.abi,
+        HexSwapFactory,
         signerOrProvider
     );
 }

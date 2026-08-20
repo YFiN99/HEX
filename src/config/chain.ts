@@ -20,6 +20,7 @@ export interface Chain {
     wrappedNative: string;
     nativeSymbol: string;
     multicall3?: string;
+    sniperPair?: string;
     tokens: Token[];
 }
 
@@ -35,11 +36,12 @@ export const CHAINS: Chain[] = [
         chainName: "TeQoin",
         rpcUrl: "https://rpc.teqoin.io",
         explorer: "https://testnet-blockscan.teqoin.io",
-        router: "0x9b64Bee4a5Cb2E05E566b83190e71007Cbc4Cb45",
-        factory: "0x1089Cf5FA61ac7BD9DF2EF8E80e7769a210EE682",
-        wrappedNative: "0x4384daEC7DCa5B8E19780bb35E56C75F8eC793b3",
+        router: "0x67eef973A9dE224137590262EA12cebdB7f4E99b",
+        factory: "0x38f2BaEc058c98c78C4f4CAE517F823Fd5E2BA0C",
+        wrappedNative: "0x06E209833e4E7715e534e45917febBeA94E80Cc0",
         nativeSymbol: "ETH",
-        multicall3: "0x9D212Ca95cA946228d722C06dAc23100999Cb8d7",
+        multicall3: "0xBe662F5C152DFcAacAB05Eccfb151cfaFE882895",
+        sniperPair: "0xe67F2aC1ad016F16Ef97EE46f64f9B3ead60DD0A",
         tokens: [
             {
                 symbol: "ETH",
@@ -48,27 +50,21 @@ export const CHAINS: Chain[] = [
                 decimals: 18
             },
             {
-                symbol: "TEQ",
-                name: "TeQoin",
-                address: "0x49c2E9438Be52b88830802D7073831c1b83EcD28",
-                decimals: 18
-            },
-            {
                 symbol: "BTC",
                 name: "Bitcoin",
-                address: "0x305909b8268bB8087958054FfAB1d72EAd724127",
+                address: "0x82E7A3CCbAfCBE0E56dAa7F0e3CE7B696F3DBf79",
                 decimals: 18
             },
             {
                 symbol: "HEX",
                 name: "HEX",
-                address: "0xe365b9Fe5D75680c84dceA9da3B6a736A7653082",
+                address: "0x94561e9939cfB096b1490B34733cebDE107d89bE",
                 decimals: 18
             },
             {
                 symbol: "USDT",
                 name: "USDT",
-                address: "0xfcc025a3e170df62de0e25af7ceaf1c89abfe6e9",
+                address: "0x89eb90ea576ab0b207e2d596CFa3C06B78645744",
                 decimals: 6
             },
             {
@@ -84,9 +80,9 @@ export const CHAINS: Chain[] = [
                 decimals: 18
             },
             {
-                symbol: "Wrapped",
+                symbol: "WETH",
                 name: "Wrapped Ether",
-                address: "0x4384daEC7DCa5B8E19780bb35E56C75F8eC793b3",
+                address: "0x06E209833e4E7715e534e45917febBeA94E80Cc0",
                 decimals: 18,
                 isWrappedNative: true
             }
@@ -103,11 +99,12 @@ export const CHAINS: Chain[] = [
         chainName: "Qantera",
         rpcUrl: "https://rpc1.qantera.network",
         explorer: "https://explorer.quantera.network",
-        router: "0x77c8902B12273826432B47423e1AfB64449FBEb7",
-        factory: "0x5a26efb42C88d6Db1d7C23144625Ba2E76e725EA",
-        wrappedNative: "0xfC7E079DBc70888E08996DDDe40658153C429ED9",
+        router: "0x9367592051262f789Ad56B519E1751a36028a04F",
+        factory: "0x421200350e4e2Be72BA22DDab010028e73C3050b",
+        wrappedNative: "0x0011783253914B2C53398176105f4C206043a15e",
         nativeSymbol: "QTER",
-        multicall3: "0xAdF185b953A8DAD8379B773D34d34a4e5F22Ba8A",
+        multicall3: "0x364E8F0AB3AB7A5b250d958dfAEaB42956dDEF7F",
+        sniperPair: "0x7F97298Ba887e7f95162c230Aa6F9870998139E1",
         tokens: [
             {
                 symbol: "QTER",
@@ -118,25 +115,25 @@ export const CHAINS: Chain[] = [
             {
                 symbol: "HEX",
                 name: "HEX",
-                address: "0x67905b456f9E6730FCb85A5ee477d963745e3E73",
+                address: "0x2F5f1E4745B673317AC3e269A6fCCFe82443F87a",
                 decimals: 18
             },
             {
                 symbol: "BTC",
-                name: "Wrapped Bitcoin",
-                address: "0xDcB321C539530d93DE55a6CFAE2e5b2884d2748e",
+                name: "Bitcoin",
+                address: "0xE4A718043e90aF01F520e390f137426382551d63",
                 decimals: 18
             },
             {
                 symbol: "USDT",
                 name: "Tether USD",
-                address: "0x779DB6bb8A56Df8D051D5a51B2CB8B8BFD1A5bB9",
+                address: "0xa3cDD0daC80c263eE9ba43ebBaabFB17B7FAf0bf",
                 decimals: 6
             },
             {
                 symbol: "WQTER",
                 name: "Wrapped QTER",
-                address: "0xfC7E079DBc70888E08996DDDe40658153C429ED9",
+                address: "0x0011783253914B2C53398176105f4C206043a15e",
                 decimals: 18,
                 isWrappedNative: true
             }
@@ -150,14 +147,15 @@ export const CHAINS: Chain[] = [
     {
         key: "maculatus",
         chainId: 10778,
-        chainName: "X1",
+        chainName: "X1 (X1)",
         rpcUrl: "https://maculatus-rpc.x1eco.com/",
         explorer: "https://maculatus-scan.x1eco.com/",
-        router: "0x165a84A1126fEC63F623D49A1dFbfB97200Dd5f1",
-        factory: "0x2F211f614e9634c4906bB3FCdc2f8931A9cF1D99",
-        wrappedNative: "0x24c947af256C2f9D3C3074793ee70eF671be4988",
+        router: "0xfBAcCAF9B35AD2447f53A5d665E902d0de3b9747",
+        factory: "0xeF33f7F3194538f7A93A0db8AD117aDe7A2fF6b4",
+        wrappedNative: "0x13a674e5A2eAf4E19854F1382Fe0da06B076d546",
         nativeSymbol: "X1",
-        multicall3: "0x73c78A079aA8947DEE4D664D2f3177e62E690E6c",
+        multicall3: "0x0Ff96c5c80C383C15511A7f8AA29cC44D50b7Deb",
+        sniperPair: "0x17d999Fd87b6Cb7C1f83c447d93EF50e10D80C54",
         tokens: [
             {
                 symbol: "X1",
@@ -168,25 +166,25 @@ export const CHAINS: Chain[] = [
             {
                 symbol: "BTC",
                 name: "Bitcoin",
-                address: "0x4539df3261A500B07285472863f45c131cbDb291",
+                address: "0xA34b1Dd8C963a26149c8a6174DC8280AF07F2EBd",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xb9e7BC6BF559B3b219580cCD8041dD964E2f33E2",
                 decimals: 18
             },
             {
                 symbol: "USDT",
                 name: "Tether USD",
-                address: "0x13078e8bde949e7AFC361744295520C3e3287A04",
+                address: "0x69F5A2b61EB0371bEE7A0fF373706d3bFf5D34F8",
                 decimals: 6
-            },
-            {
-                symbol: "HEX",
-                name: "HEX",
-                address: "0x0A31DFf2116b960AF5C2323531A953955EB8cf1D",
-                decimals: 18
             },
             {
                 symbol: "WX1",
                 name: "Wrapped X1",
-                address: "0x24c947af256C2f9D3C3074793ee70eF671be4988",
+                address: "0x13a674e5A2eAf4E19854F1382Fe0da06B076d546",
                 decimals: 18,
                 isWrappedNative: true
             }
@@ -203,11 +201,12 @@ export const CHAINS: Chain[] = [
         chainName: "LitVM Testnet",
         rpcUrl: "https://liteforge.rpc.caldera.xyz/http",
         explorer: "https://liteforge.explorer.caldera.xyz/",
-        router: "0x1B607388fA4F122469f47e4F090b9Be0553befA1",
-        factory: "0x76E497041a0768bAC2F6a36Db7A1e65e8394DDe5",
-        wrappedNative: "0x258c23C9149Bc95bdD052A97b803C389B582e049",
+        router: "0xE4C47e2Ca4b53F87e5E015D9C4745158a8A563B2",
+        factory: "0x6A2fF9D8B97774Ef73f9aa7859C5e147d4C34961",
+        wrappedNative: "0xDaD1e2E48C08dC80F10db72DBeF2afbFdA1eB751",
         nativeSymbol: "ETH",
-        multicall3: "0x7d1B58f63c9569584AfD27DAb16EBfDb43b25626",
+        multicall3: "0x05ECADF5D07f94e4533bEBa56d883f920cDC19e6",
+        sniperPair: "0xb503D7D61687a8C748BF253eC89Fd176a21B7538",
         tokens: [
             {
                 symbol: "ETH",
@@ -218,25 +217,25 @@ export const CHAINS: Chain[] = [
             {
                 symbol: "BTC",
                 name: "Bitcoin",
-                address: "0xb3f1049726Ec1e4a5a6818535E0E18D7C6536d59",
+                address: "0x2Fe9344EB404DF67B8CF9d1a3ACaAA646d706304",
                 decimals: 18
             },
             {
                 symbol: "USDT",
                 name: "Tether USD",
-                address: "0x63b00f565f309AAb8D9c97531C807E9E9cf8DDAA",
+                address: "0x2B904ceb0bc91e3082553A71bDa99808e1F5535a",
                 decimals: 6
             },
             {
                 symbol: "HEX",
                 name: "HEX",
-                address: "0x5308DA1F9Ba33226e7E1eb520e2B771bE0e30595",
+                address: "0x5c1335cD9ad845CD13d3516aAE47D4Da574F4E57",
                 decimals: 18
             },
             {
                 symbol: "HexWETH",
                 name: "Hex Wrapped Ether",
-                address: "0x258c23C9149Bc95bdD052A97b803C389B582e049",
+                address: "0xDaD1e2E48C08dC80F10db72DBeF2afbFdA1eB751",
                 decimals: 18,
                 isWrappedNative: true
             }

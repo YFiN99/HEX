@@ -1,10 +1,10 @@
 import { Contract } from "ethers";
-import EasySwapRouter from "../abi/EasySwapRouter.json";
+import HexSwapRouter from "../abi/HexSwapRouter.json";
 
 export function getRouter(signerOrProvider, routerAddress) {
     return new Contract(
         routerAddress,
-        EasySwapRouter.abi,
+        HexSwapRouter,
         signerOrProvider
     );
 }

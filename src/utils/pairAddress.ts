@@ -11,7 +11,7 @@ import { getCreate2Address, keccak256, solidityPacked, getAddress } from "ethers
 
 // Keep in sync with contracts/libraries/HexPairAddress.sol
 const PAIR_INIT_CODE_HASH =
-    "0x238cfefe0581c852a5a2c091b4a2b9c41380de5fb76cd63756d5dd351b63d54d";
+    "0x008f6374b4ad721d954091fa04b003cc5148cd76813c053d84222e39a00d50d8";
 
 /**
  * Computes the deterministic pair address for two token addresses on

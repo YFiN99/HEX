@@ -31,6 +31,11 @@ import {
     setCachedPools
 } from "../service/cache";
 
+import {
+    getSniperPair,
+    getMultiplePairsInfo
+} from "../service/sniperPair";
+
 
 // ============================================================
 // TYPES
@@ -292,64 +297,173 @@ export default function usePool() {
 
 
                 // =================================================
-                // GET PAIR ADDRESS
+                // GET PAIR ADDRESS (+ RESERVES, kalau bisa sekalian)
                 //
-                // CACHE FIRST
+                // Kalau chain ini punya SniperPair, pakai itu: SEMUA
+                // kombinasi token dibaca dalam SATU RPC call (alamat
+                // pair + reserve0/reserve1 sekaligus), bukan satu RPC
+                // per kombinasi seperti sebelumnya.
                 //
-                // RPC hanya untuk pair yang belum ada cache.
+                // Kalau chain ini BELUM punya SniperPair (belum
+                // dideploy di situ), tetap pakai cara lama: cache
+                // dulu, baru query factory.getPair() satu-satu untuk
+                // yang belum ada cache-nya.
                 // =================================================
 
-                const pairResults =
-                    await Promise.all(
+                type ExistingPair = {
+                    A: any;
+                    B: any;
+                    pairAddress: string;
+                    knownReserve0?: bigint;
+                    knownReserve1?: bigint;
+                };
 
-                        requests.map(
-                            async ({
-                                A,
-                                B,
-                                tokenA,
-                                tokenB
-                            }) => {
+                let existingPairs: ExistingPair[] = [];
 
-                                try {
+                if (chain.sniperPair) {
 
-                                    const pairKey =
-                                        makePairKey(
-                                            chain.chainId,
-                                            chain.factory,
-                                            tokenA,
-                                            tokenB
-                                        );
+                    // ---------------------------------------------------
+                    // JALUR CEPAT: SniperPair (1 RPC call untuk semua)
+                    // ---------------------------------------------------
 
+                    const sniper =
+                        getSniperPair(
+                            provider,
+                            chain.sniperPair
+                        );
 
-                                    // ------------------------------------------------
-                                    // CEK CACHE
-                                    // ------------------------------------------------
+                    const batch =
+                        await getMultiplePairsInfo(
+                            sniper,
+                            requests.map(r => r.tokenA),
+                            requests.map(r => r.tokenB)
+                        );
 
-                                    let pairAddress =
-                                        getCachedPair(
-                                            pairKey
-                                        );
+                    if (
+                        currentRequest !==
+                        requestId.current
+                    ) {
+                        return;
+                    }
 
+                    existingPairs =
+                        batch
+                            .map((info, index) => {
 
-                                    // ------------------------------------------------
-                                    // JIKA BELUM ADA CACHE
-                                    // QUERY FACTORY
-                                    // ------------------------------------------------
+                                if (!info.exists) return null;
 
-                                    if (
-                                        !pairAddress
-                                    ) {
+                                // Simpan ke cache juga, supaya bagian
+                                // lain dari app (mis. useLPBalance)
+                                // yang masih pakai cache per-pair
+                                // tetap dapat manfaatnya.
+                                const pairKey =
+                                    makePairKey(
+                                        chain.chainId,
+                                        chain.factory,
+                                        requests[index].tokenA,
+                                        requests[index].tokenB
+                                    );
 
-                                        pairAddress =
-                                            await getPairAddress(
-                                                factory,
+                                setCachedPair(
+                                    pairKey,
+                                    info.pairAddress
+                                );
+
+                                return {
+                                    A: requests[index].A,
+                                    B: requests[index].B,
+                                    pairAddress: info.pairAddress,
+                                    knownReserve0: info.reserve0,
+                                    knownReserve1: info.reserve1
+                                };
+
+                            })
+                            .filter(Boolean) as ExistingPair[];
+
+                } else {
+
+                    // ---------------------------------------------------
+                    // JALUR LAMA: satu RPC per kombinasi (dengan cache)
+                    // ---------------------------------------------------
+
+                    const pairResults =
+                        await Promise.all(
+
+                            requests.map(
+                                async ({
+                                    A,
+                                    B,
+                                    tokenA,
+                                    tokenB
+                                }) => {
+
+                                    try {
+
+                                        const pairKey =
+                                            makePairKey(
+                                                chain.chainId,
+                                                chain.factory,
                                                 tokenA,
                                                 tokenB
                                             );
 
 
                                         // ------------------------------------------------
-                                        // Pair tidak ada
+                                        // CEK CACHE
+                                        // ------------------------------------------------
+
+                                        let pairAddress =
+                                            getCachedPair(
+                                                pairKey
+                                            );
+
+
+                                        // ------------------------------------------------
+                                        // JIKA BELUM ADA CACHE
+                                        // QUERY FACTORY
+                                        // ------------------------------------------------
+
+                                        if (
+                                            !pairAddress
+                                        ) {
+
+                                            pairAddress =
+                                                await getPairAddress(
+                                                    factory,
+                                                    tokenA,
+                                                    tokenB
+                                                );
+
+
+                                            // ------------------------------------------------
+                                            // Pair tidak ada
+                                            // ------------------------------------------------
+
+                                            if (
+                                                !pairAddress ||
+                                                pairAddress ===
+                                                    ethers.ZeroAddress
+                                            ) {
+
+                                                return null;
+
+                                            }
+
+
+                                            // ------------------------------------------------
+                                            // SIMPAN CACHE
+                                            // ------------------------------------------------
+
+                                            setCachedPair(
+                                                pairKey,
+                                                pairAddress
+                                            );
+
+                                        }
+
+
+                                        // ------------------------------------------------
+                                        // INVALID
                                         // ------------------------------------------------
 
                                         if (
@@ -363,91 +477,58 @@ export default function usePool() {
                                         }
 
 
-                                        // ------------------------------------------------
-                                        // SIMPAN CACHE
-                                        // ------------------------------------------------
+                                        return {
 
-                                        setCachedPair(
-                                            pairKey,
+                                            A,
+
+                                            B,
+
                                             pairAddress
-                                        );
+
+                                        };
 
                                     }
-
-
-                                    // ------------------------------------------------
-                                    // INVALID
-                                    // ------------------------------------------------
-
-                                    if (
-                                        !pairAddress ||
-                                        pairAddress ===
-                                            ethers.ZeroAddress
+                                    catch (
+                                        error
                                     ) {
+
+                                        console.error(
+                                            "getPairAddress:",
+                                            error
+                                        );
 
                                         return null;
 
                                     }
 
-
-                                    return {
-
-                                        A,
-
-                                        B,
-
-                                        pairAddress
-
-                                    };
-
                                 }
-                                catch (
-                                    error
-                                ) {
+                            )
 
-                                    console.error(
-                                        "getPairAddress:",
-                                        error
-                                    );
-
-                                    return null;
-
-                                }
-
-                            }
-                        )
-
-                    );
+                        );
 
 
-                // =================================================
-                // CEK REQUEST
-                //
-                // User mungkin sudah pindah chain.
-                // =================================================
+                    // =================================================
+                    // CEK REQUEST
+                    //
+                    // User mungkin sudah pindah chain.
+                    // =================================================
 
-                if (
-                    currentRequest !==
-                    requestId.current
-                ) {
+                    if (
+                        currentRequest !==
+                        requestId.current
+                    ) {
 
-                    return;
+                        return;
+
+                    }
+
+
+                    existingPairs =
+                        pairResults.filter(
+                            Boolean
+                        ) as ExistingPair[];
 
                 }
-
-
-                // =================================================
-                // EXISTING PAIRS
-                // =================================================
-
-                const existingPairs =
-                    pairResults.filter(
-                        Boolean
-                    ) as {
-                        A: any;
-                        B: any;
-                        pairAddress: string;
-                    }[];
 
 
                 // =================================================
@@ -463,7 +544,9 @@ export default function usePool() {
                             async ({
                                 A,
                                 B,
-                                pairAddress
+                                pairAddress,
+                                knownReserve0,
+                                knownReserve1
                             }) => {
 
                                 try {
@@ -475,6 +558,17 @@ export default function usePool() {
                                         );
 
 
+                                    // ------------------------------------------------
+                                    // Kalau reserve sudah didapat dari
+                                    // SniperPair (batch call), tidak perlu
+                                    // panggil getReserves() lagi -- hemat
+                                    // 1 RPC call per pool.
+                                    // ------------------------------------------------
+
+                                    const reserveKnown =
+                                        knownReserve0 !== undefined &&
+                                        knownReserve1 !== undefined;
+
                                     const [
                                         reserve,
                                         supply,
@@ -482,9 +576,14 @@ export default function usePool() {
                                     ] =
                                         await Promise.all([
 
-                                            getReserves(
-                                                pair
-                                            ),
+                                            reserveKnown
+                                                ? Promise.resolve([
+                                                    knownReserve0,
+                                                    knownReserve1
+                                                ])
+                                                : getReserves(
+                                                    pair
+                                                ),
 
                                             totalSupply(
                                                 pair

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ethers } from "ethers";
 
 import { useWallet } from "../context/WalletContext";
-import EasySwapPair from "../abi/EasySwapPair.json";
+import EasySwapPair from "../abi/HexSwapPair.json";
 
 export default function useReserves(pairAddressInput?: string) {
 
@@ -45,7 +45,7 @@ export default function useReserves(pairAddressInput?: string) {
 
             const pairContract = new ethers.Contract(
                 pairAddressInput,
-                EasySwapPair.abi,
+                EasySwapPair,
                 provider
             );
 

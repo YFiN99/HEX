@@ -4,12 +4,11 @@ import { ethers, Contract } from "ethers";
 import { useWallet } from "../context/WalletContext";
 import { CHAINS } from "../config/chain";
 
-import EasySwapFactory from "../abi/EasySwapFactory.json";
-import EasySwapPair from "../abi/EasySwapPair.json";
+import HexSwapFactory from "../abi/HexSwapFactory.json";
+import HexSwapPair from "../abi/HexSwapPair.json";
 import MockERC20 from "../abi/MockERC20.json";
 
 export default function usePosition() {
-
     const {
         provider,
         address,
@@ -24,22 +23,18 @@ export default function usePosition() {
     const [position, setPosition] = useState<any>(null);
     const [loading, setLoading] = useState(false);
 
-    //------------------------------------------------------
-
     const refresh = useCallback(async () => {
-
         if (!provider || !address || !chain) {
             setPosition(null);
             return;
         }
 
         try {
-
             setLoading(true);
 
             const factory = new Contract(
                 chain.factory,
-                EasySwapFactory.abi,
+                HexSwapFactory,
                 provider
             );
 
@@ -66,7 +61,7 @@ export default function usePosition() {
 
                 const pair = new Contract(
                     pairAddress,
-                    EasySwapPair.abi,
+                    HexSwapPair,
                     provider
                 );
 
@@ -85,17 +80,11 @@ export default function usePosition() {
                 const decimals = await tokenContract.decimals();
 
                 setPosition({
-
                     token: token.address,
-
                     symbol: token.symbol,
-
                     pair: pairAddress,
-
                     lp: BigInt(lp),
-
                     decimals: Number(decimals)
-
                 });
 
                 return;
@@ -103,15 +92,12 @@ export default function usePosition() {
 
             setPosition(null);
 
-        }
-        catch (err) {
+        } catch (err) {
 
             console.error(err);
-
             setPosition(null);
 
-        }
-        finally {
+        } finally {
 
             setLoading(false);
 
@@ -123,22 +109,13 @@ export default function usePosition() {
         chain
     ]);
 
-    //------------------------------------------------------
-
     useEffect(() => {
         refresh();
     }, [refresh]);
 
-    //------------------------------------------------------
-
     return {
-
         position,
-
         loading,
-
         refresh
-
     };
-
 }

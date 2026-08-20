@@ -3,8 +3,8 @@ import { Contract, ethers } from "ethers";
 import { useWallet } from "../context/WalletContext";
 import { CHAINS } from "../config/chain";
 
-import EasySwapRouter from "../abi/EasySwapRouter.json";
-import EasySwapPair from "../abi/EasySwapPair.json";
+import EasySwapRouter from "../abi/HexSwapRouter.json";
+import EasySwapPair from "../abi/HexSwapPair.json";
 import MockERC20 from "../abi/MockERC20.json";
 import Hex from "../abi/Hex.json";
 
@@ -58,7 +58,7 @@ export function useLiquidity() {
 
         return new Contract(
             chain.router,
-            EasySwapRouter.abi,
+            EasySwapRouter,
             signer
         );
     }
@@ -340,7 +340,7 @@ export function useLiquidity() {
 
                 pairAddress,
 
-                EasySwapPair.abi,
+                EasySwapPair,
 
                 signer
 
