@@ -252,11 +252,12 @@ export const CHAINS: Chain[] = [
         chainName: "Solar Testnet",
         rpcUrl: "https://rpc-testnet.solarious.io/",
         explorer: "",
-        router: "0xB7Ca774ecA1E5749635DbBf5626D2f65D871E8Da",
-        factory: "0x001f475F4Dcf107ed47d9bC4ED991492600C7E97",
-        wrappedNative: "0xD09A05d5a08DB606F720124FAf25ABB83742139c",
+        router: "0xb609f54447bbb537A76e855f2A9D79E268c22eC0",
+        factory: "0x7DB8c1961BF76dc3660a6c6BD68781b0945C359C",
+        wrappedNative: "0x409B5E24839Fe487996Fd183f339b4B1bF1F5B37",
         nativeSymbol: "ETH",
-        multicall3: "0x8059190e13d13bF4e5844C17D052681d89f80A49",
+        multicall3: "0x0d72991aEe803469B4df3b521b5C9ce181D3c0B1",
+        sniperPair: "0xe9488F28aFb70234e499f93c1D2B7811256f24D6",
         tokens: [
             {
                 symbol: "ETH",
@@ -267,25 +268,25 @@ export const CHAINS: Chain[] = [
             {
                 symbol: "BTC",
                 name: "Bitcoin",
-                address: "0x1212f404136DcB1344CE061822545e8De15E3227",
+                address: "0x12a03380F39de03F24E9755BE80d6Cd0dd08dc03",
                 decimals: 18
             },
             {
                 symbol: "USDT",
                 name: "Tether USD",
-                address: "0xBF2f9E7FD252798d27301E1EEC9E6cCb978fd32E",
+                address: "0xAF495e593B4141DA9Aa654A085dA8680C79C1b97",
                 decimals: 6
             },
             {
                 symbol: "HEX",
                 name: "HEX",
-                address: "0xb25859b5c4cA04268b1Dd00a419b2941E2269dD0",
+                address: "0xFB6590506A823825Fd8A7f6E65265080F3c31c09",
                 decimals: 18
             },
             {
                 symbol: "WETH",
                 name: "Wrapped ETH",
-                address: "0xD09A05d5a08DB606F720124FAf25ABB83742139c",
+                address: "0x409B5E24839Fe487996Fd183f339b4B1bF1F5B37",
                 decimals: 18,
                 isWrappedNative: true
             }
@@ -302,11 +303,12 @@ export const CHAINS: Chain[] = [
         chainName: "Aeredium Testnet",
         rpcUrl: "https://testnet.rpc.aeredium.io",
         explorer: "https://testnet.explorer.aeredium.io",
-        router: "0xF8e34b12e3f0a42Fa562A19D3AfE2aDa2ab61B82",
-        factory: "0x76847b66368f7cb36DC9b9f390D236Eb705B770e",
-        wrappedNative: "0x6a38CF0A4A69195dE0AdDB8e95659dc3727a118E",
+        router: "0xeaA90a86ED70d104B6f9Dd00f8472f4cA2Ff959e",
+        factory: "0xaE05B802BB2CA0107288aBd32A8c6a2FECEdD646",
+        wrappedNative: "0x1BcBD0B8C3cA6625624B2a29959Bb53229E70Fff",
         nativeSymbol: "ETH",
-        multicall3: "0x1aA6a0AE441400920630D43C8904DF83650E9303",
+        multicall3: "0x4eC38fCE6DAb58848Ad0BF8dC8Af7feC89A30103",
+        sniperPair: "0x45341A00cC53a72B7dA14162c425017d89364133",
         tokens: [
             {
                 symbol: "ETH",
@@ -315,15 +317,27 @@ export const CHAINS: Chain[] = [
                 decimals: 18
             },
             {
-                symbol: "HEX",
-                name: "HEX",
-                address: "0x46c4c389c8a3C40114b3De5499eeB58c14296A71",
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0xB2D272048b5b861F5f240CC030C719067a425262",
                 decimals: 18
             },
             {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0x653c5e59a122172b5868D60f458017F103437381",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0x2d557140Fb78B44872799fb951E6cD229d84192e",
+                decimals: 6
+            },
+            {
                 symbol: "WETH",
-                name: "Wrapped ETH",
-                address: "0x6a38CF0A4A69195dE0AdDB8e95659dc3727a118E",
+                name: "Wrapped Ether",
+                address: "0x1BcBD0B8C3cA6625624B2a29959Bb53229E70Fff",
                 decimals: 18,
                 isWrappedNative: true
             }
