@@ -251,7 +251,7 @@ export const CHAINS: Chain[] = [
         chainId: 804223,
         chainName: "Solar Testnet",
         rpcUrl: "https://rpc-testnet.solarious.io/",
-        explorer: "",
+        explorer: "https://explorer-testnet.solarious.io/",
         router: "0xb609f54447bbb537A76e855f2A9D79E268c22eC0",
         factory: "0x7DB8c1961BF76dc3660a6c6BD68781b0945C359C",
         wrappedNative: "0x409B5E24839Fe487996Fd183f339b4B1bF1F5B37",
