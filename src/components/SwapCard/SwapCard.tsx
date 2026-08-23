@@ -263,6 +263,34 @@ export default function SwapCard() {
                     text="Swap"
                     onClick={handleSwap}
                 />
+
+                <div className="swap-social">
+                    <a
+                        href="https://t.me/HEX_AMM"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Telegram"
+                        className="swap-social-link"
+                    >
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M21.94 4.6c.24-1.02-.75-1.85-1.72-1.47L2.7 10.24c-.98.39-.96 1.83.03 2.19l4.32 1.56 1.67 5.35c.22.71 1.1.93 1.62.4l2.4-2.44 4.4 3.25c.79.58 1.92.15 2.13-.8L21.94 4.6zM8.6 13.2l9.5-6.1-7.9 7.6-.3 3.1-1.3-4.6z" />
+                        </svg>
+                        <span>Telegram</span>
+                    </a>
+
+                    <a
+                        href="https://x.com/HEX_AG"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="X (Twitter)"
+                        className="swap-social-link"
+                    >
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M18.24 2.75h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.22-6.83-5.97 6.83H1.65l7.74-8.85L1.25 2.75h6.83l4.72 6.24 5.44-6.24zm-1.16 17.52h1.83L7.02 4.62H5.05l12.03 15.65z" />
+                        </svg>
+                        <span>X</span>
+                    </a>
+                </div>
             </div>
 
             <TokenModal
