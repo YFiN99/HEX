@@ -9,6 +9,7 @@ import PoolPage from "./pages/PoolPage";
 import AddLiquidityPage from "./pages/AddLiquidityPage";
 import RemoveLiquidityPage from "./pages/RemoveLiquidityPage";
 import SettingsPage from "./pages/SettingsPage";
+import SmartPage from "./components/SmartPage/SmartPage";
 
 import Transparency from "./components/Transparency/Transparency";
 import Roadmap from "./components/Roadmap/Roadmap";
@@ -55,6 +56,10 @@ function AppContent() {
 
             {page === "settings" && (
                 <SettingsPage />
+            )}
+
+            {page === "smart" && (
+                <SmartPage />
             )}
 
             {page === "transparency" && (

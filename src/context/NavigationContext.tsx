@@ -14,6 +14,7 @@ export type Page =
     | "addLiquidity"
     | "removeLiquidity"
     | "settings"
+    | "smart"
     | "transparency"
     | "docs";
 

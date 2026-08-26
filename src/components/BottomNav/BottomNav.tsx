@@ -72,7 +72,7 @@ export default function BottomNav(){
 
                 className={
 
-                    page==="settings"
+                    page==="smart"
 
                     ?
 
@@ -84,11 +84,11 @@ export default function BottomNav(){
 
                 }
 
-                onClick={()=>navigate("settings")}
+                onClick={()=>navigate("smart")}
 
             >
 
-                Settings
+                Smart
 
             </button>
 
