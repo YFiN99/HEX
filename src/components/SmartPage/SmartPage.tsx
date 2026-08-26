@@ -3,7 +3,7 @@ import "./SmartPage.css";
 import { useState } from "react";
 import { Sparkles, Crosshair, Send, Code2 } from "lucide-react";
 
-import TerminalPanel from "../TerminalPanel/TerminalPanel";
+import TerminalPanel from "../Terminalpanel/TerminalPanel";
 
 import { useWallet } from "../../context/WalletContext";
 import { triggerScan } from "../../service/genlayerSniper";
