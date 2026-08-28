@@ -294,6 +294,57 @@ export const CHAINS: Chain[] = [
     },
 
     // ============================================================
+    // ORBINUM TESTNET
+    // ============================================================
+
+    {
+        key: "orbinum_testnet",
+        chainId: 2700,
+        chainName: "Orbinum Testnet",
+        rpcUrl: "https://rpc-1.testnet.orbinum.io",
+        explorer: "https://explorer.testnet.orbinum.network/",
+        router: "0x38aA057E4836301F12bFA6c54f15A4ec76d8c8f4",
+        factory: "0x44b7366D723601918BDF3C162A4bDeb02620170A",
+        wrappedNative: "0xE0E2024040BfcE9958B680b614f8BB565a173644",
+        nativeSymbol: "ORB",
+        multicall3: "0x8d4ba4a06A2197964818c65C9245F3bFf51e6a65",
+        sniperPair: "0xF3Fe485615C0FE7b8dA7F5c0bEeF475Ecb9a656a",
+        tokens: [
+            {
+                symbol: "ORB",
+                name: "Native ORB",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x6de61Deae917EAE5B2B5065af2E1f8F9dE50B22c",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xa5ba2B860aAF9de83106F634d81944b30928D7A9",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0xdFA91e4Bb76191ADAa627D5c4fB4aC04e74479fD",
+                decimals: 6
+            },
+            {
+                symbol: "WORB",
+                name: "Wrapped ORB",
+                address: "0xE0E2024040BfcE9958B680b614f8BB565a173644",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
+
+    // ============================================================
     // AEREDIUM
     // ============================================================
 
@@ -343,6 +394,5 @@ export const CHAINS: Chain[] = [
             }
         ]
     }
-
 
 ];
