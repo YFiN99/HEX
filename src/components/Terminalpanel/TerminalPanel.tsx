@@ -3,13 +3,13 @@ import "./TerminalPanel.css";
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
-    /** Baris-baris status yang "diketik" satu per satu, mensimulasikan proses */
+    /** Status lines typed one by one, simulating the process */
     lines: string[];
-    /** Ditampilkan setelah semua `lines` selesai "diketik" */
+    /** Displayed after all `lines` finish typing */
     finalOutput?: string;
-    /** true selagi proses sungguhan masih berjalan di background */
+    /** True while the actual process is still running in the background */
     running: boolean;
-    /** Judul kecil di title bar terminal */
+    /** Small title in the terminal title bar */
     title?: string;
 };
 
@@ -24,7 +24,7 @@ export default function TerminalPanel({
     const [showFinal, setShowFinal] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    // Ketik baris satu-satu dengan jeda, mensimulasikan proses live.
+    // Type lines one by one with a delay to simulate a live process.
     useEffect(() => {
 
         setVisibleLines([]);
@@ -58,21 +58,14 @@ export default function TerminalPanel({
 
     }, [lines]);
 
-    // Tampilkan hasil akhir setelah semua baris selesai DAN proses
-    // sungguhan sudah tidak berjalan lagi.
+    // FREE FROM RUNNING BLOCK:
+    // As soon as finalOutput has content (AI result received during Proposing),
+    // display it immediately without waiting for running to become false!
     useEffect(() => {
-
-        if (
-            visibleLines.length === lines.length &&
-            lines.length > 0 &&
-            !running &&
-            finalOutput
-        ) {
-            const timer = setTimeout(() => setShowFinal(true), 300);
-            return () => clearTimeout(timer);
+        if (finalOutput && finalOutput.trim().length > 0) {
+            setShowFinal(true);
         }
-
-    }, [visibleLines, lines, running, finalOutput]);
+    }, [finalOutput]);
 
     useEffect(() => {
         scrollRef.current?.scrollTo({
@@ -106,7 +99,7 @@ export default function TerminalPanel({
                     </div>
                 )}
 
-                {(running || (!showFinal && lines.length > 0)) && (
+                {(running && !showFinal) && (
                     <span className="terminalCursor" />
                 )}
 

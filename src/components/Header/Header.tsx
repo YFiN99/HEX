@@ -4,7 +4,6 @@ import ChainWalletSelector from "../ChainWalletSelector/ChainWalletSelector";
 
 import { useNavigation } from "../../context/NavigationContext";
 
-
 export default function Header() {
 
     const {
@@ -12,10 +11,8 @@ export default function Header() {
         navigate
     } = useNavigation();
 
-
     return (
         <header className="header">
-
 
             {/* =====================================================
                 LEFT / HEX LOGO
@@ -24,29 +21,23 @@ export default function Header() {
             <div className="headerLeft">
 
                 <img
-    src="/mark.svg"
-    className="headerLogo"
-    alt="HEX"
-/>
+                    src="/mark.svg"
+                    className="headerLogo"
+                    alt="HEX"
+                />
 
                 <span className="headerTitle">
                 </span>
 
             </div>
 
-
-
             {/* =====================================================
-                CENTER MENU
+                CENTER MENU (Swap -> Pool -> Smart -> Roadmap -> Transparency)
             ===================================================== */}
 
             <nav className="headerMenu">
 
-
-                {/* =================================================
-                    SWAP
-                ================================================= */}
-
+                {/* SWAP */}
                 <button
                     className={`menuButton ${
                         page === "swap"
@@ -60,12 +51,7 @@ export default function Header() {
                     Swap
                 </button>
 
-
-
-                {/* =================================================
-                    POOL
-                ================================================= */}
-
+                {/* POOL */}
                 <button
                     className={`menuButton ${
                         page === "pool"
@@ -79,31 +65,21 @@ export default function Header() {
                     Pool
                 </button>
 
-
-
-                {/* =================================================
-                    TRANSPARENCY
-                ================================================= */}
-
+                {/* SMART */}
                 <button
                     className={`menuButton ${
-                        page === "transparency"
+                        page === "smart"
                             ? "active"
                             : ""
                     }`}
                     onClick={() =>
-                        navigate("transparency")
+                        navigate("smart")
                     }
                 >
-                    Transparency
+                    Smart
                 </button>
 
-
-
-                {/* =================================================
-                    ROADMAP
-                ================================================= */}
-
+                {/* ROADMAP */}
                 <button
                     className={`menuButton ${
                         page === "roadmap"
@@ -117,10 +93,21 @@ export default function Header() {
                     Roadmap
                 </button>
 
+                {/* TRANSPARENCY */}
+                <button
+                    className={`menuButton ${
+                        page === "transparency"
+                            ? "active"
+                            : ""
+                    }`}
+                    onClick={() =>
+                        navigate("transparency")
+                    }
+                >
+                    Transparency
+                </button>
 
             </nav>
-
-
 
             {/* =====================================================
                 RIGHT / NETWORK + WALLET
@@ -131,7 +118,6 @@ export default function Header() {
                 <ChainWalletSelector />
 
             </div>
-
 
         </header>
     );

@@ -6,9 +6,9 @@ import { TransactionStatus } from "genlayer-js/types";
 
 import { ensureGenLayerNetwork } from "./genlayerSniper";
 
-// Alamat kontrak AICodeAuditor yang sudah di-deploy di GenLayer Studio.
+// Newly deployed AIaskglobal contract address
 export const CODE_AUDITOR_CONTRACT_ADDRESS =
-    "0x6de3F5F083c877371d7b2Dc221ECb993216033C1";
+    "0x40062E33d9AFbC9F0c2A7972D5C6D3Ac938dA1E3";
 
 function getReadClient() {
     return createClient({
@@ -24,8 +24,8 @@ function getWriteClient(connectedAddress: string) {
 }
 
 /**
- * Membaca laporan audit terakhir (get_latest_audit -- fungsi view,
- * gratis, tanpa wallet).
+ * Reads the latest AI answer / report (get_latest_answer -- view function,
+ * free, no wallet required).
  */
 export async function readLatestAudit(): Promise<string> {
 
@@ -33,7 +33,7 @@ export async function readLatestAudit(): Promise<string> {
 
     const result = await client.readContract({
         address: CODE_AUDITOR_CONTRACT_ADDRESS,
-        functionName: "get_latest_audit",
+        functionName: "get_latest_answer",
         args: []
     });
 
@@ -41,9 +41,9 @@ export async function readLatestAudit(): Promise<string> {
 }
 
 /**
- * Mengirim source code untuk diaudit AI (audit_and_fix_code --
- * fungsi write, butuh wallet & gas, diproses lewat konsensus
- * validator GenLayer).
+ * Sends a query/source code to the AI assistant (ask_anything --
+ * write function, requires wallet & gas, processed through GenLayer
+ * validator consensus).
  */
 export async function auditCode(
     connectedAddress: string,
@@ -56,7 +56,7 @@ export async function auditCode(
 
     const txHash = await client.writeContract({
         address: CODE_AUDITOR_CONTRACT_ADDRESS,
-        functionName: "audit_and_fix_code",
+        functionName: "ask_anything",
         args: [sourceCode],
         value: 0n
     });

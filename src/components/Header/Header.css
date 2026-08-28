@@ -90,7 +90,7 @@
 
 /* =========================================================
    CENTER MENU
-   BENAR-BENAR DI TENGAH LAYAR
+   BENAR-BENAR DI TENGAH LAYAR (DESKTOP)
 ========================================================= */
 
 .headerMenu {
@@ -211,6 +211,8 @@
         box-sizing: border-box;
 
         overflow: visible;
+        
+        flex-wrap: nowrap; 
     }
 
 
@@ -264,10 +266,12 @@
     }
 
 
-    /* HIDE DESKTOP MENU */
+    /* =========================================================
+       DISEMBUNYIKAN TOTAL DI MOBILE
+    ========================================================= */
 
     .headerMenu {
-        display: none;
+        display: none !important;
     }
 
 

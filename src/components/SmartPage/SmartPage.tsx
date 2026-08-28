@@ -6,43 +6,11 @@ import { Sparkles, Crosshair, Send, Code2 } from "lucide-react";
 import TerminalPanel from "../Terminalpanel/TerminalPanel";
 
 import { useWallet } from "../../context/WalletContext";
-import { triggerScan } from "../../service/genlayerSniper";
-import { investigateUrl } from "../../service/genlayerInvestigator";
+import { triggerScan, readLatestReport } from "../../service/genlayerSniper";
+import { investigateUrl, readLastAnalysis } from "../../service/genlayerInvestigator";
 import { auditCode } from "../../service/genlayerCodeAuditor";
 
 type Tool = "sniper" | "post" | "coding" | null;
-
-const SNIPER_STEPS = [
-    "Connecting to GenLayer Studio node...",
-    "Resolving contract 0xa4E1dd961...1CbBF6A...",
-    "Fetching GitHub search index (new repos)...",
-    "Fetching DexScreener liquidity feed...",
-    "Dispatching payload to consensus validators...",
-    "Awaiting LLM analysis from GenVM...",
-    "Waiting for FINALIZED status..."
-];
-
-function postSteps(url: string) {
-    return [
-        "Connecting to GenLayer Studio node...",
-        "Resolving contract 0x8c35DFB6D...c21aC68Da...",
-        `Fetching target page: ${url}`,
-        "Extracting core value proposition...",
-        "Dispatching payload to consensus validators...",
-        "Validators scoring output against criteria...",
-        "Waiting for FINALIZED status..."
-    ];
-}
-
-const CODING_STEPS = [
-    "Connecting to GenLayer Studio node...",
-    "Resolving contract 0x6de3F5F0...6033C1...",
-    "Parsing submitted source code...",
-    "Running multi-language security analysis...",
-    "Scoring vulnerabilities & code quality...",
-    "Dispatching payload to consensus validators...",
-    "Waiting for FINALIZED status..."
-];
 
 export default function SmartPage() {
 
@@ -52,6 +20,8 @@ export default function SmartPage() {
     const [running, setRunning] = useState(false);
     const [output, setOutput] = useState("");
     const [error, setError] = useState("");
+    
+    const [terminalLines, setTerminalLines] = useState<string[]>([]);
 
     const [showUrlInput, setShowUrlInput] = useState(false);
     const [targetUrl, setTargetUrl] = useState("");
@@ -59,10 +29,51 @@ export default function SmartPage() {
     const [showCodeInput, setShowCodeInput] = useState(false);
     const [sourceCode, setSourceCode] = useState("");
 
-    async function runSniper() {
+    async function trackTransactionProgress(txPromise: Promise<any>, initialSteps: string[]) {
+        const steps = [...initialSteps];
+        setTerminalLines(steps);
 
+        const stages = [
+            "Pending transaction broadcasted...",
+            "Validators Proposing state...",
+            "Validators Committing votes...",
+            "Revealing consensus data...",
+            "Accepted by network",
+            "Finalized successfully"
+        ];
+
+        for (const stage of stages) {
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+            steps.push(`> ${stage}`);
+            setTerminalLines([...steps]);
+        }
+    }
+
+    async function pollForOutput(
+        readFn: () => Promise<string>,
+        oldValue: string,
+        maxRetries = 60,
+        intervalMs = 1000
+    ): Promise<string> {
+        let attempts = 0;
+        while (attempts < maxRetries) {
+            await new Promise((resolve) => setTimeout(resolve, intervalMs));
+            attempts++;
+            try {
+                const currentVal = await readFn();
+                if (currentVal && currentVal.trim().length > 10 && currentVal !== oldValue) {
+                    return currentVal;
+                }
+            } catch (err) {
+                // Ignore silent error
+            }
+        }
+        return await readFn();
+    }
+
+    async function runSniper() {
         if (!connected || !address) {
-            setError("Connect wallet dulu untuk menjalankan Sniper.");
+            setError("Please connect your wallet first to run Sniper.");
             return;
         }
 
@@ -73,27 +84,31 @@ export default function SmartPage() {
         setError("");
         setRunning(true);
 
+        const baseSteps = [
+            "Connecting to GenLayer Studio node...",
+            "Resolving contract 0xfD6A06aFF3822fe...",
+            "Fetching GitHub search index & DexScreener feed..."
+        ];
+
         try {
+            const oldReport = await readLatestReport();
+            const txPromise = triggerScan(address);
+            
+            trackTransactionProgress(txPromise, baseSteps);
 
-            const result = await triggerScan(address);
-            setOutput(result);
+            const resultPromise = pollForOutput(readLatestReport, oldReport);
+            const result = await Promise.race([
+                resultPromise,
+                txPromise.catch(() => readLatestReport())
+            ]);
 
+            setOutput(String(result || "No results found."));
         } catch (err) {
-
             console.error("Sniper error:", err);
-
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "Sniper gagal dijalankan."
-            );
-
+            setError(err instanceof Error ? err.message : "Sniper execution failed.");
         } finally {
-
             setRunning(false);
-
         }
-
     }
 
     function openPostInput() {
@@ -105,16 +120,14 @@ export default function SmartPage() {
     }
 
     async function runPost() {
-
         if (!connected || !address) {
-            setError("Connect wallet dulu untuk menjalankan Post.");
+            setError("Please connect your wallet first to run Post.");
             return;
         }
 
         const url = targetUrl.trim();
-
         if (!url) {
-            setError("Masukkan URL target dulu.");
+            setError("Please enter a target URL first.");
             return;
         }
 
@@ -124,27 +137,31 @@ export default function SmartPage() {
         setError("");
         setRunning(true);
 
+        const baseSteps = [
+            "Connecting to GenLayer Studio node...",
+            "Resolving contract 0xe2771DD5b5f...",
+            `Fetching target page: ${url}`
+        ];
+
         try {
+            const oldAnalysis = await readLastAnalysis();
+            const txPromise = investigateUrl(address, url);
+            
+            trackTransactionProgress(txPromise, baseSteps);
 
-            const result = await investigateUrl(address, url);
-            setOutput(result);
+            const resultPromise = pollForOutput(readLastAnalysis, oldAnalysis);
+            const result = await Promise.race([
+                resultPromise,
+                txPromise.catch(() => readLastAnalysis())
+            ]);
 
+            setOutput(String(result || "No investigation results found."));
         } catch (err) {
-
             console.error("Post error:", err);
-
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "Post gagal dijalankan."
-            );
-
+            setError(err instanceof Error ? err.message : "Post execution failed.");
         } finally {
-
             setRunning(false);
-
         }
-
     }
 
     function openCodeInput() {
@@ -156,16 +173,14 @@ export default function SmartPage() {
     }
 
     async function runCoding() {
-
         if (!connected || !address) {
-            setError("Connect wallet dulu untuk menjalankan Coding.");
+            setError("Please connect your wallet first to run Coding.");
             return;
         }
 
         const code = sourceCode.trim();
-
         if (!code) {
-            setError("Tempel/tulis source code dulu.");
+            setError("Please paste or write source code first.");
             return;
         }
 
@@ -175,50 +190,41 @@ export default function SmartPage() {
         setError("");
         setRunning(true);
 
+        const baseSteps = [
+            "Connecting to GenLayer Studio node...",
+            "Resolving contract AIaskglobal...",
+            "Parsing source code for GenVM multi-language reasoning..."
+        ];
+
         try {
+            const txPromise = auditCode(address, code);
+            trackTransactionProgress(txPromise, baseSteps);
 
-            const result = await auditCode(address, code);
-            setOutput(result);
-
+            const result = await txPromise;
+            setOutput(String(result || "No audit results found."));
         } catch (err) {
-
             console.error("Coding error:", err);
-
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "Audit code gagal dijalankan."
-            );
-
+            setError(err instanceof Error ? err.message : "Code audit execution failed.");
         } finally {
-
             setRunning(false);
-
         }
-
     }
 
     return (
         <div className="smart-wrapper">
-
             <div className="smart-card">
-
                 <div className="smart-header">
-
                     <div className="smart-title">
                         <Sparkles size={18} />
                         <h2>Smart Radar</h2>
                     </div>
-
                 </div>
 
                 <p className="smart-subtitle">
                     Autonomously investigate alpha projects, content, & code
-                    
                 </p>
 
                 <div className="smart-tool-buttons smart-tool-buttons-3">
-
                     <button
                         className="smart-tool-button"
                         onClick={runSniper}
@@ -245,46 +251,40 @@ export default function SmartPage() {
                         <Code2 size={16} />
                         Coding
                     </button>
-
                 </div>
 
                 {showUrlInput && (
                     <div className="smart-url-input-row">
-
                         <input
                             type="text"
                             className="smart-url-input"
-                            placeholder="https://contoh-proyek.com"
+                            placeholder="https://example-project.com"
                             value={targetUrl}
                             onChange={e => setTargetUrl(e.target.value)}
                             onKeyDown={e => {
                                 if (e.key === "Enter") runPost();
                             }}
                         />
-
                         <button
                             className="smart-url-submit"
                             onClick={runPost}
                             disabled={running}
                         >
-                            Jalankan
+                            Run
                         </button>
-
                     </div>
                 )}
 
                 {showCodeInput && (
                     <div className="smart-code-input-block">
-
                         <textarea
                             className="smart-code-textarea"
-                            placeholder="Tempel source code di sini (Solidity, Python, JS, Rust, dll)..."
+                            placeholder="Paste source code here (Solidity, Python, JS, Rust, etc.)..."
                             value={sourceCode}
                             onChange={e => setSourceCode(e.target.value)}
                             rows={8}
                             spellCheck={false}
                         />
-
                         <button
                             className="smart-url-submit smart-code-submit"
                             onClick={runCoding}
@@ -292,7 +292,6 @@ export default function SmartPage() {
                         >
                             Audit Code
                         </button>
-
                     </div>
                 )}
 
@@ -305,13 +304,7 @@ export default function SmartPage() {
                                 ? "genlayer://post"
                                 : "genlayer://audit"
                         }
-                        lines={
-                            activeTool === "sniper"
-                                ? SNIPER_STEPS
-                                : activeTool === "post"
-                                ? postSteps(targetUrl)
-                                : CODING_STEPS
-                        }
+                        lines={terminalLines}
                         finalOutput={output}
                         running={running}
                     />
@@ -323,12 +316,10 @@ export default function SmartPage() {
                     </div>
                 )}
 
-                <div className="smart-footnote">
+                <div className="smart-footnote" translate="no">
                     Powered by GenLayer Intelligent Contract
                 </div>
-
             </div>
-
         </div>
     );
 }

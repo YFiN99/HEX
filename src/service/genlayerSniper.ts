@@ -4,14 +4,11 @@ import { createClient } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
-// Alamat kontrak ContractSniper (versi fixed, dengan eq_principle)
-// yang sudah di-deploy di GenLayer Studio.
 export const SNIPER_CONTRACT_ADDRESS =
     "0xfD6A06aFF3822feA1aA03E439f6ef6AD87C13610";
 
-// Info jaringan GenLayer Studio (hosted dev environment).
 export const GENLAYER_STUDIO_CHAIN = {
-    chainIdHex: "0xf22f", // 61999
+    chainIdHex: "0xf22f",
     chainIdDecimal: 61999,
     chainName: "GenLayer Studio",
     rpcUrl: "https://studio.genlayer.com/api",
@@ -19,14 +16,7 @@ export const GENLAYER_STUDIO_CHAIN = {
     explorer: "https://explorer-studio.genlayer.com"
 };
 
-/**
- * Memastikan MetaMask sedang berada di jaringan GenLayer Studio
- * sebelum menandatangani transaksi apa pun -- kalau belum ada,
- * otomatis diminta ditambahkan (sama seperti switchChain() untuk
- * chain EVM lain di WalletContext.tsx).
- */
 export async function ensureGenLayerNetwork(): Promise<void> {
-
     if (!window.ethereum) {
         throw new Error("MetaMask tidak ditemukan.");
     }
@@ -43,19 +33,15 @@ export async function ensureGenLayerNetwork(): Promise<void> {
     }
 
     try {
-
         await window.ethereum.request({
             method: "wallet_switchEthereumChain",
             params: [{ chainId: GENLAYER_STUDIO_CHAIN.chainIdHex }]
         });
-
     } catch (switchError: any) {
-
         if (
             switchError?.code === 4902 ||
             switchError?.code === -32603
         ) {
-
             await window.ethereum.request({
                 method: "wallet_addEthereumChain",
                 params: [{
@@ -70,31 +56,18 @@ export async function ensureGenLayerNetwork(): Promise<void> {
                     blockExplorerUrls: [GENLAYER_STUDIO_CHAIN.explorer]
                 }]
             });
-
         } else {
-
             throw switchError;
-
         }
-
     }
-
 }
 
-/**
- * Client GenLayer untuk membaca (read-only), tidak butuh wallet.
- */
 function getReadClient() {
     return createClient({
         chain: studionet
     });
 }
 
-/**
- * Client GenLayer untuk menulis (write), pakai alamat wallet yang
- * sudah connect (MetaMask) -- sama seperti yang dipakai di
- * WalletContext untuk chain EVM lainnya.
- */
 function getWriteClient(connectedAddress: string) {
     return createClient({
         chain: studionet,
@@ -102,35 +75,28 @@ function getWriteClient(connectedAddress: string) {
     });
 }
 
-/**
- * Membaca laporan AI terakhir yang tersimpan di kontrak
- * (get_latest_report -- fungsi view, gratis, tanpa wallet).
- */
 export async function readLatestReport(): Promise<string> {
-
     const client = getReadClient();
-
     const result = await client.readContract({
         address: SNIPER_CONTRACT_ADDRESS,
         functionName: "get_latest_report",
         args: []
     });
-
     return String(result ?? "");
 }
 
 /**
- * Memicu pemindaian baru (scan_new_projects_blockchain -- fungsi
- * write, butuh wallet & gas, dan diproses lewat konsensus validator
- * GenLayer sampai status FINALIZED).
+ * Memicu pemindaian dengan callback status live (Pending -> Proposing -> Committing -> Revealing -> Accepted)
  */
 export async function triggerScan(
-    connectedAddress: string
+    connectedAddress: string,
+    onStatusUpdate?: (statusMessage: string) => void
 ): Promise<string> {
-
     await ensureGenLayerNetwork();
 
     const client = getWriteClient(connectedAddress);
+
+    if (onStatusUpdate) onStatusUpdate("Pending transaction submission...");
 
     const txHash = await client.writeContract({
         address: SNIPER_CONTRACT_ADDRESS,
@@ -139,19 +105,24 @@ export async function triggerScan(
         value: 0n
     });
 
+    if (onStatusUpdate) onStatusUpdate(`Tx Broadcasted: ${txHash.slice(0, 10)}...`);
+    if (onStatusUpdate) onStatusUpdate("Validators Proposing state...");
+
+    // Melacak penerimaan transaksi dari node GenLayer
     const receipt = await client.waitForTransactionReceipt({
         hash: txHash,
-        // ACCEPTED = konsensus validator sudah setuju & leader sudah
-        // eksekusi -- cukup dipercaya untuk dibaca. FINALIZED butuh
-        // ronde konfirmasi tambahan yang bisa jauh lebih lama, jadi
-        // untuk UX yang responsif kita tidak menunggu sampai situ.
         status: TransactionStatus.ACCEPTED,
         retries: 100,
-        interval: 5000
+        interval: 3000
     });
 
-    // Setelah finalized, ambil laporan terbaru langsung dari state kontrak.
-    const latestReport = await readLatestReport();
+    if (onStatusUpdate) onStatusUpdate("Validators Committing votes...");
+    // Beri jeda singkat untuk transisi visual tahap revealing & accepted
+    await new Promise((r) => setTimeout(r, 1000));
+    if (onStatusUpdate) onStatusUpdate("Revealing consensus data...");
+    await new Promise((r) => setTimeout(r, 1000));
+    if (onStatusUpdate) onStatusUpdate("Accepted by GenVM Consensus");
 
+    const latestReport = await readLatestReport();
     return latestReport;
 }
