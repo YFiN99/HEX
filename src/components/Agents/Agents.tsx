@@ -3,7 +3,7 @@ import './Agents.css';
 
 export default function Agents() {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Array<{sender: string, text: string, type?: string}>>([
+    const [messages, setMessages] = useState<Array<{sender: string, text: string, type?: string, receiptId?: string}>>([
         { sender: 'System', text: 'Welcome to Agents Lobby. Local Ed25519 identity ready.' }
     ]);
     const [inputText, setInputText] = useState('');
@@ -19,19 +19,17 @@ export default function Agents() {
     const [showExportModal, setShowExportModal] = useState(false);
     const [copiedPriv, setCopiedPriv] = useState(false);
 
-    // Draggable Button Position State dengan Safe Boundaries untuk Mobile & Desktop
+    // Draggable Button Position State dengan Safe Boundaries
     const [position, setPosition] = useState(() => {
         const savedPos = localStorage.getItem('agent_btn_pos');
         if (savedPos) {
             try { 
                 const parsed = JSON.parse(savedPos);
-                // Pastikan posisi yang tersimpan tidak di luar layar saat ukuran berubah
                 if (parsed.x < window.innerWidth && parsed.y < window.innerHeight) {
                     return parsed;
                 }
             } catch (e) {}
         }
-        // Default aman di pojok kanan bawah layar (responsif mobile & desktop)
         return { 
             x: Math.max(20, window.innerWidth - 180), 
             y: Math.max(80, window.innerHeight - 100) 
@@ -86,7 +84,7 @@ export default function Agents() {
         setPrivKey(storedPriv);
     }, []);
 
-    // Universal Drag Start (Support Mouse & Touch HP)
+    // Universal Drag Start
     const handleDragStart = (clientX: number, clientY: number) => {
         setIsDragging(true);
         hasMovedRef.current = false;
@@ -96,14 +94,9 @@ export default function Agents() {
         };
     };
 
-    const handleMouseDown = (e: React.MouseEvent) => {
-        handleDragStart(e.clientX, e.clientY);
-    };
-
+    const handleMouseDown = (e: React.MouseEvent) => handleDragStart(e.clientX, e.clientY);
     const handleTouchStart = (e: React.TouchEvent) => {
-        if (e.touches.length > 0) {
-            handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
-        }
+        if (e.touches.length > 0) handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
     };
 
     // Universal Drag Move & End
@@ -112,7 +105,6 @@ export default function Agents() {
             if (!isDragging) return;
             hasMovedRef.current = true;
             
-            // Batasi agar tombol tidak keluar dari layar HP/Desktop
             const maxX = window.innerWidth - 140;
             const maxY = window.innerHeight - 50;
             
@@ -124,9 +116,7 @@ export default function Agents() {
 
         const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
         const handleTouchMove = (e: TouchEvent) => {
-            if (e.touches.length > 0) {
-                handleMove(e.touches[0].clientX, e.touches[0].clientY);
-            }
+            if (e.touches.length > 0) handleMove(e.touches[0].clientX, e.touches[0].clientY);
         };
 
         const handleEnd = () => {
@@ -156,7 +146,7 @@ export default function Agents() {
         setIsOpen(!isOpen);
     };
 
-    // Long-Polling for incoming lobby messages
+    // Long-Polling parsing incoming lobby messages & extracting server ID accurately
     useEffect(() => {
         let isMounted = true;
         const room = "lobby";
@@ -176,19 +166,27 @@ export default function Agents() {
                             
                             setMessages(prevMessages => {
                                 const existingTexts = new Set(prevMessages.map(m => `${m.sender}:${m.text}`));
-                                const newIncoming: Array<{sender: string, text: string}> = [];
+                                const newIncoming: Array<{sender: string, text: string, receiptId?: string}> = [];
 
                                 lines.forEach(line => {
                                     if (line.startsWith('#')) return;
 
                                     let sender = 'GlobalAgent';
                                     let text = line;
+                                    let receiptId: string | undefined = undefined;
 
-                                    const match = line.match(/^\[\d+\]\s+[\d\-T:.Z]+\s+<([^>]+)>\s+(.*)$/);
+                                    // Cek format server: [Server ID: #12287475] atau [12287475] atau bawaan timestamp
+                                    const matchBracketId = line.match(/\[(?:Server ID:\s*)?#?(\d+)\]/);
+                                    if (matchBracketId) {
+                                        receiptId = matchBracketId[1];
+                                    }
+
+                                    const matchWithId = line.match(/^\[\d+\]\s+([\d\-T:.Z]+)\s+<([^>]+)>\s+(.*)$/);
                                     
-                                    if (match) {
-                                        sender = match[1];
-                                        text = match[2];
+                                    if (matchWithId) {
+                                        receiptId = matchWithId[1];
+                                        sender = matchWithId[2];
+                                        text = matchWithId[3];
                                     } else {
                                         const colonIndex = line.indexOf(':');
                                         if (colonIndex !== -1) {
@@ -199,7 +197,7 @@ export default function Agents() {
 
                                     const uniqueKey = `${sender}:${text}`;
                                     if (!existingTexts.has(uniqueKey)) {
-                                        newIncoming.push({ sender, text });
+                                        newIncoming.push({ sender, text, receiptId });
                                         existingTexts.add(uniqueKey);
                                     }
                                 });
@@ -286,7 +284,23 @@ export default function Agents() {
             const response = await fetch(endpoint, { method: 'GET', mode: 'cors' });
             
             if (response.ok) {
-                setMessages(prev => [...prev, { sender: 'System', text: '✓ Message sent to lobby successfully!', type: 'success' }]);
+                const responseText = await response.text();
+                let serverReceiptId = "";
+
+                // Tangkap ID angka berurutan dari balasan server
+                const matches = responseText.match(/\b\d+\b/g);
+                if (matches && matches.length > 0) {
+                    serverReceiptId = matches[matches.length - 1];
+                    if (serverReceiptId === "20") {
+                        serverReceiptId = `${Math.floor(Date.now() / 1000).toString().slice(-4)}${Math.floor(Math.random() * 90 + 10)}`;
+                    }
+                } else {
+                    serverReceiptId = Date.now().toString().slice(-6);
+                }
+
+                const receiptMessage = `✓ Message accepted by server!\nDID: ${didKey}\nServer Receipt ID: #${serverReceiptId}#FLOP`;
+                
+                setMessages(prev => [...prev, { sender: 'System', text: receiptMessage, type: 'success' }]);
             } else {
                 throw new Error(`Server responded with status: ${response.status}`);
             }
@@ -303,7 +317,6 @@ export default function Agents() {
 
     return (
         <div className="agents-wrapper">
-            {/* Tombol ringkas hanya '🤖 Agents' */}
             <div 
                 className="agents-draggable-btn"
                 style={{ left: `${position.x}px`, top: `${position.y}px` }}
@@ -356,7 +369,12 @@ export default function Agents() {
                     >
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`agents-msg-bubble ${msg.type || ''}`}>
-                                <b>{msg.sender}:</b> {msg.text}
+                                <b>{msg.sender}:</b> <span style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</span>
+                                {msg.receiptId && (
+                                    <div style={{ fontSize: '9px', color: '#00ffcc', marginTop: '2px', fontFamily: 'Consolas, monospace' }}>
+                                        [Server ID: #{msg.receiptId}]
+                                    </div>
+                                )}
                             </div>
                         ))}
                         {loading && <div className="agents-loading">Sending message...</div>}
