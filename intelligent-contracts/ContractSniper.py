@@ -20,35 +20,7 @@ class ContractSniper(gl.Contract):
 
         target_keyword = "blockchain new chain"
 
-        # -----------------------------------------------------------
-        # PENTING: operasi non-deterministik (gl.net.get, gl.nondet.exec_prompt)
-        # WAJIB dipanggil dari dalam fungsi kecil TANPA parameter,
-        # lalu dijalankan lewat gl.eq_principle.* -- bukan langsung
-        # di body method. Tanpa ini, validator tidak bisa mencapai
-        # konsensus untuk teks hasil LLM (yang selalu beda kata-kata
-        # tiap kali digenerate), sehingga self.latest_report bisa
-        # diam-diam gagal ter-update dan tetap nyangkut di nilai
-        # awal (initial_report) selamanya.
-        #
-        # CATATAN TAMBAHAN soal "Undetermined":
-        # Tiap validator fetch API ini SENDIRI-SENDIRI. Kalau
-        # sebagian validator berhasil dapat data asli dan sebagian
-        # lagi gagal (kena rate-limit/network flaky), hasil LLM-nya
-        # jadi beda SECARA SUBSTANSI (bukan cuma gaya bahasa), dan
-        # eq_principle tidak akan menganggap itu "cukup sama".
-        # Untuk memperkecil risiko itu:
-        #   1. Ditambahkan header User-Agent (GitHub API menolak
-        #      request tanpa User-Agent -- ini bisa jadi penyebab
-        #      semua/gagal secara tidak sengaja tidak seragam).
-        #   2. Retry singkat sebelum menyerah, supaya lebih banyak
-        #      validator yang akhirnya sukses fetch data yang sama.
-        #   3. Semua jalur GAGAL disatukan jadi SATU teks persis
-        #      yang sama, supaya validator yang sama-sama gagal
-        #      tetap punya input identik untuk LLM.
-        # -----------------------------------------------------------
-
         def fetch_with_retry(url: str, attempts: int = 3) -> str | None:
-
             headers = {
                 "User-Agent": "GenLayer-ContractSniper/1.0",
                 "Accept": "application/json"
@@ -59,7 +31,7 @@ class ContractSniper(gl.Contract):
                     response = gl.nondet.web.get(url, headers=headers)
                     status = getattr(response, "status_code", 200)
 
-                    if status < 400:
+                    if status < 400 and response.text and len(response.text.strip()) > 0:
                         return response.text[:1500]
 
                 except Exception:
@@ -68,51 +40,59 @@ class ContractSniper(gl.Contract):
             return None
 
         def generate_report() -> str:
-
+            # 1. GitHub dengan filter 30 hari terakhir (Dibuat setelah 26 Juli 2026)
             github_url = (
                 f"https://api.github.com/search/repositories?"
-                f"q={target_keyword}+created:>2026-08-01&sort=updated&order=desc"
+                f"q={target_keyword}+created:>2026-07-26&sort=updated&order=desc"
             )
 
+            # 2. DexScreener untuk market & pair baru di DEX
             dex_url = "https://api.dexscreener.com/latest/dex/search?q=layer"
+
+            # 3. Pump.fun / Launchpad Token Profiles (Latest minted profiles)
+            pump_url = "https://api.dexscreener.com/token-profiles/latest/v1"
 
             github_raw = fetch_with_retry(github_url)
             dex_raw = fetch_with_retry(dex_url)
+            pump_raw = fetch_with_retry(pump_url)
 
-            # Satu teks GAGAL yang persis sama untuk semua validator
-            # yang sama-sama tidak berhasil fetch -- supaya tidak ada
-            # variasi antara "GitHub error 403" vs "GitHub error 429"
-            # dsb yang bisa bikin LLM output beda secara substansi.
-            if github_raw is None:
-                github_raw = "DATA_UNAVAILABLE"
-
-            if dex_raw is None:
-                dex_raw = "DATA_UNAVAILABLE"
+            # Uniform failure text to prevent consensus divergence across validators
+            github_raw = github_raw if github_raw else "DATA_UNAVAILABLE"
+            dex_raw = dex_raw if dex_raw else "DATA_UNAVAILABLE"
+            pump_raw = pump_raw if pump_raw else "DATA_UNAVAILABLE"
 
             prompt = f"""
-            Analisis data berikut untuk mencari proyek/blockchain baru:
-            GitHub: {github_raw}
-            DexScreener: {dex_raw}
-            Berikan laporan ringkas.
+            You are an elite Web3 Alpha Hunter and Risk Management Analyst.
+            Analyze the following live raw data streams:
+            
+            1. GitHub Repositories (Created within the last 30 days): {github_raw}
+            2. DexScreener Market Data (Focus strictly on tokens launched within the last 24 hours / 1 day): {dex_raw}
+            3. Pump.fun / Launchpad Token Profiles (Focus strictly on tokens minted within the last 24 hours / 1 day): {pump_raw}
+            
+            CRITICAL FILTERING RULES:
+            - **Time Filter for Tokens:** You MUST strictly ignore and exclude any token, pool, or project whose creation or launch date is older than 24 hours (1 day). Only consider brand-new tokens born in the last 24 hours.
+            - **Liquidity & Quality Filter:** You MUST exclude any token whose estimated liquidity or trading activity is negligible, dead, or below a safe threshold.
+            - Only highlight ultra-early tokens and fresh projects that match these strict time and liquidity criteria.
 
-            Jika kedua sumber data di atas persis bertuliskan
-            "DATA_UNAVAILABLE", jawab HANYA dengan kalimat berikut,
-            persis tanpa tambahan apa pun:
-            "Data sumber sedang tidak tersedia. Coba scan lagi beberapa saat lagi."
+            CRITICAL INSTRUCTION: You MUST write the entire response strictly in ENGLISH. Do not use any other language.
+
+            If all data sources above are strictly equal to "DATA_UNAVAILABLE" or no projects meet the 1-day freshness and liquidity criteria, respond
+            ONLY with this exact sentence and nothing else:
+            "Source data is currently unavailable or no 24-hour qualified tokens met the criteria."
+
+            Otherwise, provide a concise, high-alpha intelligence report highlighting only the qualified ultra-early tokens launched in the last 24 hours and fresh developer activity.
             """
 
             return gl.nondet.exec_prompt(prompt)
 
-        # Validator lain menilai hasil leader berdasarkan KRITERIA
-        # (bukan harus identik kata per kata), karena hasil LLM
-        # memang selalu berbeda redaksinya antar validator.
+        # Validators evaluate the leader output based on criteria
         ai_analysis = gl.eq_principle.prompt_non_comparative(
             generate_report,
-            task="Membuat laporan ringkas proyek blockchain & likuiditas baru dari data GitHub dan DexScreener",
+            task="Generate an ultra-early alpha intelligence report with 30-day GitHub filter and strict 1-day freshness token filter strictly in English",
             criteria="""
-            Laporan berbentuk ringkasan yang jelas dan masuk akal
-            Menyebutkan proyek/token yang relevan dari data yang diberikan (bukan teks generik), KECUALI jika data sumber memang tidak tersedia
-            Panjangnya wajar untuk sebuah ringkasan (tidak cuma satu kata)
+            The report must be written 100% in English.
+            The report must strictly filter for tokens launched within the last 1 day (24 hours), exclude low-liquidity/dust tokens, and highlight active quality early projects.
+            The length must be appropriate for an intelligence summary.
             """
         )
 
