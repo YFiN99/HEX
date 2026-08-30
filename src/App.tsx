@@ -3,6 +3,7 @@ import "./App.css";
 import NightSky from "./components/NightSky/NightSky";
 import Header from "./components/Header/Header";
 import BottomNav from "./components/BottomNav/BottomNav";
+import Agents from "./components/Agents/Agents"; // <-- Tambahkan import komponen Agents
 
 import SwapPage from "./pages/SwapPage";
 import PoolPage from "./pages/PoolPage";
@@ -71,6 +72,9 @@ function AppContent() {
             )}
 
             <BottomNav />
+
+            {/* Floating Agents Chat Widget */}
+            <Agents />
         </>
     );
 }

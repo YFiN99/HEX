@@ -1,0 +1,205 @@
+.agents-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Tombol melayang yang mendukung touch & drag di HP/Desktop */
+.agents-draggable-btn {
+    position: fixed;
+    background: linear-gradient(135deg, #00ffcc, #007766);
+    color: #05080a;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: grab;
+    font-size: 11px;
+    box-shadow: 0 4px 15px rgba(0, 255, 204, 0.4);
+    font-family: 'Consolas', monospace;
+    z-index: 9998;
+    user-select: none;
+    touch-action: none; /* KRITIS: Mencegah layar ikut scroll saat tombol digeser di HP */
+    transition: box-shadow 0.2s ease;
+    white-space: nowrap;
+}
+
+.agents-draggable-btn:active {
+    cursor: grabbing;
+    box-shadow: 0 2px 8px rgba(0, 255, 204, 0.6);
+}
+
+/* Jendela Popup Terminal Responsif Mobile */
+.agents-popup-window {
+    position: fixed;
+    width: 340px;
+    max-width: 92vw; /* Aman di layar HP kecil */
+    max-height: 80vh;
+    background: #090f14;
+    border: 1px solid #1a3a40;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 255, 204, 0.15);
+    overflow: hidden;
+    font-family: 'Consolas', monospace;
+    z-index: 9999;
+    animation: fadeInPopup 0.15s ease-out forwards;
+}
+
+@keyframes fadeInPopup {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Header */
+.agents-header {
+    background: #0d161d;
+    color: #00ffcc;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1a3a40;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.agents-close-btn {
+    background: transparent;
+    border: none;
+    color: #ff4444;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.agents-close-btn:hover {
+    background: rgba(255, 68, 68, 0.1);
+}
+
+/* Wallet/DID Status Bar */
+.agents-wallet-status {
+    background: #060a0f;
+    padding: 8px 12px;
+    border-bottom: 1px solid #1a3a40;
+    color: #00ffcc;
+}
+
+/* Messages Area */
+.agents-messages {
+    padding: 12px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 260px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #05080a;
+}
+
+.agents-msg-bubble {
+    background: #0d161d;
+    border: 1px solid #162933;
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: #c5e3e8;
+    font-size: 11px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.agents-msg-bubble.error {
+    background: #200a0a;
+    border-color: #551a1a;
+    color: #ff8888;
+}
+
+.agents-msg-bubble.success {
+    background: #0a2016;
+    border-color: #1a5533;
+    color: #88ffaa;
+}
+
+.agents-loading {
+    color: #00ffcc;
+    font-style: italic;
+    font-size: 11px;
+    padding-left: 2px;
+}
+
+/* Footer & Input */
+.agents-footer {
+    background: #0d161d;
+    padding: 10px 12px;
+    border-top: 1px solid #1a3a40;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.agents-quick-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap; /* Agar tombol cepat turun ke baris baru jika layar sempit */
+}
+
+.agents-quick-btn {
+    background: #11222b;
+    border: 1px solid #1a3a40;
+    color: #00ffcc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+    font-family: 'Consolas', monospace;
+    transition: background 0.2s;
+}
+
+.agents-quick-btn:hover:not(:disabled) {
+    background: #1a3a40;
+}
+
+.agents-input-row {
+    display: flex;
+    gap: 6px;
+}
+
+.agents-input {
+    flex: 1;
+    background: #05080a;
+    border: 1px solid #1a3a40;
+    border-radius: 4px;
+    padding: 6px 10px;
+    color: #00ffcc;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    outline: none;
+    min-width: 0; /* Mencegah input melebihi lebar flex container di mobile */
+}
+
+.agents-input:focus {
+    border-color: #00ffcc;
+}
+
+.agents-send-btn {
+    background: #00ffcc;
+    color: #05080a;
+    border: none;
+    padding: 0 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.agents-send-btn:disabled, .agents-quick-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
