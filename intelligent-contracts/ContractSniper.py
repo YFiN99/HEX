@@ -1,28 +1,39 @@
-# v0.2.16
+# v0.2.19 - ULTRA EARLY ALPHA DETECTOR & RISK SETTLER
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 
 from genlayer import *
+from datetime import datetime, timedelta
 
 class ContractSniper(gl.Contract):
     latest_report: str
     last_scan_time: u256
+    exchange_risk_verdict: str  # Status keputusan pasti: APPROVED, FLAGGED, atau REJECTED
+    target_project_name: str     # Nama proyek yang diputuskan
 
     def __init__(self, initial_report: str):
         self.latest_report = initial_report
         self.last_scan_time = 0
+        self.exchange_risk_verdict = "PENDING_SCAN"
+        self.target_project_name = "NONE"
 
     @gl.public.view
     def get_latest_report(self) -> str:
         return self.latest_report
 
+    @gl.public.view
+    def get_risk_verdict(self) -> str:
+        """Mengembalikan keputusan mutlak on-chain untuk aturan listing/risiko DEX."""
+        return self.exchange_risk_verdict
+
     @gl.public.write
     def scan_new_projects_blockchain(self) -> str:
-
-        target_keyword = "blockchain new chain"
+        """
+        ULTRA EARLY ALPHA HUNTER v0.2.19 with Request-Bound Exchange Action
+        """
 
         def fetch_with_retry(url: str, attempts: int = 3) -> str | None:
             headers = {
-                "User-Agent": "GenLayer-ContractSniper/1.0",
+                "User-Agent": "GenLayer-AlphaSniper/2.0",
                 "Accept": "application/json"
             }
 
@@ -32,7 +43,7 @@ class ContractSniper(gl.Contract):
                     status = getattr(response, "status_code", 200)
 
                     if status < 400 and response.text and len(response.text.strip()) > 0:
-                        return response.text[:1500]
+                        return response.text[:2500]
 
                 except Exception:
                     pass
@@ -40,61 +51,56 @@ class ContractSniper(gl.Contract):
             return None
 
         def generate_report() -> str:
-            # 1. GitHub dengan filter 30 hari terakhir (Dibuat setelah 26 Juli 2026)
+            yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
             github_url = (
                 f"https://api.github.com/search/repositories?"
-                f"q={target_keyword}+created:>2026-07-26&sort=updated&order=desc"
+                f"q=blockchain+language:rust+OR+language:solidity+OR+language:python+"
+                f"created:>{yesterday}&sort=stars&order=desc&per_page=5"
             )
 
-            # 2. DexScreener untuk market & pair baru di DEX
-            dex_url = "https://api.dexscreener.com/latest/dex/search?q=layer"
-
-            # 3. Pump.fun / Launchpad Token Profiles (Latest minted profiles)
-            pump_url = "https://api.dexscreener.com/token-profiles/latest/v1"
-
             github_raw = fetch_with_retry(github_url)
-            dex_raw = fetch_with_retry(dex_url)
-            pump_raw = fetch_with_retry(pump_url)
-
-            # Uniform failure text to prevent consensus divergence across validators
-            github_raw = github_raw if github_raw else "DATA_UNAVAILABLE"
-            dex_raw = dex_raw if dex_raw else "DATA_UNAVAILABLE"
-            pump_raw = pump_raw if pump_raw else "DATA_UNAVAILABLE"
+            if not github_raw:
+                github_raw = "[GITHUB API TIMEOUT - Using backup fallback data]"
 
             prompt = f"""
-            You are an elite Web3 Alpha Hunter and Risk Management Analyst.
-            Analyze the following live raw data streams:
-            
-            1. GitHub Repositories (Created within the last 30 days): {github_raw}
-            2. DexScreener Market Data (Focus strictly on tokens launched within the last 24 hours / 1 day): {dex_raw}
-            3. Pump.fun / Launchpad Token Profiles (Focus strictly on tokens minted within the last 24 hours / 1 day): {pump_raw}
-            
-            CRITICAL FILTERING RULES:
-            - **Time Filter for Tokens:** You MUST strictly ignore and exclude any token, pool, or project whose creation or launch date is older than 24 hours (1 day). Only consider brand-new tokens born in the last 24 hours.
-            - **Liquidity & Quality Filter:** You MUST exclude any token whose estimated liquidity or trading activity is negligible, dead, or below a safe threshold.
-            - Only highlight ultra-early tokens and fresh projects that match these strict time and liquidity criteria.
+            Analyze the following GitHub developer data for ultra-early crypto/blockchain projects:
+            {github_raw}
 
-            CRITICAL INSTRUCTION: You MUST write the entire response strictly in ENGLISH. Do not use any other language.
+            CRITICAL TASK:
+            1. Select the top 1 single best early project from the data (or state NONE if invalid).
+            2. Evaluate its risk level (1-10) and alpha potential (1-10).
+            3. Provide a strict DECISION for the decentralized exchange (DEX):
+               - If alpha >= 7 and risk <= 6: Output verdict as [VERDICT: APPROVED_FOR_LISTING]
+               - If risks are visible: Output verdict as [VERDICT: FLAGGED_HIGH_RISK]
+               - If no good project: Output verdict as [VERDICT: REJECTED]
 
-            If all data sources above are strictly equal to "DATA_UNAVAILABLE" or no projects meet the 1-day freshness and liquidity criteria, respond
-            ONLY with this exact sentence and nothing else:
-            "Source data is currently unavailable or no 24-hour qualified tokens met the criteria."
-
-            Otherwise, provide a concise, high-alpha intelligence report highlighting only the qualified ultra-early tokens launched in the last 24 hours and fresh developer activity.
+            Format your response clearly starting with the verdict tag, followed by a concise execution report.
             """
 
             return gl.nondet.exec_prompt(prompt)
 
-        # Validators evaluate the leader output based on criteria
+        # Jalankan konsensus non-komparatif
         ai_analysis = gl.eq_principle.prompt_non_comparative(
             generate_report,
-            task="Generate an ultra-early alpha intelligence report with 30-day GitHub filter and strict 1-day freshness token filter strictly in English",
+            task="Perform alpha detection and settle an exchange risk verdict for the DEX",
             criteria="""
-            The report must be written 100% in English.
-            The report must strictly filter for tokens launched within the last 1 day (24 hours), exclude low-liquidity/dust tokens, and highlight active quality early projects.
-            The length must be appropriate for an intelligence summary.
+            The response must include an explicit exchange decision tag like [VERDICT: APPROVED_FOR_LISTING], [VERDICT: FLAGGED_HIGH_RISK], or [VERDICT: REJECTED].
+            The evaluation must rely strictly on the provided GitHub development data.
+            Written 100% in English.
             """
         )
+
+        if not ai_analysis or ai_analysis == "":
+            ai_analysis = "[VERDICT: REJECTED] No qualified projects detected in current market scan window."
+            self.exchange_risk_verdict = "REJECTED"
+        else:
+            # Parsing otomatis status verdict untuk disimpan sebagai state on-chain yang mengontrol DEX
+            if "APPROVED_FOR_LISTING" in ai_analysis:
+                self.exchange_risk_verdict = "APPROVED_FOR_LISTING"
+            elif "FLAGGED_HIGH_RISK" in ai_analysis:
+                self.exchange_risk_verdict = "FLAGGED_HIGH_RISK"
+            else:
+                self.exchange_risk_verdict = "REJECTED"
 
         self.latest_report = ai_analysis
         self.last_scan_time = 1
