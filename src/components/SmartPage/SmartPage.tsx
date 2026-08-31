@@ -86,7 +86,7 @@ export default function SmartPage() {
 
         const baseSteps = [
             "Connecting to GenLayer Studio node...",
-            "Resolving contract 0xfD6A06aFF3822fe...",
+            "Resolving contract 0x17a220fd6487...",
             "Fetching GitHub search index & DexScreener feed..."
         ];
 

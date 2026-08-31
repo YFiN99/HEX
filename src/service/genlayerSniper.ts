@@ -5,7 +5,7 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
 export const SNIPER_CONTRACT_ADDRESS =
-    "0xfD6A06aFF3822feA1aA03E439f6ef6AD87C13610";
+    "0x17a220fd6487F8D241034e94cA598AB5DbaD650C";
 
 export const GENLAYER_STUDIO_CHAIN = {
     chainIdHex: "0xf22f",
@@ -83,6 +83,19 @@ export async function readLatestReport(): Promise<string> {
         args: []
     });
     return String(result ?? "");
+}
+
+/**
+ * Membaca status keputusan mutlak (risk verdict) langsung dari smart contract on-chain
+ */
+export async function readRiskVerdict(): Promise<string> {
+    const client = getReadClient();
+    const result = await client.readContract({
+        address: SNIPER_CONTRACT_ADDRESS,
+        functionName: "get_risk_verdict",
+        args: []
+    });
+    return String(result ?? "PENDING_SCAN");
 }
 
 /**
