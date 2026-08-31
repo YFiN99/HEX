@@ -17,10 +17,14 @@ export default function SwapCard() {
 
     const { chainId } = useWallet();
 
+    // Tidak fallback ke CHAINS[0]. Kalau user belum connect/pilih chain,
+    // chainId = 0 dan chain akan bernilai undefined -> UI di-disable
+    // dan menampilkan pesan "Pilih network dulu" (lihat noChainSelected).
     const chain = useMemo(() => {
-        // Cari berdasarkan chainId, jika tidak ketemu gunakan chain pertama (index 0) sebagai fallback
-        return CHAINS.find(c => c.chainId === chainId) || CHAINS[0];
+        return CHAINS.find(c => c.chainId === chainId);
     }, [chainId]);
+
+    const noChainSelected = !chain;
 
     const {
         payToken,
@@ -128,11 +132,13 @@ export default function SwapCard() {
     //----------------------------------------------------
 
     function openPay() {
+        if (noChainSelected) return;
         setSelectingPay(true);
         setModalOpen(true);
     }
 
     function openReceive() {
+        if (noChainSelected) return;
         setSelectingPay(false);
         setModalOpen(true);
     }
@@ -170,6 +176,8 @@ export default function SwapCard() {
     // HANDLE SWAP WITH TOAST
     //----------------------------------------------------
     async function handleSwap() {
+        if (noChainSelected) return;
+
         try {
             setTxHash(""); // Reset hash lama
             const receipt = await executeSwap();
@@ -198,7 +206,18 @@ export default function SwapCard() {
 
     return (
         <div className="swap-wrapper">
-            <div className="swap-card">
+            <div
+                className={
+                    "swap-card" +
+                    (noChainSelected ? " swap-card-disabled" : "")
+                }
+            >
+                {noChainSelected && (
+                    <div className="swap-network-overlay">
+                        Select a network first
+                    </div>
+                )}
+
                 <div className="swap-header">
                     <h2>
                         Swap
@@ -260,7 +279,12 @@ export default function SwapCard() {
                 <SwapButton
                     loading={loading}
                     loadingText="Swapping..."
-                    text="Swap"
+                    text={
+                        noChainSelected
+                            ? "Select Network"
+                            : "Swap"
+                    }
+                    disabled={noChainSelected}
                     onClick={handleSwap}
                 />
             </div>

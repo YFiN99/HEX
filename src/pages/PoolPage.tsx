@@ -1,6 +1,8 @@
 import { useNavigation } from "../context/NavigationContext";
 import PoolCard from "../components/PoolCard/PoolCard";
 import usePool from "../hooks/usePool";
+import { useWallet } from "../context/WalletContext";
+import { CHAINS } from "../config/chain";
 
 export default function PoolPage() {
     const {
@@ -10,6 +12,13 @@ export default function PoolPage() {
     } = usePool();
 
     const { navigate } = useNavigation();
+
+    const { chainId } = useWallet();
+
+    // Sama seperti SwapCard: tidak fallback ke CHAINS[0]. Kalau belum
+    // ada chain aktif, tampilkan pesan "Pilih network dulu" alih-alih
+    // memanggil refresh()/menampilkan data pool dari chain manapun.
+    const noChainSelected = !CHAINS.some(c => c.chainId === chainId);
 
     return (
         <div className="pool-wrapper">
@@ -29,7 +38,7 @@ export default function PoolPage() {
                     <button
                         className="refreshButton"
                         onClick={refresh}
-                        disabled={loading}
+                        disabled={loading || noChainSelected}
                     >
                         {loading
                             ? "Loading..."
@@ -40,10 +49,31 @@ export default function PoolPage() {
 
 
                 {/* =====================================================
+                    NO CHAIN SELECTED
+                ===================================================== */}
+
+                {noChainSelected && (
+
+                    <div className="emptyPool">
+
+                        <h3>
+                            Select a network first
+                        </h3>
+
+                        <p>
+                            Choose a network above to view your liquidity positions.
+                        </p>
+
+                    </div>
+
+                )}
+
+
+                {/* =====================================================
                     INITIAL LOADING
                 ===================================================== */}
 
-                {loading && pairs.length === 0 && (
+                {!noChainSelected && loading && pairs.length === 0 && (
 
                     <div className="emptyPool">
 
@@ -64,7 +94,7 @@ export default function PoolPage() {
                     NO LIQUIDITY
                 ===================================================== */}
 
-                {!loading && pairs.length === 0 && (
+                {!noChainSelected && !loading && pairs.length === 0 && (
 
                     <div className="emptyPool">
 
@@ -104,7 +134,7 @@ export default function PoolPage() {
                     POOLS
                 ===================================================== */}
 
-                {pairs.length > 0 && (
+                {!noChainSelected && pairs.length > 0 && (
 
                     <div>
 

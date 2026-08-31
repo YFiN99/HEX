@@ -20,11 +20,13 @@ export default function ChainWalletSelector() {
     const [chainOpen, setChainOpen] = useState(false);
     const [walletOpen, setWalletOpen] = useState(false);
 
+    // Tidak ada fallback ke CHAINS[0] di sini secara sengaja.
+    // Kalau chainId belum ke-set (user belum connect / belum pilih chain
+    // secara manual), currentChain akan bernilai undefined dan UI akan
+    // menampilkan state "Select Network" alih-alih hardcode ke chain tertentu.
     const currentChain = useMemo(() => {
-        return (
-            CHAINS.find(
-                (chain) => chain.chainId === chainId
-            ) || CHAINS[0]
+        return CHAINS.find(
+            (chain) => chain.chainId === chainId
         );
     }, [chainId]);
 
@@ -113,14 +115,19 @@ export default function ChainWalletSelector() {
                     }}
                 >
 
-                    <span className="chainDot">
+                    <span
+                        className={
+                            "chainDot" +
+                            (!currentChain ? " chainDotEmpty" : "")
+                        }
+                    >
                         ●
                     </span>
 
                     <span className="chainName">
                         {
                             currentChain?.chainName ??
-                            "Unknown"
+                            "Select Network"
                         }
                     </span>
 
