@@ -4,8 +4,9 @@ import { createClient } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
+// Alamat kontrak pintar terbaru yang sudah di-deploy ke GenLayer Studio Explorer
 export const SNIPER_CONTRACT_ADDRESS =
-    "0x17a220fd6487F8D241034e94cA598AB5DbaD650C";
+    "0x559617b50b95F2E8959DdE35c2f495e00d0d1E81";
 
 export const GENLAYER_STUDIO_CHAIN = {
     chainIdHex: "0xf22f",
@@ -49,7 +50,7 @@ export async function ensureGenLayerNetwork(): Promise<void> {
                     chainName: GENLAYER_STUDIO_CHAIN.chainName,
                     nativeCurrency: {
                         name: GENLAYER_STUDIO_CHAIN.nativeSymbol,
-                        symbol: GENLAYER_STUDIO_CHAIN.nativeSymbol,
+                        symbol: GENLAYER_STUDio_symbol = GENLAYER_STUDIO_CHAIN.nativeSymbol,
                         decimals: 18
                     },
                     rpcUrls: [GENLAYER_STUDIO_CHAIN.rpcUrl],
@@ -75,34 +76,47 @@ function getWriteClient(connectedAddress: string) {
     });
 }
 
-export async function readLatestReport(): Promise<string> {
-    const client = getReadClient();
-    const result = await client.readContract({
-        address: SNIPER_CONTRACT_ADDRESS,
-        functionName: "get_latest_report",
-        args: []
-    });
-    return String(result ?? "");
-}
-
 /**
- * Membaca status keputusan mutlak (risk verdict) langsung dari smart contract on-chain
+ * Membaca record verdict terikat berdasarkan request_id dari TreeMap on-chain
  */
-export async function readRiskVerdict(): Promise<string> {
+export async function getVerdictRecord(requestId: string): Promise<any> {
     const client = getReadClient();
-    const result = await client.readContract({
-        address: SNIPER_CONTRACT_ADDRESS,
-        functionName: "get_risk_verdict",
-        args: []
-    });
-    return String(result ?? "PENDING_SCAN");
+    try {
+        const result = await client.readContract({
+            address: SNIPER_CONTRACT_ADDRESS,
+            functionName: "get_verdict",
+            args: [requestId]
+        });
+        return result;
+    } catch (error) {
+        return null;
+    }
 }
 
 /**
- * Memicu pemindaian dengan callback status live (Pending -> Proposing -> Committing -> Revealing -> Accepted)
+ * Mengecek apakah suatu request_id diizinkan untuk listing/swap (DEX Enforcement)
+ */
+export async function checkIsApproved(requestId: string): Promise<boolean> {
+    const client = getReadClient();
+    try {
+        const result = await client.readContract({
+            address: SNIPER_CONTRACT_ADDRESS,
+            functionName: "is_approved",
+            args: [requestId]
+        });
+        return Boolean(result);
+    } catch (error) {
+        return false;
+    }
+}
+
+/**
+ * Memicu pemindaian proyek baru dengan request_id unik dan target hint
  */
 export async function triggerScan(
     connectedAddress: string,
+    requestId: string,
+    targetHint: string,
     onStatusUpdate?: (statusMessage: string) => void
 ): Promise<string> {
     await ensureGenLayerNetwork();
@@ -114,7 +128,7 @@ export async function triggerScan(
     const txHash = await client.writeContract({
         address: SNIPER_CONTRACT_ADDRESS,
         functionName: "scan_new_projects_blockchain",
-        args: [],
+        args: [requestId, targetHint],
         value: 0n
     });
 
@@ -122,7 +136,7 @@ export async function triggerScan(
     if (onStatusUpdate) onStatusUpdate("Validators Proposing state...");
 
     // Melacak penerimaan transaksi dari node GenLayer
-    const receipt = await client.waitForTransactionReceipt({
+    await client.waitForTransactionReceipt({
         hash: txHash,
         status: TransactionStatus.ACCEPTED,
         retries: 100,
@@ -130,12 +144,12 @@ export async function triggerScan(
     });
 
     if (onStatusUpdate) onStatusUpdate("Validators Committing votes...");
-    // Beri jeda singkat untuk transisi visual tahap revealing & accepted
     await new Promise((r) => setTimeout(r, 1000));
     if (onStatusUpdate) onStatusUpdate("Revealing consensus data...");
     await new Promise((r) => setTimeout(r, 1000));
     if (onStatusUpdate) onStatusUpdate("Accepted by GenVM Consensus");
 
-    const latestReport = await readLatestReport();
-    return latestReport;
+    // Ambil hasil analisis terbaru berdasarkan request_id
+    const record = await getVerdictRecord(requestId);
+    return typeof record === "object" && record !== null ? JSON.stringify(record) : String(record ?? "Scan completed.");
 }

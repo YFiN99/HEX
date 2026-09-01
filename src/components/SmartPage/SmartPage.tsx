@@ -6,7 +6,7 @@ import { Sparkles, Crosshair, Send, Code2 } from "lucide-react";
 import TerminalPanel from "../Terminalpanel/TerminalPanel";
 
 import { useWallet } from "../../context/WalletContext";
-import { triggerScan, readLatestReport } from "../../service/genlayerSniper";
+import { triggerScan, SNIPER_CONTRACT_ADDRESS } from "../../service/genlayerSniper";
 import { investigateUrl, readLastAnalysis } from "../../service/genlayerInvestigator";
 import { auditCode } from "../../service/genlayerCodeAuditor";
 
@@ -49,28 +49,6 @@ export default function SmartPage() {
         }
     }
 
-    async function pollForOutput(
-        readFn: () => Promise<string>,
-        oldValue: string,
-        maxRetries = 60,
-        intervalMs = 1000
-    ): Promise<string> {
-        let attempts = 0;
-        while (attempts < maxRetries) {
-            await new Promise((resolve) => setTimeout(resolve, intervalMs));
-            attempts++;
-            try {
-                const currentVal = await readFn();
-                if (currentVal && currentVal.trim().length > 10 && currentVal !== oldValue) {
-                    return currentVal;
-                }
-            } catch (err) {
-                // Ignore silent error
-            }
-        }
-        return await readFn();
-    }
-
     async function runSniper() {
         if (!connected || !address) {
             setError("Please connect your wallet first to run Sniper.");
@@ -84,24 +62,20 @@ export default function SmartPage() {
         setError("");
         setRunning(true);
 
+        const requestId = crypto.randomUUID();
+        const targetHint = "Top GitHub blockchain repositories";
+
         const baseSteps = [
             "Connecting to GenLayer Studio node...",
-            "Resolving contract 0x17a220fd6487...",
+            `Resolving contract ${SNIPER_CONTRACT_ADDRESS.slice(0, 10)}...`,
             "Fetching GitHub search index & DexScreener feed..."
         ];
 
         try {
-            const oldReport = await readLatestReport();
-            const txPromise = triggerScan(address);
-            
+            const txPromise = triggerScan(address, requestId, targetHint);
             trackTransactionProgress(txPromise, baseSteps);
 
-            const resultPromise = pollForOutput(readLatestReport, oldReport);
-            const result = await Promise.race([
-                resultPromise,
-                txPromise.catch(() => readLatestReport())
-            ]);
-
+            const result = await txPromise;
             setOutput(String(result || "No results found."));
         } catch (err) {
             console.error("Sniper error:", err);
@@ -142,6 +116,28 @@ export default function SmartPage() {
             "Resolving contract 0xe2771DD5b5f...",
             `Fetching target page: ${url}`
         ];
+
+        async function pollForOutput(
+            readFn: () => Promise<string>,
+            oldValue: string,
+            maxRetries = 60,
+            intervalMs = 1000
+        ): Promise<string> {
+            let attempts = 0;
+            while (attempts < maxRetries) {
+                await new Promise((resolve) => setTimeout(resolve, intervalMs));
+                attempts++;
+                try {
+                    const currentVal = await readFn();
+                    if (currentVal && currentVal.trim().length > 10 && currentVal !== oldValue) {
+                        return currentVal;
+                    }
+                } catch (err) {
+                    // Ignore silent error
+                }
+            }
+            return await readFn();
+        }
 
         try {
             const oldAnalysis = await readLastAnalysis();

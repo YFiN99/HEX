@@ -206,18 +206,7 @@ export default function SwapCard() {
 
     return (
         <div className="swap-wrapper">
-            <div
-                className={
-                    "swap-card" +
-                    (noChainSelected ? " swap-card-disabled" : "")
-                }
-            >
-                {noChainSelected && (
-                    <div className="swap-network-overlay">
-                        Select a network first
-                    </div>
-                )}
-
+            <div className="swap-card">
                 <div className="swap-header">
                     <h2>
                         Swap
