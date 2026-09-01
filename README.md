@@ -1,32 +1,19 @@
-# React + TypeScript + Vite
+# HEX — Multi-Chain Testnet AMM DEX
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+HEX is a decentralized exchange (AMM) front-end that lets users swap tokens, provide liquidity, and run AI-assisted "Smart" tools across several EVM testnet chains — all from a single interface with a wallet/network selector.
 
-Currently, two official plugins are available:
+Live app: **hex-amm.vercel.app**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
-
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+- **Swap** — token-to-token swaps with live price, minimum received, price impact, and liquidity fee display.
+- **Pool** — view your liquidity positions (LP balance, reserves, pool share) with Add/Remove liquidity flows.
+- **Smart** — AI-assisted on-chain tools powered by [GenLayer](https://genlayer.com) Intelligent Contracts:
+  - **Sniper** — scans for new projects/pairs on-chain.
+  - **Post (Airdrop Investigator)** — investigates a URL and generates content/analysis.
+  - **Coding / AI Chat** — general-purpose on-chain AI Q&A / code auditing.
+- **Transparency** — public info page.
+- **Roadmap** — project roadmap page.
+- **Multi-chain selector** — no chain is selected by default; the user explicitly picks a network before Swap/Pool become active (prevents silently defaulting to one chain).
