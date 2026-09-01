@@ -20,9 +20,11 @@
 
     backdrop-filter:blur(18px);
 
-    border:1px solid rgba(255,255,255,.08);
+    border:1.5px solid rgba(20,200,255,.6);
 
     border-radius:22px;
+
+    box-shadow:0 0 14px rgba(20,200,255,.3);
 
     z-index:999;
 

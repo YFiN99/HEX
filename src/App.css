@@ -168,3 +168,41 @@ body {
   0%, 100% { opacity: 0.15; transform: scale(0.8); }
   50% { opacity: 1; transform: scale(1.1); }
 }
+
+/* =========================================================
+   GLOWING VIEWPORT BORDER (cyan neon frame around whole page)
+   ========================================================= */
+
+.app-glow-border {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9998; /* di bawah modal (biasanya 9999+), di atas konten biasa */
+
+  pointer-events: none; /* jangan halangi klik apa pun di baliknya */
+
+  border: 4px solid rgba(20, 200, 255, 0.85);
+
+  box-shadow:
+    inset 0 0 12px rgba(20, 200, 255, 0.35),
+    inset 0 0 24px rgba(20, 200, 255, 0.15),
+    0 0 10px rgba(20, 200, 255, 0.35),
+    0 0 20px rgba(20, 200, 255, 0.18);
+
+  animation: app-glow-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes app-glow-pulse {
+  0%, 100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-glow-border {
+    animation: none;
+  }
+}

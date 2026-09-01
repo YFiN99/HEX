@@ -33,6 +33,8 @@ function AppContent() {
         <>
             <NightSky count={50} />
 
+            <div className="app-glow-border" aria-hidden="true" />
+
             <Header />
 
             {/* =====================================================

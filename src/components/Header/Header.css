@@ -125,7 +125,7 @@
 .menuButton {
     background: none;
 
-    border: none;
+    border: 1.5px solid rgba(20, 200, 255, 0.55);
 
     color: #8a8a8a;
 
@@ -139,9 +139,13 @@
 
     border-radius: 12px;
 
+    box-shadow: 0 0 8px rgba(20, 200, 255, 0.25);
+
     transition:
         background 0.25s ease,
         color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
         transform 0.2s ease;
 }
 
@@ -154,6 +158,10 @@
     color: white;
 
     background: rgba(255, 255, 255, 0.08);
+
+    border-color: rgba(20, 200, 255, 0.85);
+
+    box-shadow: 0 0 14px rgba(20, 200, 255, 0.45);
 }
 
 
@@ -163,6 +171,10 @@
 
 .active {
     background: #14c8ff;
+
+    border-color: #14c8ff;
+
+    box-shadow: 0 0 16px rgba(20, 200, 255, 0.6);
 
     color: black;
 }
