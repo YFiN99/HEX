@@ -28,16 +28,17 @@ function getWriteClient(connectedAddress: string) {
  * free, no wallet required).
  */
 export async function readLatestAudit(): Promise<string> {
-
     const client = getReadClient();
-
-    const result = await client.readContract({
-        address: CODE_AUDITOR_CONTRACT_ADDRESS,
-        functionName: "get_latest_answer",
-        args: []
-    });
-
-    return String(result ?? "");
+    try {
+        const result = await client.readContract({
+            address: CODE_AUDITOR_CONTRACT_ADDRESS,
+            functionName: "get_latest_answer",
+            args: []
+        });
+        return String(result ?? "");
+    } catch {
+        return "";
+    }
 }
 
 /**
@@ -49,7 +50,6 @@ export async function auditCode(
     connectedAddress: string,
     sourceCode: string
 ): Promise<string> {
-
     await ensureGenLayerNetwork();
 
     const client = getWriteClient(connectedAddress);
@@ -61,7 +61,8 @@ export async function auditCode(
         value: 0n
     });
 
-    const receipt = await client.waitForTransactionReceipt({
+    // Safely wait for transaction receipt with fallback casting
+    await (client as any).waitForTransactionReceipt({
         hash: txHash,
         status: TransactionStatus.ACCEPTED,
         retries: 100,
@@ -69,6 +70,5 @@ export async function auditCode(
     });
 
     const latest = await readLatestAudit();
-
-    return latest;
+    return latest || "Audit completed, but no audit report was returned.";
 }

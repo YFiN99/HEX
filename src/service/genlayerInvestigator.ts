@@ -62,7 +62,7 @@ export async function investigateUrl(
     if (onStatusUpdate) onStatusUpdate("Transaction sent. Waiting for Proposing phase...", "");
 
     const oldAnalysis = await readLastAnalysis();
-    let maxAttempts = 120; // Max 6 minutes (3 seconds per check)
+    const maxAttempts = 120; // Max 6 minutes (3 seconds per check)
     let attempts = 0;
     let proposerReached = false;
 
@@ -72,9 +72,8 @@ export async function investigateUrl(
         attempts++;
 
         try {
-            // Check receipt / transaction status from GenLayer node
-            // Note: GenLayer SDK status property names are usually strings like 'pending', 'proposing', 'committing', 'accepted'
-            const receipt: any = await client.getTransactionReceipt({ hash: txHash }).catch(() => null);
+            // Check receipt / transaction status from GenLayer node safely
+            const receipt: any = await (client as any).getTransactionReceipt({ hash: txHash }).catch(() => null);
             
             const currentStatus = receipt?.status ? String(receipt.status).toLowerCase() : "pending";
             console.log(`Current GenLayer Tx Status: ${currentStatus}`);

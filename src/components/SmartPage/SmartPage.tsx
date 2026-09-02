@@ -1,3 +1,5 @@
+// src/components/SmartPage.tsx
+
 import "./SmartPage.css";
 
 import { useState } from "react";
@@ -7,8 +9,8 @@ import TerminalPanel from "../Terminalpanel/TerminalPanel";
 
 import { useWallet } from "../../context/WalletContext";
 import { triggerScan, SNIPER_CONTRACT_ADDRESS } from "../../service/genlayerSniper";
-import { investigateUrl, readLastAnalysis } from "../../service/genlayerInvestigator";
-import { auditCode } from "../../service/genlayerCodeAuditor";
+import { investigateUrl, readLastAnalysis, INVESTIGATOR_CONTRACT_ADDRESS } from "../../service/genlayerInvestigator";
+import { auditCode, CODE_AUDITOR_CONTRACT_ADDRESS } from "../../service/genlayerCodeAuditor";
 
 type Tool = "sniper" | "post" | "coding" | null;
 
@@ -22,6 +24,9 @@ export default function SmartPage() {
     const [error, setError] = useState("");
     
     const [terminalLines, setTerminalLines] = useState<string[]>([]);
+
+    const [showSniperInput, setShowSniperInput] = useState(false);
+    const [sniperTag, setSniperTag] = useState("");
 
     const [showUrlInput, setShowUrlInput] = useState(false);
     const [targetUrl, setTargetUrl] = useState("");
@@ -49,30 +54,39 @@ export default function SmartPage() {
         }
     }
 
+    function openSniperInput() {
+        setActiveTool(null);
+        setShowUrlInput(false);
+        setShowCodeInput(false);
+        setOutput("");
+        setError("");
+        setShowSniperInput(prev => !prev);
+    }
+
     async function runSniper() {
         if (!connected || !address) {
             setError("Please connect your wallet first to run Sniper.");
             return;
         }
 
+        const tagToUse = sniperTag.trim() || "Top GitHub blockchain repositories";
+
         setActiveTool("sniper");
-        setShowUrlInput(false);
-        setShowCodeInput(false);
+        setShowSniperInput(false);
         setOutput("");
         setError("");
         setRunning(true);
 
         const requestId = crypto.randomUUID();
-        const targetHint = "Top GitHub blockchain repositories";
 
         const baseSteps = [
             "Connecting to GenLayer Studio node...",
             `Resolving contract ${SNIPER_CONTRACT_ADDRESS.slice(0, 10)}...`,
-            "Fetching GitHub search index & DexScreener feed..."
+            `Scanning with target tag: "${tagToUse}"...`
         ];
 
         try {
-            const txPromise = triggerScan(address, requestId, targetHint);
+            const txPromise = triggerScan(address, requestId, tagToUse);
             trackTransactionProgress(txPromise, baseSteps);
 
             const result = await txPromise;
@@ -87,6 +101,7 @@ export default function SmartPage() {
 
     function openPostInput() {
         setActiveTool(null);
+        setShowSniperInput(false);
         setShowCodeInput(false);
         setOutput("");
         setError("");
@@ -113,7 +128,7 @@ export default function SmartPage() {
 
         const baseSteps = [
             "Connecting to GenLayer Studio node...",
-            "Resolving contract 0xe2771DD5b5f...",
+            `Resolving contract ${INVESTIGATOR_CONTRACT_ADDRESS.slice(0, 10)}...`,
             `Fetching target page: ${url}`
         ];
 
@@ -162,6 +177,7 @@ export default function SmartPage() {
 
     function openCodeInput() {
         setActiveTool(null);
+        setShowSniperInput(false);
         setShowUrlInput(false);
         setOutput("");
         setError("");
@@ -188,7 +204,7 @@ export default function SmartPage() {
 
         const baseSteps = [
             "Connecting to GenLayer Studio node...",
-            "Resolving contract AIaskglobal...",
+            `Resolving contract ${CODE_AUDITOR_CONTRACT_ADDRESS.slice(0, 10)}...`,
             "Parsing source code for GenVM multi-language reasoning..."
         ];
 
@@ -223,7 +239,7 @@ export default function SmartPage() {
                 <div className="smart-tool-buttons smart-tool-buttons-3">
                     <button
                         className="smart-tool-button"
-                        onClick={runSniper}
+                        onClick={openSniperInput}
                         disabled={running}
                     >
                         <Crosshair size={16} />
@@ -248,6 +264,28 @@ export default function SmartPage() {
                         Coding
                     </button>
                 </div>
+
+                {showSniperInput && (
+                    <div className="smart-url-input-row">
+                        <input
+                            type="text"
+                            className="smart-url-input"
+                            placeholder="Optional Tag / Keyword (e.g. DeFi, AI, L2)..."
+                            value={sniperTag}
+                            onChange={e => setSniperTag(e.target.value)}
+                            onKeyDown={e => {
+                                if (e.key === "Enter") runSniper();
+                            }}
+                        />
+                        <button
+                            className="smart-url-submit"
+                            onClick={runSniper}
+                            disabled={running}
+                        >
+                            Scan
+                        </button>
+                    </div>
+                )}
 
                 {showUrlInput && (
                     <div className="smart-url-input-row">

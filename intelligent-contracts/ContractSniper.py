@@ -1,4 +1,3 @@
-# v0.3.1 - REQUEST-BOUND, SOURCE-CITED ALPHA DETECTOR & RISK SETTLER
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 
 from genlayer import *
@@ -9,15 +8,13 @@ from datetime import datetime, timedelta
 @allow_storage
 @dataclass
 class VerdictRecord:
-    verdict: str          # APPROVED_FOR_LISTING | FLAGGED_HIGH_RISK | REJECTED | PENDING_SCAN
-    project_name: str     # the project the verdict is about
-    source_citation: str  # REQUIRED: repo full_name / URL the verdict was based on
+    verdict: str  # APPROVED_FOR_LISTING | FLAGGED_HIGH_RISK | REJECTED | PENDING_SCAN
+    project_name: str
+    source_citation: str
     scan_time: u256
 
 
 class ContractSniper(gl.Contract):
-    # Keyed by request_id so each caller's request gets its own bound result
-    # instead of one shared "latest" slot that concurrent requests can clobber.
     verdicts: TreeMap[str, VerdictRecord]
 
     def __init__(self):
@@ -25,17 +22,12 @@ class ContractSniper(gl.Contract):
 
     @gl.public.view
     def get_verdict(self, request_id: str) -> VerdictRecord:
-        """Returns the verdict bound to a specific request_id (not a shared 'latest')."""
+        """Returns the verdict bound to a specific request_id."""
         return self.verdicts[request_id]
 
     @gl.public.view
     def is_approved(self, request_id: str) -> bool:
-        """
-        The function the DEX listing / pool-creation flow should call before
-        allowing a listing or risk-sensitive action to proceed. This is what
-        makes the verdict actually ENFORCE something, instead of just being
-        advisory prose sitting in storage.
-        """
+        """Checks if the request ID has been approved for listing."""
         if request_id not in self.verdicts:
             return False
         return self.verdicts[request_id].verdict == "APPROVED_FOR_LISTING"
@@ -43,15 +35,13 @@ class ContractSniper(gl.Contract):
     @gl.public.write
     def scan_new_projects_blockchain(self, request_id: str, target_project_hint: str) -> str:
         """
-        ALPHA HUNTER v0.3.0 — request-bound, source-cited exchange verdict.
-
-        request_id: caller-supplied unique id for THIS request (e.g. a UUID or
-            the pool/listing id it's meant to gate). The result is stored under
-            this key, so two callers scanning concurrently never overwrite
-            each other's outcome.
-        target_project_hint: optional filter/context so the request is bound
-            to a specific candidate rather than "whatever the AI feels like".
+        ALPHA HUNTER v0.3.1 — Request-bound, source-cited exchange verdict with overwrite protection.
         """
+        # 1. CEGAH OVERWRITE: Jika request_id sudah ada dan tercatat, cegah caller lain menimpanya
+        if request_id in self.verdicts:
+            existing_record = self.verdicts[request_id]
+            if existing_record.verdict != "PENDING_SCAN":
+                raise Exception("Error: Request ID sudah difinalisasi dan tidak dapat ditimpa oleh caller lain.")
 
         def fetch_with_retry(url: str, attempts: int = 3) -> str | None:
             headers = {
@@ -81,18 +71,19 @@ class ContractSniper(gl.Contract):
 
             prompt = f"""
 Analyze the following GitHub developer data for ultra-early crypto/blockchain projects.
-Request context / hint: {target_project_hint}
+Request context / hint (Token/Project Evidence): {target_project_hint}
 
 {github_raw}
 
 CRITICAL TASK:
-1. Select the single best early project from the data (or state NONE if invalid).
-2. Evaluate its risk level (1-10) and alpha potential (1-10).
-3. Provide a strict DECISION for the decentralized exchange (DEX):
-   - If alpha >= 7 and risk <= 6: [VERDICT: APPROVED_FOR_LISTING]
+1. Verify the token evidence and cited source provided in the request hint.
+2. Select the single best early project from the data (or state NONE if invalid).
+3. Evaluate its risk level (1-10) and alpha potential (1-10).
+4. Provide a strict DECISION for the decentralized exchange (DEX):
+   - If alpha >= 7 and risk <= 6 and valid evidence matches: [VERDICT: APPROVED_FOR_LISTING]
    - If risks are visible: [VERDICT: FLAGGED_HIGH_RISK]
-   - If no good project: [VERDICT: REJECTED]
-4. You MUST cite the exact source you based the decision on, using the tag
+   - If no good project or evidence mismatch: [VERDICT: REJECTED]
+5. You MUST cite the exact source you based the decision on, using the tag
    [SOURCE: <github repo full_name, e.g. owner/repo>] immediately after the
    verdict tag. A response with no [SOURCE: ...] tag is invalid.
 
@@ -103,14 +94,13 @@ Written 100% in English.
 
         ai_analysis = gl.eq_principle.prompt_non_comparative(
             generate_report,
-            task="Perform alpha detection and settle a source-cited exchange risk verdict for the DEX",
+            task="Perform alpha detection, verify token evidence, and settle a source-cited exchange risk verdict for the DEX",
             criteria="""
 The response must include an explicit exchange decision tag: [VERDICT: APPROVED_FOR_LISTING],
 [VERDICT: FLAGGED_HIGH_RISK], or [VERDICT: REJECTED].
 The response must ALSO include an explicit [SOURCE: owner/repo] citation tag naming the exact
-GitHub repository the verdict is based on. A response missing the SOURCE tag must be rejected
-and re-generated as [VERDICT: REJECTED] [SOURCE: NONE].
-The evaluation must rely strictly on the provided GitHub development data.
+GitHub repository the verdict is based on. A response missing the SOURCE tag must be rejected.
+The evaluation must rely strictly on the provided GitHub development data and verify token evidence.
 Written 100% in English.
 """,
         )
@@ -138,7 +128,6 @@ Written 100% in English.
                 except Exception:
                     record.source_citation = "NONE"
 
-            # No citation => cannot be an enforceable approval, force REJECTED.
             if record.source_citation == "NONE" and record.verdict == "APPROVED_FOR_LISTING":
                 record.verdict = "REJECTED"
         else:
