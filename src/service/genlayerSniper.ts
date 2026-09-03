@@ -6,7 +6,7 @@ import { TransactionStatus } from "genlayer-js/types";
 
 // Alamat kontrak pintar terbaru yang sudah di-deploy ke GenLayer Studio Explorer
 export const SNIPER_CONTRACT_ADDRESS =
-    "0x5dEc24EfA6168840c3530A88f5fB470eD9CA3EAE";
+    "0xdA5d289E4D9f68c6A62FD1A4cE84418c66cc6570";
 
 export const GENLAYER_STUDIO_CHAIN = {
     chainIdHex: "0xf22f",
