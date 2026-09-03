@@ -125,7 +125,7 @@
 .menuButton {
     background: none;
 
-    border: 1.5px solid rgba(20, 200, 255, 0.55);
+    border: 3px solid rgba(20, 200, 255, 0.95);
 
     color: #8a8a8a;
 
@@ -139,7 +139,7 @@
 
     border-radius: 12px;
 
-    box-shadow: 0 0 8px rgba(20, 200, 255, 0.25);
+    box-shadow: 0 0 16px rgba(20, 200, 255, 0.6);
 
     transition:
         background 0.25s ease,

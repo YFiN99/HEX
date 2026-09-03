@@ -28,7 +28,7 @@
 .walletSelectorButton {
     height: 42px;
 
-    border: 1.5px solid rgba(20, 200, 255, 0.6);
+    border: 3px solid rgba(20, 200, 255, 0.95);
 
     border-radius: 12px;
 
@@ -46,7 +46,7 @@
 
     cursor: pointer;
 
-    box-shadow: 0 0 10px rgba(20, 200, 255, 0.25);
+    box-shadow: 0 0 16px rgba(20, 200, 255, 0.6);
 
     transition:
         background 0.2s ease,
@@ -60,9 +60,9 @@
         rgba(25, 30, 40, 0.95);
 
     border-color:
-        rgba(20, 200, 255, 0.9);
+        rgba(20, 200, 255, 1);
 
-    box-shadow: 0 0 16px rgba(20, 200, 255, 0.5);
+    box-shadow: 0 0 22px rgba(20, 200, 255, 0.7);
 }
 
 .chainDot,

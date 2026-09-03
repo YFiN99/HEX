@@ -181,7 +181,7 @@ body {
 
   pointer-events: none; /* jangan halangi klik apa pun di baliknya */
 
-  border: 4px solid rgba(20, 200, 255, 0.85);
+  border: 6px solid rgba(20, 200, 255, 0.9);
 
   box-shadow:
     inset 0 0 12px rgba(20, 200, 255, 0.35),
