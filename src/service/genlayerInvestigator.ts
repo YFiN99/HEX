@@ -2,7 +2,7 @@
 
 import { createClient } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
-import { ensureGenLayerNetwork } from "./genlayerSniper";
+import { ensureGenLayerNetwork } from "./justice";
 
 export const INVESTIGATOR_CONTRACT_ADDRESS =
     "0xe2771DD5b5f30D92c9443F5e4C459B91F7226924";

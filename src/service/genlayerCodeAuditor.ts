@@ -4,7 +4,7 @@ import { createClient } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
-import { ensureGenLayerNetwork } from "./genlayerSniper";
+import { ensureGenLayerNetwork } from "./justice";
 
 // Newly deployed AIaskglobal contract address
 export const CODE_AUDITOR_CONTRACT_ADDRESS =
