@@ -11,9 +11,9 @@ import AddLiquidityPage from "./pages/AddLiquidityPage";
 import RemoveLiquidityPage from "./pages/RemoveLiquidityPage";
 import SettingsPage from "./pages/SettingsPage";
 import SmartPage from "./components/SmartPage/SmartPage";
+import AskGlobalChat from "./components/AskGlobalChat/AskGlobalChat";
 
-import Transparency from "./components/Transparency/Transparency";
-import Roadmap from "./components/Roadmap/Roadmap";
+import RoadmapPage from "./components/RoadmapPage/RoadmapPage";
 
 import {
     NavigationProvider,
@@ -65,12 +65,12 @@ function AppContent() {
                 <SmartPage />
             )}
 
-            {page === "transparency" && (
-                <Transparency />
+            {page === "chat" && (
+                <AskGlobalChat />
             )}
 
             {page === "roadmap" && (
-                <Roadmap />
+                <RoadmapPage />
             )}
 
             <BottomNav />

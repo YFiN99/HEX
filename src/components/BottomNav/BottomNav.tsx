@@ -92,6 +92,30 @@ export default function BottomNav(){
 
             </button>
 
+            <button
+
+                className={
+
+                    page==="chat"
+
+                    ?
+
+                    "navItem active"
+
+                    :
+
+                    "navItem"
+
+                }
+
+                onClick={()=>navigate("chat")}
+
+            >
+
+                Chat
+
+            </button>
+
         </nav>
 
     );

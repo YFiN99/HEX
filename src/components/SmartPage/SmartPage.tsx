@@ -1,16 +1,15 @@
 import "./SmartPage.css";
 
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Scale, Send, Code2, Search, Loader2 } from "lucide-react";
+import { Sparkles, Scale, Send, Search, Loader2 } from "lucide-react";
 
 import TerminalPanel from "../Terminalpanel/TerminalPanel";
 
 import { useWallet } from "../../context/WalletContext";
 import { autoExecuteJusticeScan, JUSTICE_CONTRACT_ADDRESS } from "../../service/justice";
 import { investigateUrl, readLastAnalysis, INVESTIGATOR_CONTRACT_ADDRESS } from "../../service/genlayerInvestigator";
-import { auditCode, CODE_AUDITOR_CONTRACT_ADDRESS } from "../../service/genlayerCodeAuditor";
 
-type Tool = "justice" | "post" | "coding" | null;
+type Tool = "justice" | "post" | null;
 
 interface TokenSuggestion {
     symbol: string;
@@ -41,9 +40,6 @@ export default function SmartPage() {
 
     const [showUrlInput, setShowUrlInput] = useState(false);
     const [targetUrl, setTargetUrl] = useState("");
-
-    const [showCodeInput, setShowCodeInput] = useState(false);
-    const [sourceCode, setSourceCode] = useState("");
 
     // Effect untuk Fetch Auto-Suggest saat User Mengetik
     useEffect(() => {
@@ -113,7 +109,6 @@ export default function SmartPage() {
     function openJusticeInput() {
         setActiveTool(null);
         setShowUrlInput(false);
-        setShowCodeInput(false);
         setOutput("");
         setError("");
         setShowJusticeInput(prev => !prev);
@@ -169,7 +164,6 @@ export default function SmartPage() {
     function openPostInput() {
         setActiveTool(null);
         setShowJusticeInput(false);
-        setShowCodeInput(false);
         setOutput("");
         setError("");
         setShowUrlInput(true);
@@ -242,53 +236,6 @@ export default function SmartPage() {
         }
     }
 
-    function openCodeInput() {
-        setActiveTool(null);
-        setShowJusticeInput(false);
-        setShowUrlInput(false);
-        setOutput("");
-        setError("");
-        setShowCodeInput(true);
-    }
-
-    async function runCoding() {
-        if (!connected || !address) {
-            setError("Please connect your wallet first to run Coding.");
-            return;
-        }
-
-        const code = sourceCode.trim();
-        if (!code) {
-            setError("Please paste or write source code first.");
-            return;
-        }
-
-        setActiveTool("coding");
-        setShowCodeInput(false);
-        setOutput("");
-        setError("");
-        setRunning(true);
-
-        const baseSteps = [
-            "Connecting to GenLayer Studio node...",
-            `Resolving contract ${CODE_AUDITOR_CONTRACT_ADDRESS.slice(0, 10)}...`,
-            "Parsing source code for GenVM multi-language reasoning..."
-        ];
-
-        try {
-            const txPromise = auditCode(address, code);
-            trackTransactionProgress(txPromise, baseSteps);
-
-            const result = await txPromise;
-            setOutput(String(result || "No audit results found."));
-        } catch (err) {
-            console.error("Coding error:", err);
-            setError(err instanceof Error ? err.message : "Code audit execution failed.");
-        } finally {
-            setRunning(false);
-        }
-    }
-
     return (
         <div className="smart-wrapper">
             <div className="smart-card">
@@ -300,10 +247,10 @@ export default function SmartPage() {
                 </div>
 
                 <p className="smart-subtitle">
-                    Autonomously investigate alpha projects, content, & code
+                    Autonomously investigate alpha projects & content
                 </p>
 
-                <div className="smart-tool-buttons smart-tool-buttons-3">
+                <div className="smart-tool-buttons">
                     <button
                         className="smart-tool-button"
                         onClick={openJusticeInput}
@@ -320,15 +267,6 @@ export default function SmartPage() {
                     >
                         <Send size={16} />
                         Post
-                    </button>
-
-                    <button
-                        className="smart-tool-button"
-                        onClick={openCodeInput}
-                        disabled={running}
-                    >
-                        <Code2 size={16} />
-                        Coding
                     </button>
                 </div>
 
@@ -434,34 +372,12 @@ export default function SmartPage() {
                     </div>
                 )}
 
-                {showCodeInput && (
-                    <div className="smart-code-input-block">
-                        <textarea
-                            className="smart-code-textarea"
-                            placeholder="Paste source code here (Solidity, Python, JS, Rust, etc.)..."
-                            value={sourceCode}
-                            onChange={e => setSourceCode(e.target.value)}
-                            rows={8}
-                            spellCheck={false}
-                        />
-                        <button
-                            className="smart-url-submit smart-code-submit"
-                            onClick={runCoding}
-                            disabled={running}
-                        >
-                            Audit Code
-                        </button>
-                    </div>
-                )}
-
                 {activeTool && (
                     <TerminalPanel
                         title={
                             activeTool === "justice"
                                 ? "genlayer://justice"
-                                : activeTool === "post"
-                                ? "genlayer://post"
-                                : "genlayer://audit"
+                                : "genlayer://post"
                         }
                         lines={terminalLines}
                         finalOutput={output}

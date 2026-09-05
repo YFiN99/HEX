@@ -15,7 +15,8 @@ export type Page =
     | "removeLiquidity"
     | "settings"
     | "smart"
-    | "transparency"
+    | "chat"
+    | "roadmap"
     | "docs";
 
 type NavigationContextType = {

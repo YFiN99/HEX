@@ -79,7 +79,21 @@ export default function Header() {
                     Smart
                 </button>
 
-                {/* ROADMAP */}
+                {/* CHAT */}
+                <button
+                    className={`menuButton ${
+                        page === "chat"
+                            ? "active"
+                            : ""
+                    }`}
+                    onClick={() =>
+                        navigate("chat")
+                    }
+                >
+                    Chat
+                </button>
+
+                {/* ROADMAP (juga mencakup Transparency lewat sub-tab di dalamnya) */}
                 <button
                     className={`menuButton ${
                         page === "roadmap"
@@ -91,20 +105,6 @@ export default function Header() {
                     }
                 >
                     Roadmap
-                </button>
-
-                {/* TRANSPARENCY */}
-                <button
-                    className={`menuButton ${
-                        page === "transparency"
-                            ? "active"
-                            : ""
-                    }`}
-                    onClick={() =>
-                        navigate("transparency")
-                    }
-                >
-                    Transparency
                 </button>
 
             </nav>

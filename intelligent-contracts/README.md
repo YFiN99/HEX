@@ -11,7 +11,7 @@ Added to address the reviewer's feedback:
 |---|---|---|
 | `Justice.py` | `Justice` | [`0x57a931cc95bace077443161a3272295ed3cc962a`](https://explorer-studio.genlayer.com/address/0x57a931cc95bace077443161a3272295ed3cc962a) |
 | `AirdropInvestigator.py` | `AirdropInvestigator` | [`0xe2771DD5b5f30D92c9443F5e4C459B91F7226924`](https://explorer-studio.genlayer.com/address/0xe2771DD5b5f30D92c9443F5e4C459B91F7226924) |
-| `AIaskglobal.py` | `AIaskglobal` | [`0x40062E33d9AFbC9F0c2A7972D5C6D3Ac938dA1E3`](https://explorer-studio.genlayer.com/address/0x40062E33d9AFbC9F0c2A7972D5C6D3Ac938dA1E3) |
+| `AIaskglobal.py` | `AIaskglobal` | [`0xd67e8388BC099FEacE26Dec23D35112AEc7fA463`](https://explorer-studio.genlayer.com/address/0xd67e8388BC099FEacE26Dec23D35112AEc7fA463) |
 
 ## Frontend ↔ Contract Mapping
 
