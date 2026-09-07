@@ -393,6 +393,108 @@ export const CHAINS: Chain[] = [
                 isWrappedNative: true
             }
         ]
+    },
+
+    // ============================================================
+    // MAROO TESTNET
+    // ============================================================
+
+    {
+        key: "maroo_testnet",
+        chainId: 450815,
+        chainName: "Maroo Testnet",
+        rpcUrl: "https://rpc-testnet.maroo.io",
+        explorer: "https://explorer-testnet.maroo.io",
+        router: "0xa3914f69869FB3b6F3e54174079048C36c1F425b",
+        factory: "0x336Fa82231A5A456809B66375d9c5f9f840C77Fb",
+        wrappedNative: "0xF8e34b12e3f0a42Fa562A19D3AfE2aDa2ab61B82",
+        nativeSymbol: "tOKRW",
+        multicall3: "0x46c4c389c8a3C40114b3De5499eeB58c14296A71",
+        sniperPair: "0xB3cb5Bdb35A96cE535CF6710AA11DADEdaD7D6B7",
+        tokens: [
+            {
+                symbol: "tOKRW",
+                name: "Native tOKRW",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x1aA6a0AE441400920630D43C8904DF83650E9303",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0x6a38CF0A4A69195dE0AdDB8e95659dc3727a118E",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0x76847b66368f7cb36DC9b9f390D236Eb705B770e",
+                decimals: 6
+            },
+            {
+                symbol: "WtOKRW",
+                name: "Wrapped tOKRW",
+                address: "0xF8e34b12e3f0a42Fa562A19D3AfE2aDa2ab61B82",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
+
+    // ============================================================
+    // SVPCHAIN TESTNET
+    // ============================================================
+
+    {
+        key: "svpchain_testnet",
+        chainId: 2517,
+        chainName: "SVPChain Testnet",
+        rpcUrl: "https://svp-dataseed1-testnet.svpchain.org",
+        explorer: "https://explorer.svpchain.com",
+        router: "0x557B17B5453AE2450468F913E7bCf22B266ad458",
+        factory: "0xd7eE2f6A9261a1Ca88758a2F07bb5dAFA1ec8FE1",
+        wrappedNative: "0x7995e1a2c25dc7061A2bF9802b75B01b059D5Ed8",
+        nativeSymbol: "SVP",
+        multicall3: "0xf5269ec7452b71aA79e5eA9D2dEFbCeEF76d2c92",
+        sniperPair: "0x8ed48227bEb02443fE1B641d104d746eE653fB01",
+        tokens: [
+            {
+                symbol: "SVP",
+                name: "Native SVP",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x26aA352bD4324AA507C924AF9EdD65B2c7BDC1c2",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xF04e426488A8679D6888ec9FB4922a98Dd2c17b0",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0x8FEdA963AA318dC94403A413AA94271588B92d64",
+                decimals: 6
+            },
+            {
+                symbol: "WSVP",
+                name: "Wrapped SVP",
+                address: "0x7995e1a2c25dc7061A2bF9802b75B01b059D5Ed8",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
     }
 
 ];
