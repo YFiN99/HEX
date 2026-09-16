@@ -1,13 +1,12 @@
-# v0.3.0
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
-
 from genlayer import *
+import typing
+
 
 class Justice(gl.Contract):
     verdicts: TreeMap[str, str]
     targets: TreeMap[str, str]
     reports: TreeMap[str, str]
-    user_latest_verdict: TreeMap[str, str]
     court_operator: Address
 
     def __init__(self):
@@ -18,19 +17,17 @@ class Justice(gl.Contract):
         return self.verdicts.get(case_id, "NONE") == "APPROVED_JUSTICE"
 
     @gl.public.view
-    def get_exact_verdict(self, case_id: str) -> str:
-        """Mengembalikan SATU verdict pasti saja (APPROVED_JUSTICE / REJECTED_FRAUD / NOT_FOUND)"""
-        return self.verdicts.get(case_id, "NOT_FOUND")
+    def get_case_verdict(self, case_id: str) -> str:
+        v = self.verdicts.get(case_id, "NONE")
+        if v == "NONE":
+            return "NOT_FOUND"
+        t = self.targets.get(case_id, "")
+        r = self.reports.get(case_id, "")
+        return v + "|" + t + "|" + r
 
     @gl.public.view
-    def get_case_report(self, case_id: str) -> str:
-        """Mengembalikan analisis ringkas untuk case_id"""
-        return self.reports.get(case_id, "Report not found.")
-
-    @gl.public.view
-    def get_user_latest_verdict(self, user_address: str) -> str:
-        """Membaca verdict terakhir berdasarkan alamat caller"""
-        return self.user_latest_verdict.get(user_address, "NONE")
+    def get_court_operator(self) -> str:
+        return str(self.court_operator)
 
     @gl.public.write
     def execute_justice_scan(
@@ -39,7 +36,6 @@ class Justice(gl.Contract):
         cid = case_id.strip()
         target = target_identifier.strip()
         platform = platform_type.strip().upper()
-        sender_key = str(gl.message.sender_address)
 
         if self.verdicts.get(cid, "NONE") != "NONE":
             return "CASE_ALREADY_ADJUDICATED"
@@ -47,74 +43,88 @@ class Justice(gl.Contract):
         if platform != "HYPERLIQUID" and platform != "PUMP_FUN":
             platform = "DEX_SCREENER"
 
+        # Pembersihan otomatis jika target berupa URL
         if "http://" in target or "https://" in target:
             target = target.rstrip("/").split("/")[-1]
 
-        # 1. Fetch & Verify Evidence (Strict Fail-Closed)
-        def fetch_evidence() -> str:
+        def generate_prompt_and_evidence() -> str:
+            evidence = ""
             if platform == "HYPERLIQUID":
-                return f"PLATFORM=HYPERLIQUID TARGET={target}"
-            
-            url_direct = f"https://api.dexscreener.com/latest/dex/tokens/{target}"
-            try:
-                res = gl.nondet.web.get(url_direct)
-                raw_text = getattr(res, "text", str(res))
-                status_code = getattr(res, "status_code", 200)
+                evidence = "PLATFORM=HYPERLIQUID TARGET=" + target
+            else:
+                # Primary Attempt: Direct Token Endpoint
+                url_direct = "https://api.dexscreener.com/latest/dex/tokens/" + target
+                try:
+                    res = gl.nondet.web.get(url_direct)
+                    raw_text = getattr(res, "text", str(res))
+                    status_code = getattr(res, "status_code", 200)
 
-                if status_code == 404 or '"pairs":null' in raw_text or "NotFoundError" in raw_text:
-                    url_search = f"https://api.dexscreener.com/latest/dex/search?q={target}"
-                    res_search = gl.nondet.web.get(url_search)
-                    raw_search = getattr(res_search, "text", str(res_search))
+                    # Jika 404 atau pairs null, jalankan Fallback Search API
+                    if status_code == 404 or '"pairs":null' in raw_text or "NotFoundError" in raw_text:
+                        url_search = "https://api.dexscreener.com/latest/dex/search?q=" + target
+                        res_search = gl.nondet.web.get(url_search)
+                        raw_search_text = getattr(res_search, "text", str(res_search))
+                        
+                        if '"pairs":null' in raw_search_text or '[]' in raw_search_text:
+                            evidence = "PLATFORM=" + platform + " TARGET=" + target + " STATUS=NO_ONCHAIN_DATA_FOUND"
+                        else:
+                            evidence = "PLATFORM=" + platform + " TARGET=" + target + " EVIDENCE_SEARCH=" + raw_search_text[:2000]
+                    else:
+                        evidence = "PLATFORM=" + platform + " TARGET=" + target + " EVIDENCE=" + raw_text[:2000]
 
-                    if '"pairs":null' in raw_search or '[]' in raw_search:
-                        return "FAIL_CLOSED: NO_ONCHAIN_DATA"
-                    return f"EVIDENCE_SEARCH={raw_search[:2000]}"
-                
-                return f"EVIDENCE={raw_text[:2000]}"
-            except Exception:
-                return "FAIL_CLOSED: API_FETCH_ERROR"
+                except Exception as e:
+                    evidence = "PLATFORM=" + platform + " TARGET=" + target + " STATUS=API_REQUEST_FAILED"
 
-        # 2. Prompt Generation & Single Verdict Requirement
-        def generate_judgment() -> str:
-            evidence = fetch_evidence()
-            
-            # Direct Fail-Closed Check
-            if evidence.startswith("FAIL_CLOSED"):
-                return "VERDICT: REJECTED_FRAUD | Reason: On-chain source data could not be fetched or verified."
+            return (
+                "You are Onchain Justice AI judge. Audit token safety from evidence.\n"
+                + "Case="
+                + cid
+                + " Target="
+                + target
+                + " Platform="
+                + platform
+                + "\n"
+                + "Evidence Data:\n"
+                + evidence
+                + "\n\n"
+                + "Evaluate the provided evidence fairly and objectively.\n"
+                + "Output must start with [VERDICT: APPROVED_JUSTICE] or [VERDICT: REJECTED_FRAUD] "
+                + "then [SOURCE: "
+                + target
+                + "] and a short reason."
+            )
 
-            prompt = f"""
-            You are an Onchain Justice AI judge.
-            Audit token safety for Target: {target} on Platform: {platform}.
-            Evidence:
-            {evidence}
+        task_desc = "Adjudicate token safety for case " + cid
+        criteria_desc = (
+            "Must include [VERDICT: APPROVED_JUSTICE] or [VERDICT: REJECTED_FRAUD] "
+            + "and [SOURCE: ...]."
+        )
 
-            Instruction:
-            Evaluate token safety objectively. 
-            Output MUST start with EXACTLY one of these two prefixes:
-            - "VERDICT: APPROVED_JUSTICE" (if liquidity and token metrics are safe)
-            - "VERDICT: REJECTED_FRAUD" (if suspicious, no liquidity, or high risk)
-            Followed by a single sentence explanation.
-            """
-            return gl.nondet.exec_prompt(prompt)
-
-        # 3. Consensus Evaluation
         judgment = gl.eq_principle.prompt_non_comparative(
-            generate_judgment,
-            task=f"Adjudicate token safety for case {cid}",
-            criteria="Output must start with 'VERDICT: APPROVED_JUSTICE' or 'VERDICT: REJECTED_FRAUD'."
+            generate_prompt_and_evidence,
+            task=task_desc,
+            criteria=criteria_desc,
         )
 
         text = str(judgment)
-        
-        # 4. Extract Parsed Verdict (Single Exact String)
-        exact_verdict = "REJECTED_FRAUD"
-        if "VERDICT: APPROVED_JUSTICE" in text or "APPROVED_JUSTICE" in text:
-            exact_verdict = "APPROVED_JUSTICE"
 
-        # 5. Save State
-        self.verdicts[cid] = exact_verdict
+        # Parse SATU verdict yang exact dari tag [VERDICT: ...], BUKAN
+        # nyari substring "APPROVED_JUSTICE" di sembarang tempat dalam
+        # teks. Substring search lama itu bug: kalau AI nulis alasan
+        # semacam "...tidak memenuhi kriteria APPROVED_JUSTICE, jadi
+        # REJECTED_FRAUD", verdict bisa ke-flip jadi APPROVED_JUSTICE
+        # padahal AI-nya sendiri bilang REJECTED_FRAUD.
+        verdict = "REJECTED_FRAUD"  # fail closed: default aman kalau tag gak ketemu/gak valid
+        if "[VERDICT:" in text:
+            tail = text.split("[VERDICT:", 1)[1]
+            tag_value = tail.split("]", 1)[0].strip()
+            if tag_value == "APPROVED_JUSTICE":
+                verdict = "APPROVED_JUSTICE"
+            elif tag_value == "REJECTED_FRAUD":
+                verdict = "REJECTED_FRAUD"
+            # tag_value selain dua itu (typo/format aneh) -> tetap REJECTED_FRAUD
+
+        self.verdicts[cid] = verdict
         self.targets[cid] = target
         self.reports[cid] = text
-        self.user_latest_verdict[sender_key] = exact_verdict
-
-        return exact_verdict
+        return text

@@ -1,85 +1,112 @@
+# v0.3.0
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 
 from genlayer import *
 
 class AirdropInvestigator(gl.Contract):
-    user_analyses: TreeMap[str, str]
-    global_last_analysis: str
+    # Hasil sekarang disimpan PER target_url (bukan satu slot global
+    # `last_analysis` yang ketiban semua orang / semua request). Ini
+    # ngefix race condition: 2 user investigate 2 URL beda bersamaan
+    # gak akan saling nimpa/ketuker hasil lagi.
+    results: TreeMap[str, str]
 
-    def __init__(self, initial_analysis: str = "No analysis executed yet."):
-        self.global_last_analysis = initial_analysis
+    # Tetep dipertahankan buat backward-compat (dashboard/monitoring
+    # umum), TAPI bukan lagi sumber kebenaran buat "hasil investigasi
+    # URL tertentu" -- pakai get_analysis_for(target_url) buat itu.
+    last_analysis: str
 
-    @gl.public.view
-    def get_user_analysis(self, user_address: str) -> str:
-        clean_key = str(user_address).strip().lower()
-        return self.user_analyses.get(clean_key, "No analysis found for this address.")
-
-    @gl.public.view
-    def get_last_analysis(self) -> str:
-        return self.global_last_analysis
+    def __init__(self, initial_analysis: str):
+        self.last_analysis = initial_analysis
 
     @gl.public.write
     def investigate_and_create_content(self, target_url: str) -> str:
-        sender_key = str(gl.message.sender_address).strip().lower()
+        """
+        Menerima URL, membaca konten web secara otomatis, menganalisis
+        proyeknya, dan menghasilkan draft artikel orisinal.
 
-        # 1. FAIL-CLOSED SCRAPING (Fixed Threshold)
-        def fetch_page(url: str) -> str:
-            clean_url = url.split("?_t=")[0].split("&_t=")[0]
-            try:
-                response = gl.nondet.web.get(
-                    clean_url,
-                    headers={
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-                    }
-                )
-                status = getattr(response, "status_code", 200)
-                text_content = getattr(response, "text", "") or ""
+        FAIL CLOSED: kalau target_url gak bisa diakses sama sekali
+        (network error / timeout / status gagal di semua percobaan),
+        transaksi ini akan REVERT (raise Exception) -- BUKAN lanjut
+        generate artikel berdasarkan data ngarang/mock. Kalau butuh
+        artikel, sumbernya harus beneran bisa diakses.
+        """
 
-                # STRICT FAIL-CLOSED: Revert HANYA jika HTTP Status menunjukkan Error (>= 400)
-                if status >= 400:
-                    raise Exception(f"FETCH_FAILED_HTTP_{status}: Source blocked or not found.")
+        def fetch_or_none(url: str, attempts: int = 3) -> str | None:
+            headers = {
+                "User-Agent": "GenLayer-AirdropInvestigator/2.0"
+            }
 
-                cleaned_text = text_content.strip()
-                # Jika HTTP 200 tapi konten sangat pendek/SPA client rendering
-                if len(cleaned_text) == 0:
-                    return f"Target URL {clean_url} returned an empty HTML body."
+            for _ in range(attempts):
+                try:
+                    response = gl.nondet.web.get(url, headers=headers)
+                    status = getattr(response, "status_code", 200)
 
-                return cleaned_text[:3500]
-            except Exception as e:
-                # Transaksi REVERT jika terjadi network error / HTTP >= 400
-                raise Exception(f"FAIL_CLOSED: Source acquisition failed ({str(e)})")
+                    if status < 400 and response.text and len(response.text.strip()) > 0:
+                        return response.text[:3000]
 
-        # 2. GENERATE EXACT VERDICT JSON
+                except Exception:
+                    pass
+
+            # TIDAK ADA fallback data palsu di sini. Kalau semua attempt
+            # gagal, return None secara jujur -- caller yang nentuin mau
+            # fail closed atau enggak.
+            return None
+
+        raw_page_data = fetch_or_none(target_url)
+
+        if raw_page_data is None:
+            # FAIL CLOSED: revert transaksi, jangan simpan apa-apa dan
+            # jangan generate artikel dari data kosong/ngarang.
+            raise Exception(
+                f"investigate_and_create_content blocked: gagal mengambil "
+                f"konten dari '{target_url}' setelah beberapa percobaan. "
+                f"Transaksi dibatalkan (fail closed) -- tidak ada artikel "
+                f"yang dibuat dari data yang tidak terverifikasi."
+            )
+
         def generate_content() -> str:
-            raw_page_data = fetch_page(target_url)
-
             prompt = f"""
-            You are an objective Web3 Investigator Node.
-            Target URL: {target_url}
-            Scraped Raw Content:
+            You are an elite Web3 Research Analyst and Content Creator.
+            Analyze the following raw web data from this project/airdrop URL: {target_url}
+
+            Raw Content Snapshot:
             {raw_page_data}
 
-            Instructions:
-            1. Analyze the content for valid Web3 features (dApp functions, Smart Contracts, Tokenomics, Ecosystem docs).
-            2. Output MUST be a strict, valid JSON object with NO additional text or markdown code fences outside it.
-            3. If valid Web3 project, set verdict to "VALIDATED". If generic/placeholder/SPA blank page, set verdict to "INVALIDATED".
+            Task:
+            1. Investigate and extract the core value proposition of this project.
+            2. Write a highly engaging, original, human-like article draft (approx. 100-150 words) structured for a Web3 post in English.
+            3. DO NOT copy the text directly. Rewrite it with a fresh, exciting angle so it sounds completely authentic and avoids generic AI detection patterns.
 
-            JSON Format Required:
-            {{"verdict": "VALIDATED", "summary": "<Concise 80-150 word English summary of the project details found>"}}
-            or
-            {{"verdict": "INVALIDATED", "summary": "<Concise explanation why the project lacks verifiable Web3 mechanisms>"}}
+            Output only the final creative content text in English, formatted cleanly.
             """
-            return gl.nondet.exec_prompt(prompt)
+
+            ai_response = gl.nondet.exec_prompt(prompt)
+            return ai_response
 
         creative_content = gl.eq_principle.prompt_non_comparative(
             generate_content,
-            task="Analyze target URL content and generate a strictly parsed JSON verdict and summary.",
-            criteria="Must produce a valid JSON output containing an exact verdict ('VALIDATED' or 'INVALIDATED') and a concise summary."
+            task="Write an original Web3 promotional article (100-150 words) in English based on the target_url content",
+            criteria="""
+            The text length must be approximately 80-200 words in English.
+            The tone must be engaging and sound human-written, not generic or robotic.
+            The content must clearly refer to the actual data from target_url, not generic text applicable to any URL.
+            Do not copy raw text directly from the source.
+            """
         )
 
-        # 3. STORE BY CALLER ADDRESS
-        self.user_analyses[sender_key] = creative_content
-        self.global_last_analysis = creative_content
+        # Simpan per target_url -- request/caller lain gak akan ketimpa
+        # atau ketuker sama hasil ini.
+        self.results[target_url] = creative_content
+        self.last_analysis = creative_content
 
         return creative_content
+
+    @gl.public.view
+    def get_analysis_for(self, target_url: str) -> str:
+        """Baca hasil investigasi utk target_url spesifik (bukan 'yang terakhir dari siapapun')."""
+        return self.results.get(target_url, "")
+
+    @gl.public.view
+    def get_last_analysis(self) -> str:
+        """Dipertahankan buat backward-compat. Prefer get_analysis_for()."""
+        return self.last_analysis
