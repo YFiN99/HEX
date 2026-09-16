@@ -9,8 +9,8 @@ Added to address the reviewer's feedback:
 
 | File | Contract Name | Address (GenLayer Studio Explorer) |
 |---|---|---|
-| `Justice.py` | `Justice` | [`0x57a931cc95bace077443161a3272295ed3cc962a`](https://explorer-studio.genlayer.com/address/0x57a931cc95bace077443161a3272295ed3cc962a) |
-| `AirdropInvestigator.py` | `AirdropInvestigator` | [`0xe2771DD5b5f30D92c9443F5e4C459B91F7226924`](https://explorer-studio.genlayer.com/address/0xe2771DD5b5f30D92c9443F5e4C459B91F7226924) |
+| `Justice.py` | `Justice` | [`0x4f96e2bEf5026551c284f63194758Dc4F3db1B80`](https://explorer-studio.genlayer.com/address/0x4f96e2bEf5026551c284f63194758Dc4F3db1B80) |
+| `AirdropInvestigator.py` | `AirdropInvestigator` | [`0x29284Fee5503fEf697544DB73deb74D31800546d`](https://explorer-studio.genlayer.com/address/0x29284Fee5503fEf697544DB73deb74D31800546d) |
 | `AIaskglobal.py` | `AIaskglobal` | [`0xd67e8388BC099FEacE26Dec23D35112AEc7fA463`](https://explorer-studio.genlayer.com/address/0xd67e8388BC099FEacE26Dec23D35112AEc7fA463) |
 
 ## Frontend ↔ Contract Mapping
@@ -18,16 +18,19 @@ Added to address the reviewer's feedback:
 ### 1. "Justice Audit" Button → `Justice`
 
 - Frontend: [`src/service/justice.ts`](../src/service/justice.ts)
-- Write method called: `autoExecuteJusticeScan()` → `writeContract({ functionName: "scan_target", args: [target, source] })`
-- Read method called: `getReport()` → `readContract({ functionName: "get_report", args: [target] })`
-- Related contract functions: `scan_target(target, source)` (write) and `get_report(target)` (view)
+- Write method called: `autoExecuteJusticeScan()` → `writeContract({ functionName: "execute_justice_scan", args: [caseId, targetIdentifier, platformType] })`
+- Read methods called: `getCaseVerdict()` → `readContract({ functionName: "get_case_verdict", args: [caseId] })`, `checkIsJusticeApproved()` → `readContract({ functionName: "is_justice_approved", args: [caseId] })`
+- Related contract functions: `execute_justice_scan(case_id, target_identifier, platform_type)` (write), `get_case_verdict(case_id)` (view), `is_justice_approved(case_id)` (view), `get_court_operator()` (view)
+- Verdict parsing: the exact value inside the `[VERDICT: ...]` tag is parsed and compared against the two valid values (`APPROVED_JUSTICE` / `REJECTED_FRAUD`) — not a substring search across the full response, which could otherwise misfire if the AI's reasoning text happens to mention the other verdict's name in passing. Anything else (missing/malformed tag) defaults to `REJECTED_FRAUD` (fail closed).
 
 ### 2. "Post" Button → `AirdropInvestigator`
 
 - Frontend: [`src/service/genlayerInvestigator.ts`](../src/service/genlayerInvestigator.ts)
 - Write method called: `investigateUrl()` → `writeContract({ functionName: "investigate_and_create_content", args: [targetUrl] })`
-- Read method called: `readLastAnalysis()` → `readContract({ functionName: "get_last_analysis" })`
-- Related contract functions: `investigate_and_create_content(target_url)` (write) and `get_last_analysis()` (view)
+- Read method called: `readAnalysisFor(targetUrl)` → `readContract({ functionName: "get_analysis_for", args: [targetUrl] })` — results are stored **per target_url** (`TreeMap[str, str]`), so concurrent investigations of different URLs by different callers can never overwrite or get mixed up with each other. `get_last_analysis()` is kept only for backward compatibility and should not be used to read a specific request's result.
+- Related contract functions: `investigate_and_create_content(target_url)` (write), `get_analysis_for(target_url)` (view), `get_last_analysis()` (view, legacy)
+- **Fail closed:** if `target_url` cannot be fetched after retrying, the write function raises an exception and the transaction reverts — no article is generated from placeholder/mock data. There is no synthetic fallback content for unreachable URLs.
+- **Final-only display:** the frontend waits for the transaction to reach `ACCEPTED` status (`waitForTransactionReceipt`) before reading and displaying any result. It does not display content the moment the transaction merely enters the `Proposing`/`Committing` phase.
 
 ### 3. "Ask Global AI" / "Coding Chat" Button → `AIaskglobal`
 

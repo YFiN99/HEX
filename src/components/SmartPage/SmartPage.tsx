@@ -7,7 +7,7 @@ import TerminalPanel from "../Terminalpanel/TerminalPanel";
 
 import { useWallet } from "../../context/WalletContext";
 import { autoExecuteJusticeScan, JUSTICE_CONTRACT_ADDRESS } from "../../service/justice";
-import { investigateUrl, readLastAnalysis, INVESTIGATOR_CONTRACT_ADDRESS } from "../../service/genlayerInvestigator";
+import { investigateUrl, INVESTIGATOR_CONTRACT_ADDRESS } from "../../service/genlayerInvestigator";
 
 type Tool = "justice" | "post" | null;
 
@@ -186,47 +186,12 @@ export default function SmartPage() {
         setOutput("");
         setError("");
         setRunning(true);
-
-        const baseSteps = [
-            "Connecting to GenLayer Studio node...",
-            `Resolving contract ${INVESTIGATOR_CONTRACT_ADDRESS.slice(0, 10)}...`,
-            `Fetching target page: ${url}`
-        ];
-
-        async function pollForOutput(
-            readFn: () => Promise<string>,
-            oldValue: string,
-            maxRetries = 60,
-            intervalMs = 1000
-        ): Promise<string> {
-            let attempts = 0;
-            while (attempts < maxRetries) {
-                await new Promise((resolve) => setTimeout(resolve, intervalMs));
-                attempts++;
-                try {
-                    const currentVal = await readFn();
-                    if (currentVal && currentVal.trim().length > 10 && currentVal !== oldValue) {
-                        return currentVal;
-                    }
-                } catch (err) {
-                    // Ignore silent error
-                }
-            }
-            return await readFn();
-        }
+        setTerminalLines([]);
 
         try {
-            const oldAnalysis = await readLastAnalysis();
-            const txPromise = investigateUrl(address, url);
-            
-            trackTransactionProgress(txPromise, baseSteps);
-
-            const resultPromise = pollForOutput(readLastAnalysis, oldAnalysis);
-            const result = await Promise.race([
-                resultPromise,
-                txPromise.catch(() => readLastAnalysis())
-            ]);
-
+            const result = await investigateUrl(address, url, (status) => {
+                setTerminalLines(prev => [...prev, `> ${status}`]);
+            });
             setOutput(String(result || "No investigation results found."));
         } catch (err) {
             console.error("Post error:", err);

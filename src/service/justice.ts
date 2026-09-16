@@ -6,7 +6,7 @@ import { TransactionStatus } from "genlayer-js/types";
 
 // Alamat Smart Contract Justice terbaru di GenLayer Studio
 export const JUSTICE_CONTRACT_ADDRESS =
-    "0xCa9C5b490AF036eb9fB39D2eb54F896BBa6e7684";
+    "0x4f96e2bEf5026551c284f63194758Dc4F3db1B80";
 
 export const GENLAYER_STUDIO_CHAIN = {
     chainIdHex: "0xf22f",

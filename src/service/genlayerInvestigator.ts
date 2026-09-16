@@ -5,7 +5,7 @@ import { studionet } from "genlayer-js/chains";
 import { ensureGenLayerNetwork } from "./justice";
 
 export const INVESTIGATOR_CONTRACT_ADDRESS =
-    "0xe2771DD5b5f30D92c9443F5e4C459B91F7226924";
+    "0x29284Fee5503fEf697544DB73deb74D31800546d";
 
 function getReadClient() {
     return createClient({
