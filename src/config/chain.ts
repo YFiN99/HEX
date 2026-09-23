@@ -129,50 +129,50 @@ export const CHAINS: Chain[] = [
     },
 
     // ============================================================
-    // QANTERA
+    // SOLARIOUS MAINNET
     // ============================================================
 
     {
-        key: "qantera",
-        chainId: 974621,
-        chainName: "Qantera",
-        rpcUrl: "https://rpc1.qantera.network",
-        explorer: "https://explorer.quantera.network",
-        router: "0x9367592051262f789Ad56B519E1751a36028a04F",
-        factory: "0x421200350e4e2Be72BA22DDab010028e73C3050b",
-        wrappedNative: "0x0011783253914B2C53398176105f4C206043a15e",
-        nativeSymbol: "QTER",
-        multicall3: "0x364E8F0AB3AB7A5b250d958dfAEaB42956dDEF7F",
-        sniperPair: "0x7F97298Ba887e7f95162c230Aa6F9870998139E1",
+        key: "solarious",
+        chainId: 8733737,
+        chainName: "Solarious",
+        rpcUrl: "https://rpc.solarious.io/",
+        explorer: "https://explorer.solarious.io",
+        router: "0x1E42F9891431eCc396a9529613317490e6C5CD11",
+        factory: "0x6Ad58C5C2b26e4b6e826fccA24A0523401aB749E",
+        wrappedNative: "0x8dbfB6cCa331F123E9DD855AC4eE7d4A856afb18",
+        nativeSymbol: "SOLAR",
+        multicall3: "0xEe76874264F314a626aa5B626eBEfbFd2F713087",
+        sniperPair: "0x2eFCB3F006c571af8ced56dA13ef990e28E146E1",
         tokens: [
             {
-                symbol: "QTER",
-                name: "Native QTER",
+                symbol: "SOLAR",
+                name: "Native SOLAR",
                 address: "native",
-                decimals: 18
-            },
-            {
-                symbol: "HEX",
-                name: "HEX",
-                address: "0x2F5f1E4745B673317AC3e269A6fCCFe82443F87a",
                 decimals: 18
             },
             {
                 symbol: "BTC",
                 name: "Bitcoin",
-                address: "0xE4A718043e90aF01F520e390f137426382551d63",
+                address: "0x9F95A80b5c26c74945Da96E24C79E50B1147724e",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0x5Cb383413c97Ea861d02229432425c76845D8aC1",
                 decimals: 18
             },
             {
                 symbol: "USDT",
                 name: "Tether USD",
-                address: "0xa3cDD0daC80c263eE9ba43ebBaabFB17B7FAf0bf",
+                address: "0x1026b150F1a3355Ba157abb45552b563e4f48761",
                 decimals: 6
             },
             {
-                symbol: "WQTER",
-                name: "Wrapped QTER",
-                address: "0x0011783253914B2C53398176105f4C206043a15e",
+                symbol: "WSOLAR",
+                name: "Wrapped SOLAR",
+                address: "0x8dbfB6cCa331F123E9DD855AC4eE7d4A856afb18",
                 decimals: 18,
                 isWrappedNative: true
             }
