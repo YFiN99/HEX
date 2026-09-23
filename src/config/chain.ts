@@ -27,6 +27,45 @@ export interface Chain {
 export const CHAINS: Chain[] = [
 
     // ============================================================
+    // ARBITRUM MAINNET
+    // ============================================================
+
+    {
+        key: "arbitrum",
+        chainId: 42161,
+        chainName: "Arbitrum One",
+        rpcUrl: "https://arb1.arbitrum.io/rpc",
+        explorer: "https://arbiscan.io",
+        router: "0xef61E7f44dEFEA32BC3AF7341955Ac97970eDC6c",
+        factory: "0xb0ca885ec3573142Df23C0e8b6553C7A0f1476f7",
+        wrappedNative: "0xE235144519047B00FC22976b51552142a3701434",
+        nativeSymbol: "ETH",
+        multicall3: "0xe3166beb986625C6d85Cbf36133EAb7b228F191c",
+        sniperPair: "0x0617462C89Af5A8022E193658B7eeeb05d97c51a",
+        tokens: [
+            {
+                symbol: "ETH",
+                name: "Ether",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xdB4096e4A7141cF4943544e1c964cE376F2c7325",
+                decimals: 18
+            },
+            {
+                symbol: "WETH",
+                name: "Hex Wrapped Native",
+                address: "0xE235144519047B00FC22976b51552142a3701434",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
+
+    // ============================================================
     // TEQOIN
     // ============================================================
 
@@ -236,57 +275,6 @@ export const CHAINS: Chain[] = [
                 symbol: "HexWETH",
                 name: "Hex Wrapped Ether",
                 address: "0xDaD1e2E48C08dC80F10db72DBeF2afbFdA1eB751",
-                decimals: 18,
-                isWrappedNative: true
-            }
-        ]
-    },
-
-    // ============================================================
-    // SOLAR
-    // ============================================================
-
-    {
-        key: "solar",
-        chainId: 804223,
-        chainName: "Solar Testnet",
-        rpcUrl: "https://rpc-testnet.solarious.io/",
-        explorer: "https://explorer-testnet.solarious.io/",
-        router: "0xb609f54447bbb537A76e855f2A9D79E268c22eC0",
-        factory: "0x7DB8c1961BF76dc3660a6c6BD68781b0945C359C",
-        wrappedNative: "0x409B5E24839Fe487996Fd183f339b4B1bF1F5B37",
-        nativeSymbol: "ETH",
-        multicall3: "0x0d72991aEe803469B4df3b521b5C9ce181D3c0B1",
-        sniperPair: "0xe9488F28aFb70234e499f93c1D2B7811256f24D6",
-        tokens: [
-            {
-                symbol: "ETH",
-                name: "Native ETH",
-                address: "native",
-                decimals: 18
-            },
-            {
-                symbol: "BTC",
-                name: "Bitcoin",
-                address: "0x12a03380F39de03F24E9755BE80d6Cd0dd08dc03",
-                decimals: 18
-            },
-            {
-                symbol: "USDT",
-                name: "Tether USD",
-                address: "0xAF495e593B4141DA9Aa654A085dA8680C79C1b97",
-                decimals: 6
-            },
-            {
-                symbol: "HEX",
-                name: "HEX",
-                address: "0xFB6590506A823825Fd8A7f6E65265080F3c31c09",
-                decimals: 18
-            },
-            {
-                symbol: "WETH",
-                name: "Wrapped ETH",
-                address: "0x409B5E24839Fe487996Fd183f339b4B1bF1F5B37",
                 decimals: 18,
                 isWrappedNative: true
             }
