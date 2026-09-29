@@ -4,9 +4,15 @@ import { createClient } from "genlayer-js";
 import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 
-// Alamat Smart Contract Justice terbaru di GenLayer Studio
+declare global {
+    interface Window {
+        ethereum?: any;
+    }
+}
+
+// Alamat Smart Contract Justice terbaru di GenLayer Studio Dev
 export const JUSTICE_CONTRACT_ADDRESS =
-    "0x4f96e2bEf5026551c284f63194758Dc4F3db1B80";
+    "0x966277bd05d7ABDcf3d4B3ae0ceCbBdE56fBDe70";
 
 export const GENLAYER_STUDIO_CHAIN = {
     chainIdHex: "0xf22f",
@@ -116,7 +122,6 @@ export async function getCaseVerdict(caseId: string): Promise<string> {
 /**
  * OTOMATIS RUN SCAN (In-Background / Auto Trigger)
  * Fungsi ini dipanggil otomatis dari Frontend saat user memilih/mengklik token
- * Tanpa perlu tombol 'Snipe' atau input manual.
  */
 export async function autoExecuteJusticeScan(
     connectedAddress: string,

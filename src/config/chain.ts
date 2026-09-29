@@ -483,6 +483,108 @@ export const CHAINS: Chain[] = [
                 isWrappedNative: true
             }
         ]
+    },
+
+    // ============================================================
+    // KRYVORA NETWORK TESTNET
+    // ============================================================
+
+    {
+        key: "kryvora",
+        chainId: 73829164,
+        chainName: "Kryvora Network Testnet",
+        rpcUrl: "https://rpc-testnet.kryvora.network",
+        explorer: "https://explorer-testnet.kryvora.network",
+        router: "0x26aA352bD4324AA507C924AF9EdD65B2c7BDC1c2",
+        factory: "0xB74118A15E65757DA3f3365cC7357Dd7b9b6b926",
+        wrappedNative: "0x5130434C878CfEc3eA130a5fD28791be62A355A1",
+        nativeSymbol: "ETH",
+        multicall3: "0x9aC0963ec91Ae7DC0A93a36b2b2A3A718f372FbA",
+        sniperPair: "0xF04e426488A8679D6888ec9FB4922a98Dd2c17b0",
+        tokens: [
+            {
+                symbol: "ETH",
+                name: "Native ETH",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0xF5309c9Fc13180c2Ce3DEe78A04b1d7c490Bb7C9",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xa3914f69869FB3b6F3e54174079048C36c1F425b",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0xB3cb5Bdb35A96cE535CF6710AA11DADEdaD7D6B7",
+                decimals: 6
+            },
+            {
+                symbol: "WETH",
+                name: "Hex Wrapped Native",
+                address: "0x5130434C878CfEc3eA130a5fD28791be62A355A1",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
+
+    // ============================================================
+    // ORBAIC TESTNET
+    // ============================================================
+
+    {
+        key: "orbaic_testnet",
+        chainId: 88231,
+        chainName: "ORBAIC Testnet",
+        rpcUrl: "https://evm.testnet.orbaic.com",
+        explorer: "https://explorer.testnet.orbaic.com",
+        router: "0xa3914f69869FB3b6F3e54174079048C36c1F425b",
+        factory: "0x336Fa82231A5A456809B66375d9c5f9f840C77Fb",
+        wrappedNative: "0xF8e34b12e3f0a42Fa562A19D3AfE2aDa2ab61B82",
+        nativeSymbol: "tACI",
+        multicall3: "0x46c4c389c8a3C40114b3De5499eeB58c14296A71",
+        sniperPair: "0xB3cb5Bdb35A96cE535CF6710AA11DADEdaD7D6B7",
+        tokens: [
+            {
+                symbol: "tACI",
+                name: "Native tACI",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x1aA6a0AE441400920630D43C8904DF83650E9303",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0x6a38CF0A4A69195dE0AdDB8e95659dc3727a118E",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0x76847b66368f7cb36DC9b9f390D236Eb705B770e",
+                decimals: 6
+            },
+            {
+                symbol: "WtACI",
+                name: "Wrapped tACI",
+                address: "0xF8e34b12e3f0a42Fa562A19D3AfE2aDa2ab61B82",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
     }
 
 ];

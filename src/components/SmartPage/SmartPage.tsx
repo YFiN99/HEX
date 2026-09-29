@@ -1,15 +1,13 @@
 import "./SmartPage.css";
-
 import { useState, useEffect, useRef } from "react";
-import { Sparkles, Scale, Send, Search, Loader2 } from "lucide-react";
+import { Sparkles, Scale, Loader2 } from "lucide-react";
 
 import TerminalPanel from "../Terminalpanel/TerminalPanel";
 
 import { useWallet } from "../../context/WalletContext";
 import { autoExecuteJusticeScan, JUSTICE_CONTRACT_ADDRESS } from "../../service/justice";
-import { investigateUrl, INVESTIGATOR_CONTRACT_ADDRESS } from "../../service/genlayerInvestigator";
 
-type Tool = "justice" | "post" | null;
+type Tool = "justice" | null;
 
 interface TokenSuggestion {
     symbol: string;
@@ -37,9 +35,6 @@ export default function SmartPage() {
     const [loadingSuggestions, setLoadingSuggestions] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-
-    const [showUrlInput, setShowUrlInput] = useState(false);
-    const [targetUrl, setTargetUrl] = useState("");
 
     // Effect untuk Fetch Auto-Suggest saat User Mengetik
     useEffect(() => {
@@ -108,7 +103,6 @@ export default function SmartPage() {
 
     function openJusticeInput() {
         setActiveTool(null);
-        setShowUrlInput(false);
         setOutput("");
         setError("");
         setShowJusticeInput(prev => !prev);
@@ -161,46 +155,6 @@ export default function SmartPage() {
         }
     }
 
-    function openPostInput() {
-        setActiveTool(null);
-        setShowJusticeInput(false);
-        setOutput("");
-        setError("");
-        setShowUrlInput(true);
-    }
-
-    async function runPost() {
-        if (!connected || !address) {
-            setError("Please connect your wallet first to run Post.");
-            return;
-        }
-
-        const url = targetUrl.trim();
-        if (!url) {
-            setError("Please enter a target URL first.");
-            return;
-        }
-
-        setActiveTool("post");
-        setShowUrlInput(false);
-        setOutput("");
-        setError("");
-        setRunning(true);
-        setTerminalLines([]);
-
-        try {
-            const result = await investigateUrl(address, url, (status) => {
-                setTerminalLines(prev => [...prev, `> ${status}`]);
-            });
-            setOutput(String(result || "No investigation results found."));
-        } catch (err) {
-            console.error("Post error:", err);
-            setError(err instanceof Error ? err.message : "Post execution failed.");
-        } finally {
-            setRunning(false);
-        }
-    }
-
     return (
         <div className="smart-wrapper">
             <div className="smart-card">
@@ -223,15 +177,6 @@ export default function SmartPage() {
                     >
                         <Scale size={16} />
                         Justice Audit
-                    </button>
-
-                    <button
-                        className="smart-tool-button"
-                        onClick={openPostInput}
-                        disabled={running}
-                    >
-                        <Send size={16} />
-                        Post
                     </button>
                 </div>
 
@@ -315,35 +260,9 @@ export default function SmartPage() {
                     </div>
                 )}
 
-                {showUrlInput && (
-                    <div className="smart-url-input-row">
-                        <input
-                            type="text"
-                            className="smart-url-input"
-                            placeholder="https://example-project.com"
-                            value={targetUrl}
-                            onChange={e => setTargetUrl(e.target.value)}
-                            onKeyDown={e => {
-                                if (e.key === "Enter") runPost();
-                            }}
-                        />
-                        <button
-                            className="smart-url-submit"
-                            onClick={runPost}
-                            disabled={running}
-                        >
-                            Run
-                        </button>
-                    </div>
-                )}
-
                 {activeTool && (
                     <TerminalPanel
-                        title={
-                            activeTool === "justice"
-                                ? "genlayer://justice"
-                                : "genlayer://post"
-                        }
+                        title="genlayer://justice"
                         lines={terminalLines}
                         finalOutput={output}
                         running={running}

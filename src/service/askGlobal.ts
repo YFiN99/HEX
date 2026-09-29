@@ -5,8 +5,9 @@ import { studionet } from "genlayer-js/chains";
 import { TransactionStatus } from "genlayer-js/types";
 import { ensureGenLayerNetwork } from "./justice";
 
+// Smart Contract Address AIaskglobal Terbaru dari Explorer GenLayer Studio
 export const ASKGLOBAL_CONTRACT_ADDRESS =
-    "0xd67e8388BC099FEacE26Dec23D35112AEc7fA463";
+    "0x0039ed4A33f0e9f7772B4c3A7f8813B5C8791d25";
 
 function getReadClient() {
     return createClient({
@@ -59,12 +60,6 @@ export async function getUserInteractionCount(userAddress: string): Promise<numb
 
 /**
  * Coba ambil "usulan" jawaban dari leader/validator 1 lewat getTransaction
- * -- ini RPC standar (bukan debugTraceTransaction yang gak didukung Studio
- * ini). Karena bentuk data persis dari SDK ini belum pasti, daripada
- * nebak nama field satu-satu, function ini nyisir SELURUH object tx
- * secara rekursif dan nyari string apapun yang "keliatan kayak jawaban
- * AI beneran" (panjang, isinya kalimat wajar) -- jadi gak bergantung ke
- * bentuk struktur data yang pasti.
  */
 function looksLikeRealAnswer(text: string): boolean {
     const trimmed = text.trim();
@@ -77,8 +72,7 @@ function looksLikeRealAnswer(text: string): boolean {
     // Harus ada spasi (kalimat beneran biasanya multi-kata)
     if (!trimmed.includes(" ")) return false;
 
-    // Buang kalau ini calldata/JSON metadata transaksi (input args,
-    // nama method, dsb) -- bukan hasil eksekusi/jawaban AI
+    // Buang kalau ini calldata/JSON metadata transaksi
     if (/"(method|args|function_name|functionName)"\s*:/i.test(trimmed)) return false;
     if (trimmed.startsWith("{") && trimmed.includes('"')) return false;
 
@@ -97,7 +91,7 @@ function findBestStringInObject(
         const trimmed = obj.trim();
         const cleanExclude = excludeText.trim();
         if (trimmed === cleanExclude) return null; // itu input query-nya sendiri
-        if (cleanExclude.length > 5 && trimmed.includes(cleanExclude)) return null; // query nyempil di dalam calldata/JSON
+        if (cleanExclude.length > 5 && trimmed.includes(cleanExclude)) return null; // query nyempil di calldata/JSON
         return looksLikeRealAnswer(trimmed) ? trimmed : null;
     }
 
@@ -129,9 +123,7 @@ function extractPreviewText(tx: any, originalQuery: string): string | null {
 }
 
 /**
- * Polling getTransaction di background (gak nge-block alur utama) buat
- * nangkep usulan jawaban leader secepat mungkin. Begitu ketemu satu kali,
- * berhenti -- jawaban FINAL tetep nunggu proses utama di askAnything().
+ * Polling getTransaction di background untuk nangkep usulan jawaban leader secepat mungkin
  */
 async function pollForPreview(
     txHash: string,
@@ -162,8 +154,7 @@ export interface ChatMessage {
 }
 
 /**
- * Parse string riwayat mentah dari contract jadi array pesan chat,
- * berdasarkan format "User: ...\nAI: ..." yang dipisah "\n\n".
+ * Parse string riwayat mentah dari contract jadi array pesan chat
  */
 export function parseHistory(raw: string): ChatMessage[] {
     if (!raw || !raw.trim()) return [];
@@ -196,10 +187,7 @@ export const PENDING_TIMEOUT_MESSAGE =
     "Still waiting for the network to confirm this response — it may just take a bit longer than usual. Try reopening the chat in a moment; your answer will be there once it's saved on-chain.";
 
 /**
- * Dipanggil UI setelah askAnything() balikin PENDING_TIMEOUT_MESSAGE.
- * Lanjut ngecek get_user_history di background (interval lebih santai)
- * sampai jawabannya beneran ketemu, tanpa perlu user manual reload.
- * Return null kalau tetep belum ketemu setelah semua percobaan habis.
+ * Dipanggil UI setelah askAnything() balikin PENDING_TIMEOUT_MESSAGE
  */
 export async function pollForAnswer(
     connectedAddress: string,
@@ -225,8 +213,7 @@ export async function pollForAnswer(
 
 /**
  * Kirim pertanyaan baru, tunggu transaksi selesai, lalu polling
- * get_user_history sampai riwayatnya bertambah (jawaban AI-nya masuk).
- * Return jawaban AI yang baru saja dihasilkan.
+ * get_user_history sampai riwayatnya bertambah
  */
 export async function askAnything(
     connectedAddress: string,
@@ -248,19 +235,12 @@ export async function askAnything(
         value: 0n
     });
 
-    // Jalan paralel di background -- gak di-await, gak nge-block alur
-    // utama. Kalau ketemu, tampilin sebagai preview/draft di UI; kalau
-    // enggak, gak ngaruh apa-apa ke alur utama di bawah.
     if (onPreview) {
         pollForPreview(txHash, query, onPreview);
     }
 
     if (onStatusUpdate) onStatusUpdate("Waiting for consensus...");
 
-    // Nunggu tx ACCEPTED itu best-effort doang -- kalau ini timeout,
-    // JANGAN nyerah. Tx-nya kemungkinan besar tetep bakal sukses cuma
-    // butuh waktu lebih lama, jadi kita tetep lanjut ke loop polling
-    // di bawah apapun hasilnya.
     try {
         await client.waitForTransactionReceipt({
             hash: txHash,
@@ -272,12 +252,6 @@ export async function askAnything(
         console.error("waitForTransactionReceipt timed out, continuing to poll anyway:", err);
     }
 
-    // Satu loop tunggu yang panjang & sabar -- BUKAN "nyerah dulu,
-    // ganti belakangan". Selama loop ini masih jalan, UI tetap dalam
-    // state loading (timer digital tetep jalan), dan baru selesai
-    // begitu jawaban aslinya beneran ketemu. Total sampai ~8 menit,
-    // karena consensus GenLayer kadang butuh waktu segitu (leader
-    // rotation dll).
     let historyAfter = historyBefore;
     const maxAttempts = 160;
     const intervalMs = 3000;
@@ -299,7 +273,6 @@ export async function askAnything(
     const timedOut = historyAfter === historyBefore || historyAfter.length <= historyBefore.length;
 
     if (timedOut) {
-        // Ini beneran cuma kejadian kalau jaringan macet total (>8 menit).
         return PENDING_TIMEOUT_MESSAGE;
     }
 
