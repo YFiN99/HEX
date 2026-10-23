@@ -32,7 +32,7 @@ export default function Header() {
             </div>
 
             {/* =====================================================
-                CENTER MENU (Swap -> Pool -> Smart -> Roadmap -> Transparency)
+                CENTER MENU (Swap -> Pool -> Smart -> Roadmap)
             ===================================================== */}
 
             <nav className="headerMenu">
@@ -79,21 +79,7 @@ export default function Header() {
                     Smart
                 </button>
 
-                {/* CHAT */}
-                <button
-                    className={`menuButton ${
-                        page === "chat"
-                            ? "active"
-                            : ""
-                    }`}
-                    onClick={() =>
-                        navigate("chat")
-                    }
-                >
-                    Chat
-                </button>
-
-                {/* ROADMAP (juga mencakup Transparency lewat sub-tab di dalamnya) */}
+                {/* ROADMAP */}
                 <button
                     className={`menuButton ${
                         page === "roadmap"

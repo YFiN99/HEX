@@ -12,15 +12,15 @@ declare global {
 
 // Alamat Smart Contract Justice terbaru di GenLayer Studio Dev
 export const JUSTICE_CONTRACT_ADDRESS =
-    "0x966277bd05d7ABDcf3d4B3ae0ceCbBdE56fBDe70";
+    "0x4f96e2bEf5026551c284f63194758Dc4F3db1B80";
 
 export const GENLAYER_STUDIO_CHAIN = {
     chainIdHex: "0xf22f",
     chainIdDecimal: 61999,
-    chainName: "GenLayer Studio",
-    rpcUrl: "https://studio.genlayer.com/api",
+    chainName: "GenLayer Studio Dev",
+    rpcUrl: "https://studio.genlayer.com/api/rpc",
     nativeSymbol: "GEN",
-    explorer: "https://explorer-studio.genlayer.com"
+    explorer: "https://explorer-studio.genlayer.com/"
 };
 
 /**

@@ -17,6 +17,7 @@ export interface Chain {
     explorer: string;
     router: string;
     factory: string;
+    feeSetter?: string;
     wrappedNative: string;
     nativeSymbol: string;
     multicall3?: string;
@@ -25,6 +26,58 @@ export interface Chain {
 }
 
 export const CHAINS: Chain[] = [
+
+    // ============================================================
+    // SONEIUM
+    // ============================================================
+
+    {
+        key: "soneium",
+        chainId: 1868,
+        chainName: "Soneium",
+        rpcUrl: "https://rpc.soneium.org/",
+        explorer: "https://soneium.blockscout.com",
+        router: "0xa962427805dEbCC5E53Eb51228a1eEFD8a4faC35",
+        factory: "0x2637dd9822BcBD56EA14952bE698e902cdD2627B",
+        feeSetter: "",
+        wrappedNative: "0x6945468451fd4C43D80edE901D24015c5038620B",
+        nativeSymbol: "ETH",
+        multicall3: "0x9489be76c7F65bA4509A52C6571977c99242b4B4",
+        sniperPair: "0xFB7629686e82f062b222153D74552504315Db7cf",
+        tokens: [
+            {
+                symbol: "ETH",
+                name: "Ether",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0xeDD09BBbB037dF25bcF696d3A7aB7Fee5993dFAb",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xd7b8c75573A30E04947DaE82B0aD14A9eD491a4F",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0xF34Fec5712Ef5f87471E86cc18a2c8056138fB09",
+                decimals: 6
+            },
+            {
+                symbol: "WETH",
+                name: "Wrapped Native",
+                address: "0x6945468451fd4C43D80edE901D24015c5038620B",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
 
     // ============================================================
     // ARBITRUM MAINNET
@@ -38,6 +91,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://arbiscan.io",
         router: "0xef61E7f44dEFEA32BC3AF7341955Ac97970eDC6c",
         factory: "0xb0ca885ec3573142Df23C0e8b6553C7A0f1476f7",
+        feeSetter: "",
         wrappedNative: "0xE235144519047B00FC22976b51552142a3701434",
         nativeSymbol: "ETH",
         multicall3: "0xe3166beb986625C6d85Cbf36133EAb7b228F191c",
@@ -77,6 +131,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://testnet-blockscan.teqoin.io",
         router: "0x67eef973A9dE224137590262EA12cebdB7f4E99b",
         factory: "0x38f2BaEc058c98c78C4f4CAE517F823Fd5E2BA0C",
+        feeSetter: "",
         wrappedNative: "0x06E209833e4E7715e534e45917febBeA94E80Cc0",
         nativeSymbol: "ETH",
         multicall3: "0xBe662F5C152DFcAacAB05Eccfb151cfaFE882895",
@@ -140,6 +195,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://explorer.solarious.io",
         router: "0x1E42F9891431eCc396a9529613317490e6C5CD11",
         factory: "0x6Ad58C5C2b26e4b6e826fccA24A0523401aB749E",
+        feeSetter: "",
         wrappedNative: "0x8dbfB6cCa331F123E9DD855AC4eE7d4A856afb18",
         nativeSymbol: "SOLAR",
         multicall3: "0xEe76874264F314a626aa5B626eBEfbFd2F713087",
@@ -191,6 +247,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://maculatus-scan.x1eco.com/",
         router: "0xfBAcCAF9B35AD2447f53A5d665E902d0de3b9747",
         factory: "0xeF33f7F3194538f7A93A0db8AD117aDe7A2fF6b4",
+        feeSetter: "",
         wrappedNative: "0x13a674e5A2eAf4E19854F1382Fe0da06B076d546",
         nativeSymbol: "X1",
         multicall3: "0x0Ff96c5c80C383C15511A7f8AA29cC44D50b7Deb",
@@ -242,6 +299,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://liteforge.explorer.caldera.xyz/",
         router: "0xE4C47e2Ca4b53F87e5E015D9C4745158a8A563B2",
         factory: "0x6A2fF9D8B97774Ef73f9aa7859C5e147d4C34961",
+        feeSetter: "",
         wrappedNative: "0xDaD1e2E48C08dC80F10db72DBeF2afbFdA1eB751",
         nativeSymbol: "ETH",
         multicall3: "0x05ECADF5D07f94e4533bEBa56d883f920cDC19e6",
@@ -282,6 +340,58 @@ export const CHAINS: Chain[] = [
     },
 
     // ============================================================
+    // QMS TESTNET
+    // ============================================================
+
+    {
+        key: "qms_testnet",
+        chainId: 19480,
+        chainName: "QMS Testnet",
+        rpcUrl: "https://rpc.testnet.qms.finance",
+        explorer: "https://testnet.qmsscan.io",
+        router: "0x8cFd8C71561E96cfFad4dFb54DA262a5A63Fc762",
+        factory: "0x9489be76c7F65bA4509A52C6571977c99242b4B4",
+        feeSetter: "",
+        wrappedNative: "0xF34Fec5712Ef5f87471E86cc18a2c8056138fB09",
+        nativeSymbol: "QMS",
+        multicall3: "0x6945468451fd4C43D80edE901D24015c5038620B",
+        sniperPair: "0xa962427805dEbCC5E53Eb51228a1eEFD8a4faC35",
+        tokens: [
+            {
+                symbol: "QMS",
+                name: "Native QMS",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x004c56bd687ca867841aD8f9e1Ec25B5b47E90C4",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xeDD09BBbB037dF25bcF696d3A7aB7Fee5993dFAb",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0xd7b8c75573A30E04947DaE82B0aD14A9eD491a4F",
+                decimals: 6
+            },
+            {
+                symbol: "WQMS",
+                name: "Wrapped QMS",
+                address: "0xF34Fec5712Ef5f87471E86cc18a2c8056138fB09",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
+
+    // ============================================================
     // ORBINUM TESTNET
     // ============================================================
 
@@ -293,6 +403,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://explorer.testnet.orbinum.network/",
         router: "0x38aA057E4836301F12bFA6c54f15A4ec76d8c8f4",
         factory: "0x44b7366D723601918BDF3C162A4bDeb02620170A",
+        feeSetter: "",
         wrappedNative: "0xE0E2024040BfcE9958B680b614f8BB565a173644",
         nativeSymbol: "ORB",
         multicall3: "0x8d4ba4a06A2197964818c65C9245F3bFf51e6a65",
@@ -344,6 +455,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://testnet.explorer.aeredium.io",
         router: "0xeaA90a86ED70d104B6f9Dd00f8472f4cA2Ff959e",
         factory: "0xaE05B802BB2CA0107288aBd32A8c6a2FECEdD646",
+        feeSetter: "",
         wrappedNative: "0x1BcBD0B8C3cA6625624B2a29959Bb53229E70Fff",
         nativeSymbol: "ETH",
         multicall3: "0x4eC38fCE6DAb58848Ad0BF8dC8Af7feC89A30103",
@@ -395,6 +507,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://explorer-testnet.maroo.io",
         router: "0xa3914f69869FB3b6F3e54174079048C36c1F425b",
         factory: "0x336Fa82231A5A456809B66375d9c5f9f840C77Fb",
+        feeSetter: "",
         wrappedNative: "0xF8e34b12e3f0a42Fa562A19D3AfE2aDa2ab61B82",
         nativeSymbol: "tOKRW",
         multicall3: "0x46c4c389c8a3C40114b3De5499eeB58c14296A71",
@@ -446,6 +559,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://explorer.svpchain.com",
         router: "0x557B17B5453AE2450468F913E7bCf22B266ad458",
         factory: "0xd7eE2f6A9261a1Ca88758a2F07bb5dAFA1ec8FE1",
+        feeSetter: "",
         wrappedNative: "0x7995e1a2c25dc7061A2bF9802b75B01b059D5Ed8",
         nativeSymbol: "SVP",
         multicall3: "0xf5269ec7452b71aA79e5eA9D2dEFbCeEF76d2c92",
@@ -497,6 +611,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://explorer-testnet.kryvora.network",
         router: "0x26aA352bD4324AA507C924AF9EdD65B2c7BDC1c2",
         factory: "0xB74118A15E65757DA3f3365cC7357Dd7b9b6b926",
+        feeSetter: "",
         wrappedNative: "0x5130434C878CfEc3eA130a5fD28791be62A355A1",
         nativeSymbol: "ETH",
         multicall3: "0x9aC0963ec91Ae7DC0A93a36b2b2A3A718f372FbA",
@@ -548,6 +663,7 @@ export const CHAINS: Chain[] = [
         explorer: "https://explorer.testnet.orbaic.com",
         router: "0xa3914f69869FB3b6F3e54174079048C36c1F425b",
         factory: "0x336Fa82231A5A456809B66375d9c5f9f840C77Fb",
+        feeSetter: "",
         wrappedNative: "0xF8e34b12e3f0a42Fa562A19D3AfE2aDa2ab61B82",
         nativeSymbol: "tACI",
         multicall3: "0x46c4c389c8a3C40114b3De5499eeB58c14296A71",
@@ -581,6 +697,110 @@ export const CHAINS: Chain[] = [
                 symbol: "WtACI",
                 name: "Wrapped tACI",
                 address: "0xF8e34b12e3f0a42Fa562A19D3AfE2aDa2ab61B82",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
+
+    // ============================================================
+    // ZENITH EVM TESTNET
+    // ============================================================
+
+    {
+        key: "zenith_testnet",
+        chainId: 936485,
+        chainName: "Zenith EVM Testnet",
+        rpcUrl: "https://rpc.testnet.zenith.network/",
+        explorer: "https://explorer.testnet.zenith.network/",
+        router: "0x004c56bd687ca867841aD8f9e1Ec25B5b47E90C4",
+        factory: "0x557B17B5453AE2450468F913E7bCf22B266ad458",
+        feeSetter: "",
+        wrappedNative: "0xDe206872B3e528724194A042E1f8c28D47811170",
+        nativeSymbol: "ETH",
+        multicall3: "0x9D02c1D684389D021bF2Cf73D1ba7C4652aB1F15",
+        sniperPair: "0xeDD09BBbB037dF25bcF696d3A7aB7Fee5993dFAb",
+        tokens: [
+            {
+                symbol: "ETH",
+                name: "Native ETH",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x7995e1a2c25dc7061A2bF9802b75B01b059D5Ed8",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xf5269ec7452b71aA79e5eA9D2dEFbCeEF76d2c92",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0xd7eE2f6A9261a1Ca88758a2F07bb5dAFA1ec8FE1",
+                decimals: 6
+            },
+            {
+                symbol: "WETH",
+                name: "Wrapped Ether",
+                address: "0xDe206872B3e528724194A042E1f8c28D47811170",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
+
+    // ============================================================
+    // ARC MAINNET
+    // ============================================================
+
+    {
+        key: "arc",
+        chainId: 5042,
+        chainName: "Arc Mainnet",
+        rpcUrl: "https://rpc.mainnet.arc.io",
+        explorer: "https://explorer.arc.io",
+        router: "0x7C9EeA04092460408D0dE529172E68bE307dd5ca",
+        factory: "0x2c5C5fdd0EdfaD0db43aB1549c18bfcd1Abdc5f0",
+        feeSetter: "",
+        wrappedNative: "0xabeA38b1CB638419199ed8a1aB53485Dac240e41",
+        nativeSymbol: "USDC",
+        multicall3: "0xDe933C3bFD7b2393f4B79c026184b1861A08ea36",
+        sniperPair: "0x9667ef25a9C112839bA1768c4B223A4a6ac8093f",
+        tokens: [
+            {
+                symbol: "USDC",
+                name: "USDC (Native)",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "BTC",
+                name: "Bitcoin",
+                address: "0x9550eFDFbD781b065A48640978e16Af9ffF99510",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0xC63cDE8F82AB960e87B7395c16De2a09954b153b",
+                decimals: 18
+            },
+            {
+                symbol: "USDT",
+                name: "Tether USD",
+                address: "0x16Ebec178B8de57C9Ab7245fae778FCc592dff51",
+                decimals: 6
+            },
+            {
+                symbol: "WUSDC",
+                name: "Hex Wrapped Native",
+                address: "0xabeA38b1CB638419199ed8a1aB53485Dac240e41",
                 decimals: 18,
                 isWrappedNative: true
             }

@@ -3,7 +3,6 @@ import "./App.css";
 import NightSky from "./components/NightSky/NightSky";
 import Header from "./components/Header/Header";
 import BottomNav from "./components/BottomNav/BottomNav";
-import Agents from "./components/Agents/Agents"; // <-- Tambahkan import komponen Agents
 
 import SwapPage from "./pages/SwapPage";
 import PoolPage from "./pages/PoolPage";
@@ -11,7 +10,6 @@ import AddLiquidityPage from "./pages/AddLiquidityPage";
 import RemoveLiquidityPage from "./pages/RemoveLiquidityPage";
 import SettingsPage from "./pages/SettingsPage";
 import SmartPage from "./components/SmartPage/SmartPage";
-import AskGlobalChat from "./components/AskGlobalChat/AskGlobalChat";
 
 import RoadmapPage from "./components/RoadmapPage/RoadmapPage";
 
@@ -65,18 +63,11 @@ function AppContent() {
                 <SmartPage />
             )}
 
-            {page === "chat" && (
-                <AskGlobalChat />
-            )}
-
             {page === "roadmap" && (
                 <RoadmapPage />
             )}
 
             <BottomNav />
-
-            {/* Floating Agents Chat Widget */}
-            <Agents />
         </>
     );
 }
