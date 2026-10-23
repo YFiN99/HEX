@@ -20,8 +20,9 @@ export function useSwap() {
 
     const [loading, setLoading] = useState(false);
 
-    const [payToken, setPayToken] = useState("QTER");
-    const [receiveToken, setReceiveToken] = useState("BTC");
+    // Diperbarui menjadi HEX dan USDT secara default
+    const [payToken, setPayToken] = useState("HEX");
+    const [receiveToken, setReceiveToken] = useState("USDT");
 
     const [payAmount, setPayAmount] = useState("");
     const [receiveAmount, setReceiveAmount] = useState("");
@@ -39,34 +40,18 @@ export function useSwap() {
 
     // =====================================================
     // REQUEST GUARD
-    // Mencegah hasil refreshBalances yang "basi" (dari chain/token
-    // sebelumnya) menimpa hasil yang lebih baru saat user cepat
-    // berpindah chain/token. Setiap panggilan refreshBalances
-    // mendapat nomor urut; hasil yang bukan dari panggilan
-    // terakhir akan diabaikan.
     // =====================================================
     const requestIdRef = useRef(0);
 
     // =====================================================
-    // RESERVE CACHE (untuk estimasi harga instan / offline)
-    //
-    // Reserve pool di-cache di sini SEKALI setiap kali chain/token
-    // berganti (1 RPC call), lalu dipakai berkali-kali untuk
-    // menghitung estimasi harga secara instan di JS setiap user
-    // mengetik -- tanpa RPC sama sekali. Rumusnya sama persis
-    // dengan constant-product + fee 0.30% yang dipakai
-    // HexSwapPair.sol, jadi hasilnya cocok dengan angka on-chain
-    // (kecuali reserve sudah berubah sejak terakhir di-cache --
-    // makanya tetap ada konfirmasi on-chain via getAmountsOut yang
-    // di-debounce, lihat AUTO REFRESH di bawah).
+    // RESERVE CACHE
     // =====================================================
-
     const reservesRef = useRef<{
         reserveIn: bigint;
         reserveOut: bigint;
     } | null>(null);
 
-    const SWAP_FEE_BPS = 30n; // 0.30%, harus sama dengan HexSwapPair.sol
+    const SWAP_FEE_BPS = 30n; // 0.30%
 
     function localAmountOut(
         amountIn: bigint,
@@ -96,21 +81,7 @@ export function useSwap() {
 
     // =====================================================
     // FORMAT BALANCE
-    // Maksimal 7 angka setelah koma
-    //
-    // 11.972356702801887
-    // -> 11.9723567
-    //
-    // 0.004650369322494418
-    // -> 0.0046503
-    //
-    // 100000
-    // -> 100000
-    //
-    // Tidak mengubah nilai blockchain asli.
-    // Hanya tampilan.
     // =====================================================
-
     function formatBalance(
         value: bigint,
         decimals: number
@@ -139,12 +110,7 @@ export function useSwap() {
 
     // =====================================================
     // WARM RESERVE CACHE
-    //
-    // 1 RPC call setiap chain/payToken/receiveToken berganti (BUKAN
-    // setiap keystroke) untuk mengisi reservesRef, yang kemudian
-    // dipakai localAmountOut() untuk estimasi instan.
     // =====================================================
-
     function resolvePairTokenAddress(token: { address: string }): string {
         return token.address === "native"
             ? chain.wrappedNative
@@ -204,9 +170,6 @@ export function useSwap() {
                     : { reserveIn: BigInt(reserves[1]), reserveOut: BigInt(reserves[0]) };
 
             } catch {
-                // Pair belum ada / belum ada liquidity / RPC gagal --
-                // biarkan reservesRef kosong, nanti quote on-chain
-                // (yang di-debounce) yang menangani ini seperti biasa.
                 reservesRef.current = null;
             }
 
@@ -222,15 +185,7 @@ export function useSwap() {
 
     // =====================================================
     // INSTANT LOCAL ESTIMATE
-    //
-    // Jalan SETIAP payAmount berubah, TANPA debounce -- pakai
-    // reserve yang sudah di-cache di atas, dihitung murni di JS
-    // (0ms, tanpa RPC). Ini yang bikin harga kerasa "kilat" saat
-    // mengetik. Nilai on-chain yang akurat tetap menyusul ~300ms
-    // kemudian lewat AUTO REFRESH (debounced) di bawah, yang akan
-    // menimpa estimasi ini begitu selesai.
     // =====================================================
-
     useEffect(() => {
 
         if (
@@ -283,8 +238,7 @@ export function useSwap() {
             setPriceImpact("< 0.01%");
 
         } catch {
-            // Biarkan saja -- quote on-chain (debounced) akan
-            // menyusul dan menimpa ini.
+            // ignore
         }
 
     }, [payAmount, payToken, receiveToken, chain?.key]);
@@ -292,15 +246,9 @@ export function useSwap() {
     // =====================================================
     // FETCH BALANCES & QUOTE
     // =====================================================
-
     const refreshBalances = useCallback(
         async () => {
 
-            // Nomor urut untuk panggilan refreshBalances ini.
-            // Kalau ada panggilan lain yang dimulai setelah ini
-            // (mis. karena chain/token berganti), requestIdRef.current
-            // akan berubah dan panggilan ini harus berhenti menerapkan
-            // hasilnya begitu ketahuan sudah "basi".
             const myRequestId = ++requestIdRef.current;
             const isStale = () => requestIdRef.current !== myRequestId;
 
@@ -309,10 +257,8 @@ export function useSwap() {
                 !address ||
                 !chain
             ) {
-
                 setPayBalance("0");
                 setReceiveBalance("0");
-
                 return;
             }
 
@@ -333,16 +279,11 @@ export function useSwap() {
                         t => t.symbol === receiveToken
                     );
 
-                // =================================================
                 // PAY TOKEN BALANCE
-                // =================================================
-
                 if (tokenIn) {
-
                     if (
                         tokenIn.address === "native"
                     ) {
-
                         const bal =
                             await provider.getBalance(
                                 address
@@ -356,9 +297,7 @@ export function useSwap() {
                                 tokenIn.decimals
                             )
                         );
-
                     } else {
-
                         const erc20 =
                             new ethers.Contract(
                                 tokenIn.address,
@@ -384,16 +323,11 @@ export function useSwap() {
                     }
                 }
 
-                // =================================================
                 // RECEIVE TOKEN BALANCE
-                // =================================================
-
                 if (tokenOut) {
-
                     if (
                         tokenOut.address === "native"
                     ) {
-
                         const bal =
                             await provider.getBalance(
                                 address
@@ -407,9 +341,7 @@ export function useSwap() {
                                 tokenOut.decimals
                             )
                         );
-
                     } else {
-
                         const erc20 =
                             new ethers.Contract(
                                 tokenOut.address,
@@ -435,10 +367,7 @@ export function useSwap() {
                     }
                 }
 
-                // =================================================
                 // QUOTE
-                // =================================================
-
                 if (
                     tokenIn &&
                     tokenOut &&
@@ -459,34 +388,22 @@ export function useSwap() {
                         );
 
                     const path = [
-
                         tokenIn.address === "native"
                             ? chain.wrappedNative
                             : tokenIn.address,
-
                         tokenOut.address === "native"
                             ? chain.wrappedNative
                             : tokenOut.address
-
                     ];
-
-                    // Dua panggilan getAmountsOut ini sebelumnya
-                    // dijalankan BERURUTAN (await satu-satu), yang
-                    // berarti menunggu 2x round-trip RPC secara
-                    // penuh. Dijalankan PARALEL lewat Promise.all
-                    // supaya total waktu tunggu kira-kira setara
-                    // dengan 1x round-trip saja, bukan 2x.
 
                     const [
                         amounts,
                         unitAmounts
                     ] = await Promise.all([
-
                         router.getAmountsOut(
                             amountInParsed,
                             path
                         ),
-
                         router.getAmountsOut(
                             ethers.parseUnits(
                                 "1",
@@ -494,7 +411,6 @@ export function useSwap() {
                             ),
                             path
                         )
-
                     ]);
 
                     if (isStale()) return;
@@ -514,10 +430,6 @@ export function useSwap() {
                         formattedOut
                     );
 
-                    // =================================================
-                    // UNIT PRICE
-                    // =================================================
-
                     const unitPrice =
                         ethers.formatUnits(
                             unitAmounts[
@@ -529,10 +441,6 @@ export function useSwap() {
                     setPrice(
                         `1 ${payToken} = ${Number(unitPrice).toFixed(4)} ${receiveToken}`
                     );
-
-                    // =================================================
-                    // MINIMUM RECEIVED
-                    // =================================================
 
                     const minRecv =
                         (
@@ -558,14 +466,8 @@ export function useSwap() {
                 }
 
             } catch (err) {
-
                 if (isStale()) return;
-
-                console.error(
-                    "Error updating quote/balances:",
-                    err
-                );
-
+                console.error("Error updating quote/balances:", err);
             }
 
         },
@@ -581,11 +483,7 @@ export function useSwap() {
 
     // =====================================================
     // RESET SAAT CHAIN / TOKEN BERGANTI
-    // Membersihkan saldo lama SEBELUM data baru datang, supaya
-    // tidak sempat tampil angka nyasar dari chain/token sebelumnya
-    // (mis. desimal token yang beda antar chain).
     // =====================================================
-
     useEffect(() => {
         setPayBalance("-");
         setReceiveBalance("-");
@@ -594,15 +492,8 @@ export function useSwap() {
     // =====================================================
     // AUTO REFRESH
     // =====================================================
-
     useEffect(() => {
 
-        // Debounce ~300ms: kalau user masih mengetik angka
-        // (payAmount berubah cepat berkali-kali), jangan langsung
-        // tembak RPC di setiap ketikan -- tunggu sampai user
-        // berhenti sejenak. Ini yang paling berasa "ngelag" kalau
-        // tidak di-debounce, karena tiap request menunggu router
-        // contract call round-trip penuh.
         const debounce =
             setTimeout(() => {
                 refreshBalances();
@@ -624,7 +515,6 @@ export function useSwap() {
     // =====================================================
     // SWAP EXECUTION
     // =====================================================
-
     async function executeSwap() {
 
         if (
@@ -693,27 +583,19 @@ export function useSwap() {
                 ) + 1800;
 
             const path = [
-
                 tokenIn.address === "native"
                     ? chain.wrappedNative
                     : tokenIn.address,
-
                 tokenOut.address === "native"
                     ? chain.wrappedNative
                     : tokenOut.address
-
             ];
 
             let txResponse;
 
-            // =================================================
-            // NATIVE -> TOKEN
-            // =================================================
-
             if (
                 tokenIn.address === "native"
             ) {
-
                 txResponse =
                     await swapExactETHForTokens(
                         router,
@@ -723,12 +605,7 @@ export function useSwap() {
                         deadline,
                         amountIn
                     );
-
             } else {
-
-                // =================================================
-                // ERC20 APPROVAL
-                // =================================================
 
                 const tokenContract =
                     new ethers.Contract(
@@ -749,11 +626,6 @@ export function useSwap() {
                 if (
                     allowance < amountIn
                 ) {
-
-                    console.log(
-                        "Approving token for router..."
-                    );
-
                     const approveTx =
                         await tokenContract.approve(
                             chain.router,
@@ -763,14 +635,9 @@ export function useSwap() {
                     await approveTx.wait();
                 }
 
-                // =================================================
-                // TOKEN -> NATIVE
-                // =================================================
-
                 if (
                     tokenOut.address === "native"
                 ) {
-
                     txResponse =
                         await swapExactTokensForETH(
                             router,
@@ -780,13 +647,7 @@ export function useSwap() {
                             address,
                             deadline
                         );
-
                 } else {
-
-                    // =================================================
-                    // TOKEN -> TOKEN
-                    // =================================================
-
                     txResponse =
                         await swapExactTokensForTokens(
                             router,
@@ -807,47 +668,32 @@ export function useSwap() {
             return txResponse;
 
         } catch (err) {
-
             console.error(err);
-
             throw err;
-
         } finally {
-
             setLoading(false);
-
         }
     }
 
     // =====================================================
     // RETURN
     // =====================================================
-
     return {
-
         payToken,
         receiveToken,
-
         setPayToken,
         setReceiveToken,
-
         payAmount,
         receiveAmount,
-
         setPayAmount,
         setReceiveAmount,
-
         payBalance,
         receiveBalance,
-
         price,
         priceImpact,
         minimumReceived,
-
         executeSwap,
         refreshBalances,
-
         loading
-
     };
 }
