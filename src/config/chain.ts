@@ -28,6 +28,46 @@ export interface Chain {
 export const CHAINS: Chain[] = [
 
     // ============================================================
+    // BASE MAINNET (super)
+    // ============================================================
+
+    {
+        key: "base",
+        chainId: 8453,
+        chainName: "Base Mainnet",
+        rpcUrl: "https://mainnet.base.org",
+        explorer: "https://basescan.org",
+        router: "0x7b9Ce00950C4c26594BbD548e186f31835E7F2F6",
+        factory: "0xd091bF55b6D61D428D951602D3725E26fa4552C9",
+        feeSetter: "0x1992989135500057ddAf2E34B6e5e055BE881269",
+        wrappedNative: "0x4200000000000000000000000000000000000006",
+        nativeSymbol: "ETH",
+        multicall3: "0xcA11bde05977b3631167028862b2a1f7257b56ad",
+        sniperPair: "",
+        tokens: [
+            {
+                symbol: "ETH",
+                name: "Ether",
+                address: "native",
+                decimals: 18
+            },
+            {
+                symbol: "HEX",
+                name: "HEX",
+                address: "0x32673dD716140FA1499bF0D31Edfa2401B0A53D5",
+                decimals: 18
+            },
+            {
+                symbol: "WETH",
+                name: "Wrapped Ether",
+                address: "0x4200000000000000000000000000000000000006",
+                decimals: 18,
+                isWrappedNative: true
+            }
+        ]
+    },
+
+    // ============================================================
     // SONEIUM
     // ============================================================
 
