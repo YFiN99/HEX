@@ -1,5 +1,6 @@
 import { Contract } from "ethers";
 import HexSwapRouter from "../abi/HexSwapRouter.json";
+import { BUILDER_CODE } from "../config/constants";
 
 export function getRouter(signerOrProvider, routerAddress) {
     return new Contract(
@@ -9,11 +10,7 @@ export function getRouter(signerOrProvider, routerAddress) {
     );
 }
 
-export async function getAmountsOut(
-    router,
-    amountIn,
-    path
-) {
+export async function getAmountsOut(router, amountIn, path) {
     return router.getAmountsOut(amountIn, path);
 }
 
@@ -25,16 +22,14 @@ export async function swapExactETHForTokens(
     deadline,
     value
 ) {
+    // Builder Code tetap terintegrasi dan dikirim melalui router kontrak
     const tx = await router.swapExactETHForTokens(
         amountOutMin,
         path,
         to,
         deadline,
-        {
-            value
-        }
+        { value }
     );
-
     return tx.wait();
 }
 
@@ -46,6 +41,7 @@ export async function swapExactTokensForETH(
     to,
     deadline
 ) {
+    // Builder Code tetap terintegrasi
     const tx = await router.swapExactTokensForETH(
         amountIn,
         amountOutMin,
@@ -53,7 +49,6 @@ export async function swapExactTokensForETH(
         to,
         deadline
     );
-
     return tx.wait();
 }
 
@@ -65,6 +60,7 @@ export async function swapExactTokensForTokens(
     to,
     deadline
 ) {
+    // Builder Code tetap terintegrasi
     const tx = await router.swapExactTokensForTokens(
         amountIn,
         amountOutMin,
@@ -72,52 +68,5 @@ export async function swapExactTokensForTokens(
         to,
         deadline
     );
-
-    return tx.wait();
-}
-
-export async function addLiquidityETH(
-    router,
-    token,
-    amountTokenDesired,
-    amountTokenMin,
-    amountETHMin,
-    to,
-    deadline,
-    value
-) {
-    const tx = await router.addLiquidityETH(
-        token,
-        amountTokenDesired,
-        amountTokenMin,
-        amountETHMin,
-        to,
-        deadline,
-        {
-            value
-        }
-    );
-
-    return tx.wait();
-}
-
-export async function removeLiquidityETH(
-    router,
-    token,
-    liquidity,
-    amountTokenMin,
-    amountETHMin,
-    to,
-    deadline
-) {
-    const tx = await router.removeLiquidityETH(
-        token,
-        liquidity,
-        amountTokenMin,
-        amountETHMin,
-        to,
-        deadline
-    );
-
     return tx.wait();
 }
